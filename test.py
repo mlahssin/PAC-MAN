@@ -25,9 +25,9 @@ def build_walls():
 
     walls = pygame.Surface((WIDTH, HEIGHT))
     walls.fill(BLACK)
-    pygame.draw.rect(walls, WHITE, (0, 200, 800, 1))
-    pygame.draw.rect(walls, WHITE, (0, 200, 800, 1))
-    pygame.draw.rect(walls, WHITE, (700, 200, 800, 1))
+    pygame.draw.rect(walls, WHITE, (100, 100, 400, 1))
+    # pygame.draw.rect(walls, WHITE, (100, 100, 1, 300))
+    # pygame.draw.rect(walls, WHITE, (700, 200, 300, 300), 4, 15)
     return walls
 
 
@@ -39,7 +39,7 @@ def main():
     clock = pygame.time.Clock()
 
     walls = build_walls()
-
+    # ghost_rect = pygame.Rect(0, 0, 30, 30)
     running = True
 
     x = int(WIDTH/2)
@@ -76,9 +76,10 @@ def main():
 
         screen.fill((0, 0, 0))
 
-        pygame.draw.circle(screen, ORANGE, (x, y), 20, 0)
-
         screen.blit(walls, (0, 0))
+
+        pygame.draw.circle(screen, ORANGE, (x, y), 20, 0)
+        pygame.draw.circle(screen, WHITE, (360, 300), 4)
 
         pygame.display.flip()
         clock.tick(60)
