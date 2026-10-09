@@ -1,4 +1,6 @@
 import pygame
+from mazegenerator import MazeGenerator
+
 
 BLACK: tuple[int, int, int] = (0, 0, 0)
 WHITE: tuple[int, int, int] = (255, 255, 255)
@@ -12,18 +14,8 @@ ORANGE: tuple[int, int, int] = (255, 184, 82)    # Clyde
 
 # 15 x 7
 
-CELL = 80
-
-MAZE: list[str] = [
-    "###############",
-    "#.....#.......#",
-    "#.###.#.#####.#",
-    "#.............#",
-    "#.###.###.###.#",
-    "#.....#.......#",
-    "###############",
-]
-
+CELL = 40
+seed = 42
 
 ROWS = len(MAZE[0])
 COLS = len(MAZE)
@@ -35,20 +27,23 @@ W_WIDTH = M_WIDTH + 30
 W_HIGHT = M_HIGHT + 30
 
 
+
+def load_maze(width, height, seed):
+
+    generate = MazeGenerator((width, height), False, seed)
+
+    return generate.maze
+
+
 def draw_walls():
 
     walls = pygame.Surface((M_WIDTH, M_HIGHT))
     walls.fill(BLACK)
 
-    y = 0
-
-    for row in MAZE:
-        x = 0
-        for cell in row:
+    for row, line in enumerate(MAZE):
+        for col, cell in enumerate(line):
             if cell == '#':
-                pygame.draw.rect(walls, RED, (x, y, CELL, 1))
-            x += CELL
-        y += CELL
+                pygame.draw.rect(walls, WHITE, (col * CELL, row * CELL, CELL, CELL))
 
     return walls
 
