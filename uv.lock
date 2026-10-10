@@ -1,0 +1,22 @@
+version = 1
+revision = 3
+requires-python = ">=3.13"
+
+[[package]]
+name = "mazegenerator"
+version = "2.0.2"
+source = { path = "mazegenerator-2.0.2-py3-none-any.whl" }
+wheels = [
+    { filename = "mazegenerator-2.0.2-py3-none-any.whl", hash = "sha256:5b7c5a0fe4efd3af3b61cae391ccdf30b9f74e7e69bf744323dff152a0ff66ab" },
+]
+
+[[package]]
+name = "pac-man"
+version = "0.1.0"
+source = { virtual = "." }
+dependencies = [
+    { name = "mazegenerator" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "mazegenerator", path = "mazegenerator-2.0.2-py3-none-any.whl" }]
