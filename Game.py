@@ -8,24 +8,36 @@ class Game:
         self.width = width
         self.height = height
         self.seed = seed
-        self.player_position = (width // 2, height // 2)
+        self.start = (width // 2, height // 2)
+        self.player_position = self.start
         self.corners = [(0, 0), (width - 1, height - 1), (width - 1, 0), (0, height - 1)]
         self.maze = Maze(width, height, perfect,seed)
         self.grid = self.maze.grid
         self.player = Player((width // 2, height // 2), None, 2)
-        self.ghosts = [Ghost((0, 0), None, 2), Ghost((width - 1, height - 1), None, 2)
-            Ghost((width - 1, 0), None, 2), Ghost(0, height - 1), None, 2]
+        self.ghosts = [Ghost((0, 0), None, 2), Ghost((width - 1, height - 1), None, 2),
+            Ghost((width - 1, 0), None, 2), Ghost((0, height - 1), None, 2)]
 
         self.gums = set()
         self.super_gums = set()
 
 
+
     def gums_placement(self):
         gums = set()
+
         reachable = self.maze.get_reachable_cells(self.start)
-        for cell in self.gird:
-            if cell in reachable and not in self.corners:
-                gums.add(cell)
+
+
+        print(self.grid)
+        for i in range(self.width - 1):
+            for item in range(self.height - 1):
+                cell = (i, item)
+                
+                if cell in reachable:
+                    # print("cell", cell)
+                    gums.add(cell)
+
+
         return gums
 
 

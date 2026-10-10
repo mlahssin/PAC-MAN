@@ -1,7 +1,7 @@
 import pygame
 from mazegenerator import MazeGenerator
 from maze import Maze
-# from Game import Game
+from Game import Game
 
 BLACK: tuple[int, int, int] = (0, 0, 0)
 WHITE: tuple[int, int, int] = (255, 255, 255)
@@ -31,36 +31,43 @@ STEP = 40
 
 # class Visual:
 
+game = Game(ROWS, COLS, perfect=False, seed=SEED)
 
-def load_maze(width, height, seed):
 
-    generate = Maze(width, height, perfect=False, seed=seed)
 
-    return generate.grid
+def load_maze():
+    return game.grid
 
 
 def has_wall(cell, side):
     return (cell & side) != 0
 
 
-def draw_player():
-    pass
+def draw_player(maze_sur):
+
+    pygame.draw.circle(maze_sur, ORANGE, ((ROWS * CELL) / 2 , (COLS * CELL) / 2), 20)
 
 
-def draw_gum(maze_sur):
+def draw_gums(maze_sur):
 
-    maze = load_maze(ROWS, COLS, SEED)
+    maze = load_maze()
+
+
+    gum_placememt = game.gums_placement()
+
+    
+    print(gum_placememt)
+
 
     for row, line in enumerate(maze):
         for col, cell in enumerate(line):
-            pygame.draw.circle(maze_sur, WHITE, ((col * CELL * 2 + CELL) / 2, (row * CELL * 2 + CELL) / 2), 2)
+            if (col, row) in gum_placememt:
+                pygame.draw.circle(maze_sur, WHITE, ((col * CELL * 2 + CELL) / 2, (row * CELL * 2 + CELL) / 2), 2)
 
 
-def draw_maze(screen, maze_sur, ROWS, COLS, SEED):
+def draw_maze(maze_sur, ROWS, COLS, SEED):
 
-    maze_sur = pygame.Surface((WIDTH + 2, HEIGHT + 2))
-
-    maze = load_maze(ROWS, COLS, SEED)
+    maze = load_maze()
 
     pygame.draw.line(maze_sur, RED, (0, CELL * ROWS), (CELL * COLS, CELL * ROWS), 2)
 
@@ -81,10 +88,6 @@ def draw_maze(screen, maze_sur, ROWS, COLS, SEED):
             if has_wall(cell, 8):
                 pygame.draw.line(maze_sur, WHITE, (left, top), (left, bottom), 2)
 
-    draw_gum(maze_sur)
-
-    screen.blit(maze_sur, (PADDING, PADDING))
-
 
 def main():
 
@@ -103,9 +106,13 @@ def main():
             if event.type == pygame.QUIT:
                 running = False
 
-        draw_maze(screen, maze_sur, ROWS, COLS, SEED)
+        draw_maze(maze_sur, ROWS, COLS, SEED)
 
-        maze = load_maze(ROWS, COLS, SEED)
+        draw_gums(maze_sur)
+
+        draw_player(maze_sur)
+
+        screen.blit(maze_sur, (PADDING, PADDING))
 
         pygame.display.flip()
         clock.tick(FPS)
