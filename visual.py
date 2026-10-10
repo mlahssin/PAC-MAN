@@ -1,6 +1,7 @@
 import pygame
 from mazegenerator import MazeGenerator
 from maze import Maze
+# from Game import Game
 
 BLACK: tuple[int, int, int] = (0, 0, 0)
 WHITE: tuple[int, int, int] = (255, 255, 255)
@@ -27,6 +28,10 @@ FPS = 60
 STEP = 40
 
 
+
+# class Visual:
+
+
 def load_maze(width, height, seed):
 
     generate = Maze(width, height, perfect=False, seed=seed)
@@ -48,7 +53,7 @@ def draw_gum(maze_sur):
 
     for row, line in enumerate(maze):
         for col, cell in enumerate(line):
-            pygame.draw.circle(maze_sur, RED, (row * CELL, col * CELL), 50)
+            pygame.draw.circle(maze_sur, WHITE, ((col * CELL * 2 + CELL) / 2, (row * CELL * 2 + CELL) / 2), 2)
 
 
 def draw_maze(screen, maze_sur, ROWS, COLS, SEED):
@@ -76,9 +81,7 @@ def draw_maze(screen, maze_sur, ROWS, COLS, SEED):
             if has_wall(cell, 8):
                 pygame.draw.line(maze_sur, WHITE, (left, top), (left, bottom), 2)
 
-    for row, line in enumerate(maze):
-        for col, cell in enumerate(line):
-            pygame.draw.circle(maze_sur, WHITE, ((col * CELL * 2 + CELL) / 2, (row * CELL * 2 + CELL) / 2), 3)
+    draw_gum(maze_sur)
 
     screen.blit(maze_sur, (PADDING, PADDING))
 
