@@ -12,7 +12,7 @@ CYAN: tuple[int, int, int] = (0, 255, 255)       # Inky
 ORANGE: tuple[int, int, int] = (255, 184, 82)    # Clyde
 
 ROWS = 15
-COLS = 10
+COLS = 12
 CELL = 80
 
 SEED = 42
@@ -38,7 +38,20 @@ def has_wall(cell, side):
     return (cell & side) != 0
 
 
-def draw_maze(screen, ROWS, COLS, SEED):
+def draw_player():
+    pass
+
+
+def draw_gum(maze_sur):
+
+    maze = load_maze(ROWS, COLS, SEED)
+
+    for row, line in enumerate(maze):
+        for col, cell in enumerate(line):
+            pygame.draw.circle(maze_sur, RED, (row * CELL, col * CELL), 50)
+
+
+def draw_maze(screen, maze_sur, ROWS, COLS, SEED):
 
     maze_sur = pygame.Surface((WIDTH + 2, HEIGHT + 2))
 
@@ -63,7 +76,10 @@ def draw_maze(screen, ROWS, COLS, SEED):
             if has_wall(cell, 8):
                 pygame.draw.line(maze_sur, WHITE, (left, top), (left, bottom), 2)
 
-    print(ROWS - 1)
+    for row, line in enumerate(maze):
+        for col, cell in enumerate(line):
+            pygame.draw.circle(maze_sur, WHITE, ((col * CELL * 2 + CELL) / 2, (row * CELL * 2 + CELL) / 2), 3)
+
     screen.blit(maze_sur, (PADDING, PADDING))
 
 
@@ -72,6 +88,8 @@ def main():
     pygame.init()
 
     screen = pygame.display.set_mode((WIDTH + 2 * PADDING, HEIGHT + 2 * PADDING))
+    maze_sur = pygame.Surface((WIDTH + 2, HEIGHT + 2))
+
     pygame.display.set_caption("PAC-MAN")
     clock = pygame.time.Clock()
 
@@ -82,7 +100,9 @@ def main():
             if event.type == pygame.QUIT:
                 running = False
 
-        draw_maze(screen, ROWS, COLS, SEED)
+        draw_maze(screen, maze_sur, ROWS, COLS, SEED)
+
+        maze = load_maze(ROWS, COLS, SEED)
 
         pygame.display.flip()
         clock.tick(FPS)
