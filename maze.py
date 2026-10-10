@@ -10,12 +10,7 @@ DIRECTIONS = {
     "right": (1, 0, 2, 8),
 }
 
-# opposite = {
-#     "up": "down",
-#     "down": "up",
-#     "left": "right",
-#     "right": "left"
-# }
+
 
 
 class Maze:
@@ -122,7 +117,16 @@ class Maze:
         return (centre in reachable
                 and corner1 in reachable and corner2 in reachable
                 and corner3 in reachable and corner4 in reachable)
+
+    def start_reachable_cells(self, start):
+        return self.get_reachable_cells(start)
+
+
+        
     
+    
+
+
 m1 = Maze(15, 15, 42)
 m2 = Maze(20, 20, 42)
 
