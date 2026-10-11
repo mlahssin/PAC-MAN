@@ -13,7 +13,7 @@ CYAN: tuple[int, int, int] = (0, 255, 255)       # Inky
 ORANGE: tuple[int, int, int] = (255, 184, 82)    # Clyde
 
 
-ROWS = 31
+ROWS = 29
 COLS = 21
 
 CELL = 80
@@ -58,19 +58,28 @@ class Visual:
 
     def draw_gums(self, maze_sur):
 
-        maze = self.load_maze()
-
         gum_placememt = self.game.gums_placement()
 
-        for row, line in enumerate(maze):
-            for col, cell in enumerate(line):
-                if (col, row) in gum_placememt:
-                    pygame.draw.circle(maze_sur, WHITE, ((col * CELL * 2 + CELL) / 2, (row * CELL * 2 + CELL) / 2), 2)
+        for (col, row) in gum_placememt:
+            pygame.draw.circle(maze_sur, WHITE, ((col * CELL * 2 + CELL) / 2, (row * CELL * 2 + CELL) / 2), 2)
 
-    def draw_42(self):
-        print("Reachable cells")
-        for item in self.game.maze.get_reachable_cells(self.game.player_position):
-            print(item)
+    def draw_42_cells(self, maze_sur):
+
+        print("draw_42_cells")
+
+        cells_42 = self.game.maze.get_42_cells()
+
+        for (col, row) in cells_42:
+            pygame.draw.rect(maze_sur, BLUE, (col * CELL, row * CELL, CELL, CELL))
+
+    def ghosts(self, maze_sur):
+        print("Ghost!!")
+        
+        for (x, y) in self.game.corners:
+            x_position = (x * CELL) + (CELL / 2)
+            y_position = (y * CELL) + (CELL / 2)
+            pygame.draw.circle(maze_sur, RED, (x_position, y_position), 20)
+
 
     def draw_maze(self, maze_sur, ROWS, COLS, SEED):
 
@@ -110,12 +119,16 @@ class Visual:
                 if event.type == pygame.QUIT:
                     running = False
 
+            self.draw_42_cells(maze_sur)
+
             self.draw_maze(maze_sur, ROWS, COLS, SEED)
 
             self.draw_gums(maze_sur)
             self.draw_supergums(maze_sur)
 
             self.draw_player(maze_sur)
+
+            self.ghosts(maze_sur)
 
             screen.blit(maze_sur, (PADDING, PADDING))
 
@@ -128,7 +141,6 @@ class Visual:
 def main():
     app = Visual()
     app.run()
-    app.draw_42()
 
 
 main()
