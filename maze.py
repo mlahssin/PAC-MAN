@@ -14,12 +14,12 @@ DIRECTIONS = {
 
 
 class Maze:
-    def __init__(self, width, height, seed):
+    def __init__(self, width, height,perfect, seed):
         if not isinstance(width, int) or not isinstance(height, int):
             raise TypeError("heigh and width must be integers")
         
-        if width < 2 or height < 2:
-            raise ValueError("the width and the height must be >= 2")
+        if width < 2 or height < 2 or width > 65 or height > 35:
+            raise ValueError("the width and the height must not be out those limit")
         
         if not isinstance(seed, int):
             raise TypeError("the seed must be an integer")
@@ -30,7 +30,7 @@ class Maze:
         self.seed = seed
         self.grid = MazeGenerator(
             size=(width, height),
-            perfect=False,
+            perfect=perfect,
             seed=seed,
         ).maze
 
@@ -106,6 +106,15 @@ class Maze:
                     dq.append(n)
         return reachable
 
+    def get_42_cells(self):
+        closed_cells = set()
+        for y in range(self.height):
+            for x in range(self.width):
+                if self.grid[y][x] == 15:
+                    closed_cells.add((x, y))
+        return closed_cells
+
+
     def validate_spawns(self):
         centre = (self.width // 2, self.height // 2)
         corner1 = (0, 0)
@@ -127,28 +136,28 @@ class Maze:
     
 
 
-m1 = Maze(15, 15, 42)
-m2 = Maze(20, 20, 42)
+# m1 = Maze(15, 15, 42)
+# m2 = Maze(20, 20, 42)
 
-print(m1.validate_spawns())
-print(m2.validate_spawns())
-print(m2.grid[10][10])
-print(m2.grid[0][19])
+# print(m1.validate_spawns())
+# print(m2.validate_spawns())
+# print(m2.grid[10][10])
+# print(m2.grid[0][19])
 
-print(m2.grid[19][0])
-print(m2.grid[19][19])
-print(m2.grid[0][0])
+# print(m2.grid[19][0])
+# print(m2.grid[19][19])
+# print(m2.grid[0][0])
 
-print(m1.can_move((0, 0), "up"))       # False
-print(m1.can_move((0, 0), "left"))     # False
-print(m1.can_move((-1, 0), "right"))  # False
-print(m1.can_move((0, 0), "diagonal")) # False
+# print(m1.can_move((0, 0), "up"))       # False
+# print(m1.can_move((0, 0), "left"))     # False
+# print(m1.can_move((-1, 0), "right"))  # False
+# print(m1.can_move((0, 0), "diagonal")) # False
 
-print("\n=====test========\n")
+# print("\n=====test========\n")
 
-print(m1.grid[0][0])
-print(m1.can_move((0, 0), "right"))
-print(m1.can_move((0, 0), "down"))
+# print(m1.grid[0][0])
+# print(m1.can_move((0, 0), "right"))
+# print(m1.can_move((0, 0), "down"))
 
-print(m2.grid[10][10])
-print(m2.get_reachable_cells((10, 10)))
+# print(m2.grid[10][10])
+# print(m2.get_reachable_cells((10, 10)))

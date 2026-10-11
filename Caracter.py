@@ -27,22 +27,67 @@ class Character:
 
         if speed <= 0:
             raise ValueError("Speed must be greater than zero")
-
+        self.target_pos = None
         self.speed = speed
-        self.move_interval = 1 / self.speed
-        self.time_since_last_move = 0.0
+        self.move_progress = 0.0
+    
+    def start_move(self, maze):
+        if self.target_pos is not None:
+            return False
+        if not maze.can_move(self.pos, self.direction):
+            return False
+        
+        direction = DIRECTIONS[self.direction]
+        dx , dy = direction[0], direction[1]
+        x, y = self.pos
+        self.target_pos = (x + dx, y + dy)
+        self.move_progress = 0.0
+        return True
 
     def update(self, dt, maze):
-        pass
+        if dt < 0:
+            raise ValueError("the dt must be non negative")
+        remaining_distance = self.speed * dt
+
+        
+
+        moved = False
+        while remaining_distance > 0:
+            
+            if self.target_pos is None:
+                self.start_move(maze)
+                if self.target_pos is None:
+                    break
+
+            distance_needed = 1 - self.move_progress
+
+            
+            if remaining_distance >= distance_needed:
+                self.move_progress += distance_needed
+                remaining_distance -= distance_needed
+                self.pos = self.target_pos
+                self.target_pos = None
+                self.move_progress = 0
+               
+            else:
+                self.move_progress += remaining_distance
+                remaining_distance = 0
+            moved = True
+
+        return moved
 
 
-# perf_counter()
+
+
 
 
 class Player(Character):
     def __init__(self, pos, direction, speed):
         super().__init__(pos, direction, speed)
         self.requested_direction = None
+
+    
+
     def request_direction(self, direction):
         if not isinstance(direction, str):
             raise TypeError("direction must be a string")
@@ -51,14 +96,18 @@ class Player(Character):
         self.requested_direction = direction.lower()
 
         
-        
 
     def choose_direction(self, maze):
+        if self.target_pos is not None:
+            return  
         if self.requested_direction is None:
             return 
 
         if maze.can_move(self.pos, self.requested_direction):
             self.direction = self.requested_direction
+
+    
+
     
     
 
