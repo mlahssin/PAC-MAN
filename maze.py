@@ -94,15 +94,18 @@ class Maze:
             raise TypeError("start must be a tuple of two integers (x, y)")
         
         if not self.is_inside(start):
+            
             return set()
         x, y = start
-
+        
         if self.grid[y][x] == 15:
+            print("helloooooooo1\n")
             return set()
         dq = deque([start])
         reachable = {start}
 
         while dq:
+            
             pos = dq.popleft()
             neighbors = self.get_neighbors(pos)
 

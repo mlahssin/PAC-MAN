@@ -24,16 +24,17 @@ class Game:
 
     def gums_placement(self):
         gums = set()
+        print("the start is :", self.start)
 
         reachable = self.maze.get_reachable_cells(self.start)
 
 
-        print(self.grid)
-        for i in range(self.width - 1):
-            for item in range(self.height - 1):
+        # print(self.grid)
+        for i in range(self.width):
+            for item in range(self.height):
                 cell = (i, item)
                 
-                if cell in reachable:
+                if cell in reachable and cell not in self.corners and cell != self.start:
                     # print("cell", cell)
                     gums.add(cell)
 
@@ -44,5 +45,3 @@ class Game:
     def super_gums(self):
         return self.corners
             
-
-        

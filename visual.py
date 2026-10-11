@@ -68,7 +68,7 @@ class Visual:
                     pygame.draw.circle(maze_sur, WHITE, ((col * CELL * 2 + CELL) / 2, (row * CELL * 2 + CELL) / 2), 2)
 
     def draw_42(self):
-        
+        pass
 
     def draw_maze(self, maze_sur, ROWS, COLS, SEED):
 
