@@ -21,12 +21,8 @@ class Game:
         self.gums = set()
         self.super_gums = set()
 
-
-
     def gums_placement(self):
         gums = set()
-        print("the start is :", self.start)
-
         reachable = self.maze.get_reachable_cells(self.start)
 
 
