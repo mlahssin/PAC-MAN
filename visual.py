@@ -37,7 +37,7 @@ class Visual:
 
         self.cell = 40
         self.game = Game(ROWS, COLS, perfect=False, seed=SEED)
-        (self.center_x, self.center_y) = self.game.start
+        (self.center_x, self.center_y) = self.game.player_position
 
     def load_maze(self):
         return self.game.grid
@@ -69,7 +69,7 @@ class Visual:
 
     def draw_42(self):
         print("Reachable cells")
-        for item in self.game.maze.get_reachable_cells(self.game.start):
+        for item in self.game.maze.get_reachable_cells(self.game.player_position):
             print(item)
 
     def draw_maze(self, maze_sur, ROWS, COLS, SEED):
