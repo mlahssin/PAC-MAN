@@ -13,7 +13,7 @@ CYAN: tuple[int, int, int] = (0, 255, 255)       # Inky
 ORANGE: tuple[int, int, int] = (255, 184, 82)    # Clyde
 
 
-ROWS = 31
+ROWS = 23
 COLS = 21
 
 CELL = 80
@@ -24,8 +24,11 @@ WIDTH = ROWS * CELL
 HEIGHT = COLS * CELL
 
 PADDING = 40
+GAP = 20
+SIDEBAR_WIDTH = 1000
 
-LINE = 2
+WINDOW_WIDTH = PADDING + WIDTH + GAP + SIDEBAR_WIDTH + PADDING
+WINDOW_HEIGHT = PADDING + HEIGHT + PADDING
 
 FPS = 60
 STEP = 40
@@ -104,12 +107,17 @@ class Visual:
                 if self.has_wall(cell, 8):
                     pygame.draw.line(maze_sur, WHITE, (left, top), (left, bottom), 2)
 
+    def draw_maze_side_bar(self, sidebar_sur):
+
+        pygame.draw.rect(sidebar_sur, BLUE, (0, 0, SIDEBAR_WIDTH, HEIGHT), 2, 15)
+
     def run(self):
 
         pygame.init()
 
-        screen = pygame.display.set_mode((WIDTH + 2 * PADDING, HEIGHT + 2 * PADDING))
+        screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
         maze_sur = pygame.Surface((WIDTH + 2, HEIGHT + 2))
+        sidebar_sur = pygame.Surface((SIDEBAR_WIDTH, HEIGHT))
 
         pygame.display.set_caption("PAC-MAN")
         clock = pygame.time.Clock()
@@ -132,7 +140,10 @@ class Visual:
 
             self.ghosts(maze_sur)
 
+            self.draw_maze_side_bar(sidebar_sur)
+
             screen.blit(maze_sur, (PADDING, PADDING))
+            screen.blit(sidebar_sur, (PADDING + WIDTH + GAP, PADDING))
 
             pygame.display.flip()
             clock.tick(FPS)
