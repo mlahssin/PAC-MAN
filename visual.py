@@ -13,7 +13,7 @@ CYAN: tuple[int, int, int] = (0, 255, 255)       # Inky
 ORANGE: tuple[int, int, int] = (255, 184, 82)    # Clyde
 
 
-ROWS = 29
+ROWS = 31
 COLS = 21
 
 CELL = 80
@@ -47,7 +47,13 @@ class Visual:
 
     def draw_player(self, maze_sur):
 
-        pygame.draw.circle(maze_sur, ORANGE, ((ROWS * CELL) / 2, (COLS * CELL) / 2 + CELL/2), 20)
+        col = (ROWS - 1) // 2
+        row = (COLS - 1) // 2
+
+        x = col * CELL + CELL // 2
+        y = row * CELL + CELL // 2
+
+        pygame.draw.circle(maze_sur, ORANGE, (x, y), 20)
 
     def draw_supergums(self, maze_sur):
 

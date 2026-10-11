@@ -10,6 +10,7 @@ class Game:
         self.seed = seed
         self.start = (width // 2, height // 2)
         self.player_position = self.start
+
         self.corners = [(0, 0), (width - 1, height - 1), (width - 1, 0), (0, height - 1)]
         self.maze = Maze(width, height, perfect,seed)
         self.grid = self.maze.grid
