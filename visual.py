@@ -68,7 +68,9 @@ class Visual:
                     pygame.draw.circle(maze_sur, WHITE, ((col * CELL * 2 + CELL) / 2, (row * CELL * 2 + CELL) / 2), 2)
 
     def draw_42(self):
-        pass
+        print("Reachable cells")
+        for item in self.game.maze.get_reachable_cells(self.game.start):
+            print(item)
 
     def draw_maze(self, maze_sur, ROWS, COLS, SEED):
 
@@ -126,6 +128,7 @@ class Visual:
 def main():
     app = Visual()
     app.run()
+    app.draw_42()
 
 
 main()
