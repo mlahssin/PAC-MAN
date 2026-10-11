@@ -65,21 +65,17 @@ class Visual:
 
     def draw_42_cells(self, maze_sur):
 
-        print("draw_42_cells")
-
         cells_42 = self.game.maze.get_42_cells()
 
         for (col, row) in cells_42:
             pygame.draw.rect(maze_sur, BLUE, (col * CELL, row * CELL, CELL, CELL))
 
     def ghosts(self, maze_sur):
-        print("Ghost!!")
-        
+
         for (x, y) in self.game.corners:
             x_position = (x * CELL) + (CELL / 2)
             y_position = (y * CELL) + (CELL / 2)
             pygame.draw.circle(maze_sur, RED, (x_position, y_position), 20)
-
 
     def draw_maze(self, maze_sur, ROWS, COLS, SEED):
 
