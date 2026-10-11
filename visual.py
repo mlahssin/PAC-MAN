@@ -52,20 +52,11 @@ class Visual:
 
     def draw_player(self, maze_sur):
         player = self.game.player
-        x, y = player.pos
-
-        if player.target_pos is not None:
-            tx, ty = player.target_pos
-            x += (tx - x) * player.move_progress
-            y += (ty - y) * player.move_progress
 
         pygame.draw.circle(
             maze_sur,
             ORANGE,
-            (
-                round(x * CELL + CELL / 2),
-                round(y * CELL + CELL / 2),
-            ),
+            (round(player.x_pix), round(player.y_pix)),
             20,
         )
     def draw_supergums(self, maze_sur):
@@ -125,7 +116,9 @@ class Visual:
         running = True
 
         while running:
-            dt = clock.tick(FPS) / 1000
+            # dt = clock.tick(60) / 1000
+
+
 
             # print(
             #     "can move down:",
@@ -164,13 +157,13 @@ class Visual:
             # self.game.player.update(dt, self.game.maze)
             player = self.game.player
 
-            print("BEFORE:", player.direction, player.pos,
-                self.game.maze.can_move(player.pos, player.direction))
+            # print("BEFORE:", player.direction, player.pos,
+            #     self.game.maze.can_move(player.pos, player.direction))
 
-            moved = player.update(dt, self.game.maze)
+            moved = player.update(self.game.maze)
 
-            print("AFTER:", moved, player.pos,
-                player.target_pos, player.move_progress)
+            # print("AFTER:", moved, player.pos,
+            #     player.target_pos, player.move_progress)
             maze_sur.fill(BLACK)
             screen.fill(BLACK)   
             self.draw_maze(maze_sur, ROWS, COLS, SEED)
@@ -188,7 +181,7 @@ class Visual:
             #     "pl_prog\n",self.game.player.move_progress,
             # )
             pygame.display.flip()
-            # clock.tick(FPS)
+            clock.tick(FPS)
 
         pygame.quit()
 

@@ -4,6 +4,11 @@ from maze import Maze
 DANGEROUS = "DANGEROUS"
 EDIBLE = "EDIBLE"
 RESPAWNING = "RESPAWNING"
+CELL = 80
+
+pixel_step = CELL / 10
+
+
 
 modes = {DANGEROUS, EDIBLE, RESPAWNING}
 DIRECTIONS = {
@@ -23,13 +28,16 @@ class Character:
             raise TypeError("pos must be a tuple of two integers (x, y)")
 
         self.pos = pos
+
+        self.x_pix = (pos[0] * CELL) + CELL / 2
+        self.y_pix = (pos[1] * CELL)  + CELL / 2
+        
         self.direction = direction
 
         if speed <= 0:
             raise ValueError("Speed must be greater than zero")
         self.target_pos = None
         self.speed = speed
-        self.move_progress = 0.0
     
     def start_move(self, maze):
         if self.target_pos is not None:
@@ -38,46 +46,96 @@ class Character:
             return False
         
         direction = DIRECTIONS[self.direction]
+
+        
         dx , dy = direction[0], direction[1]
         x, y = self.pos
+
+        # target_x_pix = (x + dx) * CELL + CELL / 2
+        # target_y_pix = (y + dy) * CELL + CELL / 2
+        # if self.direction == "left":
+        #     self.x_pix -= pixel_step
+        # elif self.direction == "right":
+        #     self.x_pix += pixel_step
+        # elif self.direction == "up":
+        #     self.y_pix -= pixel_step
+        # elif self.direction == "down":
+        #     self.y_pix += pixel_step
+        
+        # if self.x_pix == target_x_pix and self.y_pix == target_y_pix: 
         self.target_pos = (x + dx, y + dy)
-        self.move_progress = 0.0
+
+        # self.move_progress = 0.0
         return True
 
-    def update(self, dt, maze):
-        if dt < 0:
-            raise ValueError("the dt must be non negative")
+    def update(self, maze):
+        # if dt < 0:
+        #     raise ValueError("the dt must be non negative")
         
 
-        remaining_distance = self.speed * dt
+        # remaining_distance = self.speed * dt
 
         
 
-        moved = False
-        while remaining_distance > 0:
-            
+        
+
+        # while remaining_distance > 0:
+
+
+        if self.target_pos is None:
+            self.start_move(maze)
             if self.target_pos is None:
-                self.start_move(maze)
-                if self.target_pos is None:
-                    print("yak kandgol lk hna\n",self.direction)
-                    break
+                return False
+        
+        tx, ty = self.target_pos
+        target_x_pix = tx * CELL + CELL / 2
+        target_y_pix = ty * CELL + CELL / 2
 
-            distance_needed = 1 - self.move_progress
+        x, y = self.pos
 
+        x_p = x * CELL + CELL / 2
+        y_p = y * CELL + CELL / 2
+
+        x_diff = (target_x_pix - x_p) / 10
+        y_diff = (target_y_pix - y_p) / 10
+
+        self.x_pix += x_diff
+        self.y_pix += y_diff
+        
+        if self.x_pix == target_x_pix and self.y_pix == target_y_pix:
+            self.pos = tx, ty
+            self.target_pos = None
+
+
+        
+        # self.x_pix += pixel_step
+        
+        
+
+        
+        
+        # if right  
+        # elif left
+        # elif up
+        # elif down
+
+        # distance_needed = 1 - self.move_progress
+
+        
+        # if remaining_distance >= distance_needed:
+        #     self.move_progress += distance_needed
+        #     remaining_distance -= distance_needed
+        # self.pos = self.target_pos
+        # self.target_pos = None
+        # self.move_progress = 0
+        return True
             
-            if remaining_distance >= distance_needed:
-                self.move_progress += distance_needed
-                remaining_distance -= distance_needed
-                self.pos = self.target_pos
-                self.target_pos = None
-                self.move_progress = 0
-               
-            else:
-                self.move_progress += remaining_distance
-                remaining_distance = 0
-            moved = True
+        # else:
+        #     self.move_progress += remaining_distance
+        #     remaining_distance = 0
+        # moved = True
 
-        return moved
+        # return moved
 
 
 

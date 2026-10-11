@@ -1,6 +1,10 @@
 from maze import Maze
 from Caracter import Player, Ghost
 
+
+CELL = 80
+
+
 class Game:
 
     def __init__(self, width=15, height=15, perfect=False, seed=42):
@@ -9,11 +13,13 @@ class Game:
         self.height = height
         self.seed = seed
         self.start = (width // 2, height // 2)
+        # x_pix and y_pix
+        self.start_pix = (((width// 2) * (CELL // 2)), (height // 2) * (CELL // 2))
         self.player_position = self.start
         self.corners = [(0, 0), (width - 1, height - 1), (width - 1, 0), (0, height - 1)]
         self.maze = Maze(width, height, perfect,seed)
         self.grid = self.maze.grid
-        self.player = Player((width // 2, height // 2), None, 4)
+        self.player = Player((width // 2, height // 2), None, 1)
         self.ghosts = [Ghost((0, 0), None, 2), Ghost((width - 1, height - 1), None, 2),
             Ghost((width - 1, 0), None, 2), Ghost((0, height - 1), None, 2)]
 
@@ -24,7 +30,7 @@ class Game:
 
     def gums_placement(self):
         gums = set()
-        print("the start is :", self.start)
+        # print("the start is :", self.start)
 
         reachable = self.maze.get_reachable_cells(self.start)
 
