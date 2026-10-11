@@ -47,6 +47,8 @@ class Character:
     def update(self, dt, maze):
         if dt < 0:
             raise ValueError("the dt must be non negative")
+        
+
         remaining_distance = self.speed * dt
 
         
@@ -57,6 +59,7 @@ class Character:
             if self.target_pos is None:
                 self.start_move(maze)
                 if self.target_pos is None:
+                    print("yak kandgol lk hna\n",self.direction)
                     break
 
             distance_needed = 1 - self.move_progress
@@ -102,7 +105,6 @@ class Player(Character):
             return  
         if self.requested_direction is None:
             return 
-
         if maze.can_move(self.pos, self.requested_direction):
             self.direction = self.requested_direction
 
