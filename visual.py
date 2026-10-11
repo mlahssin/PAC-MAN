@@ -157,34 +157,15 @@ def main():
     running = True
 
     while running:
-        # for direction in ("up", "down", "left", "right"):
-        #         if game.maze.can_move(game.player.pos, direction):
-        #             game.player.request_direction(direction)
-        #             break
-        dt = clock.tick(FPS) / 1000
+        
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-            elif event.type == pygame.KEYDOWN:
-                        if event.key == pygame.K_LEFT:
-                            if game.maze.can_move(game.player.pos, direction):
-                                direction = "left"
-                                game.player.request_direction(direction)
-                            print("left")
-                        elif event.key == pygame.K_RIGHT:
-                            print("right")
-                        elif event.key == pygame.K_UP:
-                            print("up")
-                        elif event.key == pygame.K_DOWN:
-                            print("down")
-        #=================
 
-        game.player.choose_direction(game.maze)
-        game.player.update(dt, game.maze)
 
         maze_sur.fill(BLACK)
         screen.fill(BLACK)
-        #===================
+
 
         draw_maze(maze_sur, ROWS, COLS, SEED)
 
