@@ -13,9 +13,8 @@ CYAN: tuple[int, int, int] = (0, 255, 255)       # Inky
 ORANGE: tuple[int, int, int] = (255, 184, 82)    # Clyde
 
 
-ROWS = 15
-
-COLS = 15
+ROWS = 23
+COLS = 21
 
 CELL = 80
 
@@ -25,8 +24,11 @@ WIDTH = ROWS * CELL
 HEIGHT = COLS * CELL
 
 PADDING = 40
+GAP = 20
+SIDEBAR_WIDTH = 1000
 
-LINE = 2
+WINDOW_WIDTH = PADDING + WIDTH + GAP + SIDEBAR_WIDTH + PADDING
+WINDOW_HEIGHT = PADDING + HEIGHT + PADDING
 
 FPS = 60
 STEP = 40
@@ -48,8 +50,13 @@ class Visual:
 
     # def draw_player(self, maze_sur):
 
-    #     pygame.draw.circle(maze_sur, ORANGE, ((ROWS * CELL) / 2, (COLS * CELL) / 2 + CELL/2), 20)
+    #     col = (ROWS - 1) // 2
+    #     row = (COLS - 1) // 2
 
+    #     x = col * CELL + CELL // 2
+    #     y = row * CELL + CELL // 2
+
+    #     pygame.draw.circle(maze_sur, ORANGE, (x, y), 20)
     def draw_player(self, maze_sur):
         player = self.game.player
 
@@ -59,12 +66,31 @@ class Visual:
             (round(player.x_pix), round(player.y_pix)),
             20,
         )
+
+    def draw_ghosts(self, maze_sur):
+        colors = (RED, PINK, CYAN, ORANGE)
+    
+        for i, ghost in enumerate(self.game.ghosts):
+            pygame.draw.circle(
+                maze_sur,
+                colors[i % len(colors)],
+                (round(ghost.x_pix), round(ghost.y_pix)),
+                20,
+            )
+
     def draw_supergums(self, maze_sur):
 
         for (x, y) in self.game.super_gums:
             x_position = (x * CELL) + (CELL / 2)
             y_position = (y * CELL) + (CELL / 2)
             pygame.draw.circle(maze_sur, YELLOW, (x_position, y_position), 10)
+
+    # def draw_gums(self, maze_sur):
+
+    #     gum_placememt = self.game.gums
+
+    #     for (col, row) in gum_placememt:
+    #         pygame.draw.circle(maze_sur, WHITE, ((col * CELL * 2 + CELL) / 2, (row * CELL * 2 + CELL) / 2), 2)
 
     def draw_gums(self, maze_sur):
 
@@ -77,10 +103,19 @@ class Visual:
                 if (col, row) in gum_placememt:
                     pygame.draw.circle(maze_sur, WHITE, ((col * CELL + CELL / 2, row * CELL + CELL / 2)), 2)
 
-    def draw_42(self):
-        print("Reachable cells")
-        for item in self.game.maze.get_reachable_cells(self.game.player_position):
-            print(item)
+    def draw_42_cells(self, maze_sur):
+
+        cells_42 = self.game.maze.get_42_cells()
+
+        for (col, row) in cells_42:
+            pygame.draw.rect(maze_sur, BLUE, (col * CELL, row * CELL, CELL, CELL))
+
+    def ghosts(self, maze_sur):
+
+        for (x, y) in self.game.corners:
+            x_position = (x * CELL) + (CELL / 2)
+            y_position = (y * CELL) + (CELL / 2)
+            pygame.draw.circle(maze_sur, RED, (x_position, y_position), 20)
 
     def draw_maze(self, maze_sur, ROWS, COLS, SEED):
 
@@ -103,51 +138,30 @@ class Visual:
                 if self.has_wall(cell, 8):
                     pygame.draw.line(maze_sur, WHITE, (left, top), (left, bottom), 2)
 
+    def draw_maze_side_bar(self, sidebar_sur):
 
-    def draw_ghosts(self, maze_sur):
-        colors = (RED, PINK, CYAN, ORANGE)
-    
-        for i, ghost in enumerate(self.game.ghosts):
-            pygame.draw.circle(
-                maze_sur,
-                colors[i % len(colors)],
-                (round(ghost.x_pix), round(ghost.y_pix)),
-                20,
-            )
-
+        pygame.draw.rect(sidebar_sur, BLUE, (0, 0, SIDEBAR_WIDTH, HEIGHT), 2, 15)
 
     def run(self):
 
         pygame.init()
-        
-        screen = pygame.display.set_mode((WIDTH + 2 * PADDING, HEIGHT + 2 * PADDING))
+
+        screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
         maze_sur = pygame.Surface((WIDTH + 2, HEIGHT + 2))
+        sidebar_sur = pygame.Surface((SIDEBAR_WIDTH, HEIGHT))
 
         pygame.display.set_caption("PAC-MAN")
         clock = pygame.time.Clock()
 
         running = True
-
         while running:
-            # dt = clock.tick(60) / 1000
-            # print("=====score======:", self.game.score)
-
-
-            # print(
-            #     "can move down:",
-            #     self.game.maze.can_move(self.game.player.pos, "down"),
-            # )
             direction = None
-            # print("wach ymkn", self.game.maze.can_move(self.game.player.pos, "up"))
 
-            # print("hhhhhhh", dt, self.game.player.pos,
-            #     self.game.player.target_pos,
-            #     self.game.player.move_progress)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
                 elif event.type == pygame.KEYDOWN:
-                    
+                                    
                     if event.key == pygame.K_LEFT:
                         print("KEYDOWN received:", event.key)
                         direction = "left"   
@@ -179,7 +193,7 @@ class Visual:
                 ghost.frames_per_cell = 24
                 ghost.update(self.game.maze)
             if not self.game.game_over:
-               
+            
                 self.game.handle_collisions()
             if self.game.game_over:
                 print("Game oveeeeeeeeeeeeeeeeeeeer!!!!!")
@@ -188,10 +202,14 @@ class Visual:
                 # running = False
             self.game.collect_gums()
 
-            # print("AFTER:", moved, player.pos,
-            #     player.target_pos, player.move_progress)
+
             maze_sur.fill(BLACK)
-            screen.fill(BLACK)   
+            screen.fill(BLACK)
+
+
+            ##### ayouuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu
+            self.draw_42_cells(maze_sur)
+
             self.draw_maze(maze_sur, ROWS, COLS, SEED)
 
             self.draw_gums(maze_sur)
@@ -199,24 +217,22 @@ class Visual:
 
             self.draw_player(maze_sur)
             self.draw_ghosts(maze_sur)
+            # self.ghosts(maze_sur)
+
+            self.draw_maze_side_bar(sidebar_sur)
+
             screen.blit(maze_sur, (PADDING, PADDING))
-            # print("here\n",
-            #     "player_dir\n",self.game.player.direction,
-            #     "pl_pos\n",self.game.player.pos,
-            #     "pl_tar\n",self.game.player.target_pos,
-            #     "pl_prog\n",self.game.player.move_progress,
-            # )
+            screen.blit(sidebar_sur, (PADDING + WIDTH + GAP, PADDING))
+
             pygame.display.flip()
             clock.tick(FPS)
 
         pygame.quit()
 
 
-
 def main():
     app = Visual()
     app.run()
-    app.draw_42()
 
 
 main()
