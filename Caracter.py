@@ -8,7 +8,12 @@ CELL = 80
 
 pixel_step = CELL / 10
 
-
+opposite = {
+    "up" : "down",
+    "down": "up",
+    "left":"right",
+    "right":"left"
+}
 
 modes = {DANGEROUS, EDIBLE, RESPAWNING}
 DIRECTIONS = {
@@ -18,7 +23,7 @@ DIRECTIONS = {
     "right": (1, 0, 2, 8),
 }
 class Character:
-    def __init__(self, pos, direction, speed):
+    def __init__(self, pos, direction):
         if (
             not isinstance(pos, tuple)
             or len(pos) != 2
@@ -34,10 +39,10 @@ class Character:
         
         self.direction = direction
 
-        if speed <= 0:
-            raise ValueError("Speed must be greater than zero")
+        # if speed <= 0:
+            # raise ValueError("Speed must be greater than zero")
         self.target_pos = None
-        self.speed = speed
+        # self.speed = speed
     
     def start_move(self, maze):
         if self.target_pos is not None:
@@ -96,8 +101,8 @@ class Character:
         x_p = x * CELL + CELL / 2
         y_p = y * CELL + CELL / 2
 
-        x_diff = (target_x_pix - x_p) / 10
-        y_diff = (target_y_pix - y_p) / 10
+        x_diff = (target_x_pix - x_p) / 16
+        y_diff = (target_y_pix - y_p) / 16
 
         self.x_pix += x_diff
         self.y_pix += y_diff
@@ -143,8 +148,8 @@ class Character:
 
 
 class Player(Character):
-    def __init__(self, pos, direction, speed):
-        super().__init__(pos, direction, speed)
+    def __init__(self, pos, direction):
+        super().__init__(pos, direction)
         self.requested_direction = None
 
     
@@ -159,10 +164,15 @@ class Player(Character):
         
 
     def choose_direction(self, maze):
-        if self.target_pos is not None:
-            return  
         if self.requested_direction is None:
             return 
+
+        if self.target_pos is not None:
+            if self.direction == opposite[self.requested_direction]:
+                self.pos, self.target_pos = self.target_pos, self.pos
+                self.direction = self.requested_direction
+            return
+
         if maze.can_move(self.pos, self.requested_direction):
             self.direction = self.requested_direction
 
@@ -187,8 +197,8 @@ class Player(Character):
 
 
 class Ghost(Character):
-    def __init__(self, pos, direction, speed):
-        super().__init__(pos, direction, speed)
+    def __init__(self, pos, direction):
+        super().__init__(pos, direction)
         self.spawn_pos = self.pos
         self.state = DANGEROUS
         self.respawn_time_remaining = 0.0

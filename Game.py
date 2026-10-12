@@ -19,9 +19,9 @@ class Game:
         self.corners = [(0, 0), (width - 1, height - 1), (width - 1, 0), (0, height - 1)]
         self.maze = Maze(width, height, perfect,seed)
         self.grid = self.maze.grid
-        self.player = Player((width // 2, height // 2), None, 1)
-        self.ghosts = [Ghost((0, 0), None, 2), Ghost((width - 1, height - 1), None, 2),
-            Ghost((width - 1, 0), None, 2), Ghost((0, height - 1), None, 2)]
+        self.player = Player((width // 2, height // 2), None)
+        self.ghosts = [Ghost((0, 0), None), Ghost((width - 1, height - 1), None),
+            Ghost((width - 1, 0), None), Ghost((0, height - 1), None)]
 
         self.gums = set()
         self.super_gums = set()
