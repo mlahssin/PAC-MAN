@@ -225,6 +225,8 @@ class Ghost(Character):
     def __init__(self, pos, direction):
         super().__init__(pos, direction)
         self.spawn_pos = self.pos
+        # self.state = EDIBLE
+
         self.state = DANGEROUS
         self.respawn_time_remaining = 0.0
 
@@ -232,22 +234,27 @@ class Ghost(Character):
         if self.target_pos is not None:
             return False
         
-        if self.moves % 4 == 0:
-            nieghbors = maze.get_neighbors(self.pos)
-            if nieghbors:
-                next_pos = random.choice(nieghbors)
+        if self.state == "DANGEROUS":
+            if self.moves % 4 == 0:
+                nieghbors = maze.get_neighbors(self.pos)
+                if nieghbors:
+                    next_pos = random.choice(nieghbors)
+                else:
+                    self.direction = None
+                    return False
             else:
-                self.direction = None
-                return False
-        else:
-            path = maze.find_shortest_path(self.pos, player_pos)
-    
-            if len(path) < 2:
-                self.direction = None
-                return False
+                path = maze.find_shortest_path(self.pos, player_pos)
+        
+                if len(path) < 2:
+                    self.direction = None
+                    return False
+                next_pos = path[1]
+                
+        elif self.state == "EDIBLE":
+            next_pos = maze.run_away(self.pos, player_pos)
         
         
-            next_pos = path[1]
+            
 
         dx = next_pos[0] - self.pos[0]
         dy = next_pos[1] - self.pos[1]

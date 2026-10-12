@@ -160,6 +160,46 @@ class Maze:
             cell = predecessor[cell]
         
         return path[::-1]
+    
+    def run_away(self, start, player_pos):
+        neighbors = self.get_neighbors(start)
+        chosen_neighbor = None
+        greatest_distance = -1
+        
+        for neighbor in neighbors:
+            path = self.find_shortest_path(neighbor, player_pos)
+
+            if len(path) < 2:
+                continue
+            
+            distance = len(path)
+            if distance > greatest_distance:
+                chosen_neighbor = neighbor
+                greatest_distance = distance
+        return chosen_neighbor       
+            # if chosen_neighbor is None:
+                # chosen_neighbor = neighbor
+            # else:
+
+        # dist = {}
+        # paths = []
+        # self.find_shortest_path(self.)
+        # for neighbor in neighbors:
+            # path = self.find_shortest_path(neighbor, player_pos)
+            # paths.append(path)
+# 
+        # paths = sorted(paths, reverse=True)
+# 
+        # target = paths[0][0]
+        # return target
+            # dist[neighbor] = self.find_shortest_path(neighbor, player_pos)
+        
+        # dist = list(sorted(dist.items(), key=lambda x: x[1], reverse=True))
+
+        # if not dist:
+            # return None
+        # return dist[0][0]
+
 
 
 

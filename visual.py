@@ -192,9 +192,11 @@ class Visual:
                 ghost.choose_direction(self.game.maze, self.game.player.pos)
                 ghost.frames_per_cell = 24
                 ghost.update(self.game.maze)
+
             if not self.game.game_over:
             
                 self.game.handle_collisions()
+
             if self.game.game_over:
                 print("Game oveeeeeeeeeeeeeeeeeeeer!!!!!")
                 # print("remaining lives:", self.game.lives)
