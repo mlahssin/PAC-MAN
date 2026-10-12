@@ -6,7 +6,7 @@ from Game import Game
 BLACK: tuple[int, int, int] = (0, 0, 0)
 WHITE: tuple[int, int, int] = (255, 255, 255)
 YELLOW: tuple[int, int, int] = (255, 255, 0)     # Pac-Man
-BLUE: tuple[int, int, int] = (219, 70, 4)       # walls
+ORANGE_42: tuple[int, int, int] = (219, 70, 4)       # walls
 RED: tuple[int, int, int] = (255, 0, 0)          # Blinky
 PINK: tuple[int, int, int] = (255, 184, 255)     # Pinky
 CYAN: tuple[int, int, int] = (0, 255, 255)       # Inky
@@ -129,7 +129,7 @@ class Visual:
         cells_42 = self.game.maze.get_42_cells()
 
         for (col, row) in cells_42:
-            pygame.draw.rect(maze_sur, BLUE, (col * CELL, row * CELL, CELL, CELL))
+            pygame.draw.rect(maze_sur, ORANGE_42, (col * CELL, row * CELL, CELL, CELL))
 
     def ghosts(self, maze_sur):
 
