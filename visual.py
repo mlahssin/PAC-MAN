@@ -3,6 +3,14 @@ from mazegenerator import MazeGenerator
 from maze import Maze
 from Game import Game
 
+CREAM = (245, 230, 205)
+LABEL = (190, 170, 160)
+GOLD = (255, 200, 80)
+CRIMSON = (200, 40, 50)
+WOOD = (92, 62, 40)
+WOOD_DARK = (60, 40, 28)
+
+
 BLACK: tuple[int, int, int] = (0, 0, 0)
 WHITE: tuple[int, int, int] = (255, 255, 255)
 YELLOW: tuple[int, int, int] = (255, 255, 0)     # Pac-Man
@@ -27,7 +35,7 @@ HEIGHT = COLS * CELL
 
 PADDING = 40
 GAP = 20
-SIDEBAR_WIDTH = 800
+SIDEBAR_WIDTH = 700
 
 WINDOW_WIDTH = PADDING + WIDTH + GAP + SIDEBAR_WIDTH + PADDING
 WINDOW_HEIGHT = PADDING + HEIGHT + PADDING
@@ -45,8 +53,13 @@ class Visual:
         (self.center_x, self.center_y) = self.game.player_position
 
         self.player_img = None
+        self.ghost1_img = None
         self.supergum_img = None
         self.gum_img = None
+        self.timer_img = None
+        self.board_img = None
+
+        self.ghost_imgs = []
 
     def load_maze(self):
         return self.game.grid
@@ -65,10 +78,30 @@ class Visual:
             img, (round(img.get_width() * scale),
                   round(img.get_height() * scale)))
 
+    def load_font(self, path, size):
+        try:
+            return pygame.font.Font(path, size)
+        except (pygame.error, FileNotFoundError, OSError):
+            return pygame.font.SysFont("dejavusans", size, bold=True)
+
     def load_images(self):
-        self.player_img = self.load_scaled("assets/player.png", CELL - 8)
+        self.player_img = self.load_scaled("assets/player.png", CELL - 4)
         self.supergum_img = self.load_scaled("assets/supergum.png", CELL // 2)
         self.gum_img = self.load_scaled("assets/gum.png", CELL // 3)
+        self.timer_img = self.load_scaled("assets/timer_sign.png", 300)
+        self.timer_font = pygame.font.SysFont("dejavusansmono", 36, bold=True)
+        self.board_img = self.load_scaled("assets/board.png", 600)
+
+        bangers = "assets/fonts/Bangers-Regular.ttf"
+        self.timer_font = self.load_font(bangers, 40)
+        self.label_font = self.load_font(bangers, 35)
+        self.value_font = self.load_font(bangers, 54)
+
+        ghost_files = ["assets/ghosts/ghost1.png", "assets/ghosts/ghost2.png",
+                       "assets/ghosts/ghost3.png", "assets/ghosts/ghost4.png"]
+
+        self.ghost_imgs = [self.load_scaled(path, CELL - 8)
+                           for path in ghost_files]
 
     def draw_player(self, maze_sur):
 
@@ -81,16 +114,36 @@ class Visual:
         else:
             pygame.draw.circle(maze_sur, ORANGE, center, 20)
 
+    def ghosts(self, maze_sur):
+
+        for (x, y) in self.game.corners:
+            x_position = (x * CELL) + (CELL / 2)
+            y_position = (y * CELL) + (CELL / 2)
+            pygame.draw.circle(maze_sur, RED, (x_position, y_position), 20)
+
+    # def draw_ghosts(self, maze_sur):
+    #     colors = (RED, PINK, CYAN, ORANGE)
+
+    #     for i, ghost in enumerate(self.game.ghosts):
+    #         pygame.draw.circle(
+    #             maze_sur,
+    #             colors[i % len(colors)],
+    #             (round(ghost.x_pix), round(ghost.y_pix)),
+    #             20,
+    #         )
+
     def draw_ghosts(self, maze_sur):
         colors = (RED, PINK, CYAN, ORANGE)
 
         for i, ghost in enumerate(self.game.ghosts):
-            pygame.draw.circle(
-                maze_sur,
-                colors[i % len(colors)],
-                (round(ghost.x_pix), round(ghost.y_pix)),
-                20,
-            )
+            center = (round(ghost.x_pix), round(ghost.y_pix))
+            img = self.ghost_imgs[i % len(self.ghost_imgs)]
+
+            if img is not None:
+                maze_sur.blit(img, img.get_rect(center=center))
+            else:
+                pygame.draw.circle(maze_sur, colors[i % len(colors)],
+                                   center, 20)
 
     def draw_supergums(self, maze_sur):
 
@@ -105,17 +158,8 @@ class Visual:
 
     def draw_gums(self, maze_sur):
 
-        # maze = self.load_maze()
-
-        # gum_placememt = self.game.gums
-
-        # for row, line in enumerate(maze):
-        #     for col, cell in enumerate(line):
-        #         if (col, row) in gum_placememt:
-        #             pygame.draw.circle(maze_sur, WHITE, ((col * CELL + CELL / 2, row * CELL + CELL / 2)), 4)
-
         for (col, row) in self.game.gums:
-            
+
             center = (col * CELL + CELL // 2, row * CELL + CELL // 2)
 
             if self.gum_img is not None:
@@ -130,13 +174,6 @@ class Visual:
 
         for (col, row) in cells_42:
             pygame.draw.rect(maze_sur, ORANGE_42, (col * CELL, row * CELL, CELL, CELL))
-
-    def ghosts(self, maze_sur):
-
-        for (x, y) in self.game.corners:
-            x_position = (x * CELL) + (CELL / 2)
-            y_position = (y * CELL) + (CELL / 2)
-            pygame.draw.circle(maze_sur, RED, (x_position, y_position), 20)
 
     def draw_maze(self, maze_sur, ROWS, COLS, SEED):
 
@@ -166,6 +203,46 @@ class Visual:
         pygame.draw.rect(sidebar_sur, WHITE, rect, 2,
                          border_top_right_radius=20,
                          border_bottom_right_radius=20)
+        self.draw_timer(sidebar_sur, 90)
+        y = 300
+        y = self.draw_board(sidebar_sur, "SCORE", "0012450", y)
+        y = self.draw_board(sidebar_sur, "HIGH SCORE", "0048200", y)
+        y = self.draw_board(sidebar_sur, "LEVEL", "03 / 10", y)
+
+    def draw_timer(self, sidebar_sur, time_left):
+        w = sidebar_sur.get_width()
+        minutes, seconds = divmod(int(time_left), 60)
+        text = self.timer_font.render(f"{minutes:02d}:{seconds:02d}",
+                                      True, (60, 40, 28))
+
+        if self.timer_img is not None:
+            rect = self.timer_img.get_rect(midtop=(w // 2, 4))
+            sidebar_sur.blit(self.timer_img, rect)
+            offset_x = 40
+            sidebar_sur.blit(text, text.get_rect(center=(rect.centerx + offset_x, rect.centery)))
+        else:
+            sidebar_sur.blit(text, text.get_rect(midtop=(w // 2, 30)))
+
+    def draw_board(self, sidebar_sur, label, value, y):
+        w = sidebar_sur.get_width()
+        brown = (60, 40, 28)
+
+        if self.board_img is not None:
+            rect = self.board_img.get_rect(midtop=(w // 2, y))
+            sidebar_sur.blit(self.board_img, rect)
+        else:
+            rect = pygame.Rect(0, 0, 300, 135)
+            rect.midtop = (w // 2, y)
+            pygame.draw.rect(sidebar_sur, (200, 150, 100), rect, 0, 10)
+
+        label_img = self.label_font.render(label, True, brown)
+        value_img = self.value_font.render(value, True, brown)
+        sidebar_sur.blit(label_img, label_img.get_rect(
+            center=(rect.centerx, rect.centery - 32)))
+        sidebar_sur.blit(value_img, value_img.get_rect(
+            center=(rect.centerx, rect.centery + 10)))
+
+        return rect.bottom - 10
 
     def run(self):
 
@@ -193,17 +270,14 @@ class Visual:
                 elif event.type == pygame.KEYDOWN:
 
                     if event.key == pygame.K_LEFT:
-                        print("KEYDOWN received:", event.key)
-                        direction = "left"   
+                        direction = "left"
                     elif event.key == pygame.K_RIGHT:
-                        print("KEYDOWN received:", event.key)
                         direction = "right"
                     elif event.key == pygame.K_UP:
-                        print("KEYDOWN received:", event.key)
                         direction = "up"
                     elif event.key == pygame.K_DOWN:
                         direction = "down"
-                        print("KEYDOWN received:", event.key)
+
             if direction is not None:
                 self.game.player.request_direction(direction)
 
@@ -227,7 +301,7 @@ class Visual:
 
             # maze_sur.fill(BLACK)
             maze_sur.fill((0, 0, 0, 120))
-            sidebar_sur.fill((0, 0, 0, 120))
+            sidebar_sur.fill((0, 0, 0, 70))
 
             # screen.fill(BLACK)
             screen.blit(background, (0, 0))
