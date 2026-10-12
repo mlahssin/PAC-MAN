@@ -6,14 +6,16 @@ from Game import Game
 BLACK: tuple[int, int, int] = (0, 0, 0)
 WHITE: tuple[int, int, int] = (255, 255, 255)
 YELLOW: tuple[int, int, int] = (255, 255, 0)     # Pac-Man
-BLUE: tuple[int, int, int] = (33, 33, 222)       # walls
+BLUE: tuple[int, int, int] = (219, 70, 4)       # walls
 RED: tuple[int, int, int] = (255, 0, 0)          # Blinky
 PINK: tuple[int, int, int] = (255, 184, 255)     # Pinky
 CYAN: tuple[int, int, int] = (0, 255, 255)       # Inky
 ORANGE: tuple[int, int, int] = (255, 184, 82)    # Clyde
 
 
-ROWS = 23
+#480058
+
+ROWS = 21
 COLS = 21
 
 CELL = 80
@@ -25,7 +27,7 @@ HEIGHT = COLS * CELL
 
 PADDING = 40
 GAP = 20
-SIDEBAR_WIDTH = 1000
+SIDEBAR_WIDTH = 800
 
 WINDOW_WIDTH = PADDING + WIDTH + GAP + SIDEBAR_WIDTH + PADDING
 WINDOW_HEIGHT = PADDING + HEIGHT + PADDING
@@ -44,6 +46,7 @@ class Visual:
 
         self.player_img = None
         self.supergum_img = None
+        self.gum_img = None
 
     def load_maze(self):
         return self.game.grid
@@ -51,16 +54,21 @@ class Visual:
     def has_wall(self, cell, side):
         return (cell & side) != 0
 
-    def load_images(self):
+    def load_scaled(self, path, size):
 
         try:
-            img = pygame.image.load("assets/player.png").convert_alpha()
-            scale = (CELL - 8) / max(img.get_width(), img.get_height())
-            self.player_img = pygame.transform.smoothscale(
-                img, (round(img.get_width() * scale),
-                      round(img.get_height() * scale)))
+            img = pygame.image.load(path).convert_alpha()
         except (pygame.error, FileNotFoundError):
-            self.player_img = None
+            return None
+        scale = size / max(img.get_width(), img.get_height())
+        return pygame.transform.smoothscale(
+            img, (round(img.get_width() * scale),
+                  round(img.get_height() * scale)))
+
+    def load_images(self):
+        self.player_img = self.load_scaled("assets/player.png", CELL - 8)
+        self.supergum_img = self.load_scaled("assets/supergum.png", CELL // 2)
+        self.gum_img = self.load_scaled("assets/gum.png", CELL // 3)
 
     def draw_player(self, maze_sur):
 
@@ -87,21 +95,34 @@ class Visual:
     def draw_supergums(self, maze_sur):
 
         for (x, y) in self.game.super_gums:
-            x_position = (x * CELL) + (CELL / 2)
-            y_position = (y * CELL) + (CELL / 2)
-            # pygame.draw.circle(maze_sur, YELLOW, (x_position, y_position), 10)
-            
+            center = (x * CELL + CELL // 2, y * CELL + CELL // 2)
+
+            if self.supergum_img is not None:
+                rect = self.supergum_img.get_rect(center=center)
+                maze_sur.blit(self.supergum_img, rect)
+            else:
+                pygame.draw.circle(maze_sur, YELLOW, center, 10)
 
     def draw_gums(self, maze_sur):
 
-        maze = self.load_maze()
+        # maze = self.load_maze()
 
-        gum_placememt = self.game.gums
+        # gum_placememt = self.game.gums
 
-        for row, line in enumerate(maze):
-            for col, cell in enumerate(line):
-                if (col, row) in gum_placememt:
-                    pygame.draw.circle(maze_sur, WHITE, ((col * CELL + CELL / 2, row * CELL + CELL / 2)), 4)
+        # for row, line in enumerate(maze):
+        #     for col, cell in enumerate(line):
+        #         if (col, row) in gum_placememt:
+        #             pygame.draw.circle(maze_sur, WHITE, ((col * CELL + CELL / 2, row * CELL + CELL / 2)), 4)
+
+        for (col, row) in self.game.gums:
+            
+            center = (col * CELL + CELL // 2, row * CELL + CELL // 2)
+
+            if self.gum_img is not None:
+                rect = self.gum_img.get_rect(center=center)
+                maze_sur.blit(self.gum_img, rect)
+            else:
+                pygame.draw.circle(maze_sur, WHITE, center, 4)
 
     def draw_42_cells(self, maze_sur):
 
@@ -139,8 +160,12 @@ class Visual:
                     pygame.draw.line(maze_sur, WHITE, (left, top), (left, bottom), 2)
 
     def draw_maze_side_bar(self, sidebar_sur):
-        pass
-        pygame.draw.rect(sidebar_sur, WHITE, (0, 0, SIDEBAR_WIDTH, HEIGHT), 2, 15)
+
+        rect = sidebar_sur.get_rect()
+
+        pygame.draw.rect(sidebar_sur, WHITE, rect, 2,
+                         border_top_right_radius=20,
+                         border_bottom_right_radius=20)
 
     def run(self):
 
@@ -201,8 +226,8 @@ class Visual:
             self.game.collect_gums()
 
             # maze_sur.fill(BLACK)
-            maze_sur.fill((0, 0, 0, 160))
-            sidebar_sur.fill((0, 0, 0, 160))
+            maze_sur.fill((0, 0, 0, 120))
+            sidebar_sur.fill((0, 0, 0, 120))
 
             # screen.fill(BLACK)
             screen.blit(background, (0, 0))
