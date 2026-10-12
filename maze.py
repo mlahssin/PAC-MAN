@@ -88,15 +88,18 @@ class Maze:
             raise TypeError("start must be a tuple of two integers (x, y)")
         
         if not self.is_inside(start):
+            
             return set()
         x, y = start
-
+        
         if self.grid[y][x] == 15:
+            print("helloooooooo1\n")
             return set()
         dq = deque([start])
         reachable = {start}
 
         while dq:
+            
             pos = dq.popleft()
             neighbors = self.get_neighbors(pos)
 
@@ -129,6 +132,44 @@ class Maze:
 
     def start_reachable_cells(self, start):
         return self.get_reachable_cells(start)
+
+    def find_shortest_path(self, start, goal):
+        visited = {start}
+        predecessor = {}
+
+        predecessor[start] = None
+        queue = deque([start])
+
+        while queue:
+            element = queue.popleft()
+
+            neighbors = self.get_neighbors(element)
+
+            for neighbor in neighbors:
+                if neighbor not in visited:
+                    visited.add(neighbor)
+                    queue.append(neighbor)
+                    predecessor[neighbor] = element
+        
+        if goal not in predecessor:
+            return []
+        path = []
+        cell = goal
+        while cell is not None:
+            path.append(cell)
+            cell = predecessor[cell]
+        
+        return path[::-1]
+
+
+
+
+            
+            
+
+
+
+
 
 
         

@@ -1,9 +1,20 @@
 from mazegenerator import MazeGenerator
 import time
+import random
 from maze import Maze
 DANGEROUS = "DANGEROUS"
 EDIBLE = "EDIBLE"
 RESPAWNING = "RESPAWNING"
+CELL = 80
+
+pixel_step = CELL / 10
+
+opposite = {
+    "up" : "down",
+    "down": "up",
+    "left":"right",
+    "right":"left"
+}
 
 modes = {DANGEROUS, EDIBLE, RESPAWNING}
 DIRECTIONS = {
@@ -13,7 +24,7 @@ DIRECTIONS = {
     "right": (1, 0, 2, 8),
 }
 class Character:
-    def __init__(self, pos, direction, speed):
+    def __init__(self, pos, direction):
         if (
             not isinstance(pos, tuple)
             or len(pos) != 2
@@ -23,13 +34,21 @@ class Character:
             raise TypeError("pos must be a tuple of two integers (x, y)")
 
         self.pos = pos
-        self.direction = direction
 
-        if speed <= 0:
-            raise ValueError("Speed must be greater than zero")
+        self.x_pix = (pos[0] * CELL) + CELL / 2
+        self.y_pix = (pos[1] * CELL)  + CELL / 2
+        
+        self.direction = direction
+        # i should protect it to be strictement positive
+        self.frames_per_cell = 16
+        if self.frames_per_cell <= 0:
+            raise ValueError("the frame cell must be non negative")
+
+        # if speed <= 0:
+            # raise ValueError("Speed must be greater than zero")
         self.target_pos = None
-        self.speed = speed
-        self.move_progress = 0.0
+        self.moves = 0
+        # self.speed = speed
     
     def start_move(self, maze):
         if self.target_pos is not None:
@@ -38,43 +57,115 @@ class Character:
             return False
         
         direction = DIRECTIONS[self.direction]
+
+        
         dx , dy = direction[0], direction[1]
         x, y = self.pos
+
+        # target_x_pix = (x + dx) * CELL + CELL / 2
+        # target_y_pix = (y + dy) * CELL + CELL / 2
+        # if self.direction == "left":
+        #     self.x_pix -= pixel_step
+        # elif self.direction == "right":
+        #     self.x_pix += pixel_step
+        # elif self.direction == "up":
+        #     self.y_pix -= pixel_step
+        # elif self.direction == "down":
+        #     self.y_pix += pixel_step
+        
+        # if self.x_pix == target_x_pix and self.y_pix == target_y_pix: 
         self.target_pos = (x + dx, y + dy)
-        self.move_progress = 0.0
+
+        # self.move_progress = 0.0
         return True
 
-    def update(self, dt, maze):
-        if dt < 0:
-            raise ValueError("the dt must be non negative")
-        remaining_distance = self.speed * dt
+    def update(self, maze):
+        
+        # if dt < 0:
+        #     raise ValueError("the dt must be non negative")
+        
+
+        # remaining_distance = self.speed * dt
 
         
 
-        moved = False
-        while remaining_distance > 0:
+        
+
+        # while remaining_distance > 0:
+
+
+        if self.target_pos is None:
+            if self.direction is None:
+                return False
             
+            self.start_move(maze)
+
             if self.target_pos is None:
-                self.start_move(maze)
-                if self.target_pos is None:
-                    break
+                return False
+        
+        tx, ty = self.target_pos
+        target_x_pix = tx * CELL + CELL / 2
+        target_y_pix = ty * CELL + CELL / 2
 
-            distance_needed = 1 - self.move_progress
+        x, y = self.pos
 
+        x_p = x * CELL + CELL / 2
+        y_p = y * CELL + CELL / 2
+
+
+        x_diff = (target_x_pix - x_p) / self.frames_per_cell
+        y_diff = (target_y_pix - y_p) / self.frames_per_cell
+
+
+        self.x_pix += x_diff
+        self.y_pix += y_diff
+
+    # Moving right or left: stop at the target.
+        if x_diff > 0 and self.x_pix >= target_x_pix:
+            self.x_pix = target_x_pix
+        elif x_diff < 0 and self.x_pix <= target_x_pix:
+            self.x_pix = target_x_pix       
+        
+        if y_diff > 0 and self.y_pix >= target_y_pix:
+            self.y_pix = target_y_pix
+        elif y_diff < 0 and self.y_pix <= target_y_pix:
+            self.y_pix = target_y_pix
             
-            if remaining_distance >= distance_needed:
-                self.move_progress += distance_needed
-                remaining_distance -= distance_needed
-                self.pos = self.target_pos
-                self.target_pos = None
-                self.move_progress = 0
-               
-            else:
-                self.move_progress += remaining_distance
-                remaining_distance = 0
-            moved = True
+        if self.x_pix == target_x_pix and self.y_pix == target_y_pix:
+            self.pos = tx, ty
+            self.moves += 1
+            self.target_pos = None
 
-        return moved
+
+        
+        # self.x_pix += pixel_step
+        
+        
+
+        
+        
+        # if right  
+        # elif left
+        # elif up
+        # elif down
+
+        # distance_needed = 1 - self.move_progress
+
+        
+        # if remaining_distance >= distance_needed:
+        #     self.move_progress += distance_needed
+        #     remaining_distance -= distance_needed
+        # self.pos = self.target_pos
+        # self.target_pos = None
+        # self.move_progress = 0
+        return True
+            
+        # else:
+        #     self.move_progress += remaining_distance
+        #     remaining_distance = 0
+        # moved = True
+
+        # return moved
 
 
 
@@ -82,8 +173,8 @@ class Character:
 
 
 class Player(Character):
-    def __init__(self, pos, direction, speed):
-        super().__init__(pos, direction, speed)
+    def __init__(self, pos, direction):
+        super().__init__(pos, direction)
         self.requested_direction = None
 
     
@@ -98,10 +189,14 @@ class Player(Character):
         
 
     def choose_direction(self, maze):
-        if self.target_pos is not None:
-            return  
         if self.requested_direction is None:
             return 
+
+        if self.target_pos is not None:
+            if self.direction == opposite[self.requested_direction]:
+                self.pos, self.target_pos = self.target_pos, self.pos
+                self.direction = self.requested_direction
+            return
 
         if maze.can_move(self.pos, self.requested_direction):
             self.direction = self.requested_direction
@@ -127,14 +222,45 @@ class Player(Character):
 
 
 class Ghost(Character):
-    def __init__(self, pos, direction, speed):
-        super().__init__(pos, direction, speed)
+    def __init__(self, pos, direction):
+        super().__init__(pos, direction)
         self.spawn_pos = self.pos
         self.state = DANGEROUS
         self.respawn_time_remaining = 0.0
 
     def choose_direction(self, maze, player_pos):
-        pass
+        if self.target_pos is not None:
+            return False
+        
+        if self.moves % 4 == 0:
+            nieghbors = maze.get_neighbors(self.pos)
+            if nieghbors:
+                next_pos = random.choice(nieghbors)
+            else:
+                self.direction = None
+                return False
+        else:
+            path = maze.find_shortest_path(self.pos, player_pos)
+    
+            if len(path) < 2:
+                self.direction = None
+                return False
+        
+        
+            next_pos = path[1]
+
+        dx = next_pos[0] - self.pos[0]
+        dy = next_pos[1] - self.pos[1]
+
+        for name , info in DIRECTIONS.items():
+            if ((info[0], info[1]) == (dx, dy)):
+                self.direction = name
+                return True
+
+
+        
+
+        
     
 
 
