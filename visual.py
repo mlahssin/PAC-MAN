@@ -43,6 +43,7 @@ class Visual:
         (self.center_x, self.center_y) = self.game.player_position
 
         self.player_img = None
+        self.supergum_img = None
 
     def load_maze(self):
         return self.game.grid
@@ -88,7 +89,8 @@ class Visual:
         for (x, y) in self.game.super_gums:
             x_position = (x * CELL) + (CELL / 2)
             y_position = (y * CELL) + (CELL / 2)
-            pygame.draw.circle(maze_sur, YELLOW, (x_position, y_position), 10)
+            # pygame.draw.circle(maze_sur, YELLOW, (x_position, y_position), 10)
+            
 
     def draw_gums(self, maze_sur):
 
@@ -99,7 +101,7 @@ class Visual:
         for row, line in enumerate(maze):
             for col, cell in enumerate(line):
                 if (col, row) in gum_placememt:
-                    pygame.draw.circle(maze_sur, WHITE, ((col * CELL + CELL / 2, row * CELL + CELL / 2)), 2)
+                    pygame.draw.circle(maze_sur, WHITE, ((col * CELL + CELL / 2, row * CELL + CELL / 2)), 4)
 
     def draw_42_cells(self, maze_sur):
 
