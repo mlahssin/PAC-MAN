@@ -61,7 +61,7 @@ class Visual:
         )
     def draw_supergums(self, maze_sur):
 
-        for (x, y) in self.game.corners:
+        for (x, y) in self.game.super_gums:
             x_position = (x * CELL) + (CELL / 2)
             y_position = (y * CELL) + (CELL / 2)
             pygame.draw.circle(maze_sur, YELLOW, (x_position, y_position), 10)
@@ -70,12 +70,12 @@ class Visual:
 
         maze = self.load_maze()
 
-        gum_placememt = self.game.gums_placement()
+        gum_placememt = self.game.gums
 
         for row, line in enumerate(maze):
             for col, cell in enumerate(line):
                 if (col, row) in gum_placememt:
-                    pygame.draw.circle(maze_sur, WHITE, ((col * CELL * 2 + CELL) / 2, (row * CELL * 2 + CELL) / 2), 2)
+                    pygame.draw.circle(maze_sur, WHITE, ((col * CELL + CELL / 2, row * CELL + CELL / 2)), 2)
 
     def draw_42(self):
         print("Reachable cells")
@@ -161,6 +161,7 @@ class Visual:
             #     self.game.maze.can_move(player.pos, player.direction))
 
             moved = player.update(self.game.maze)
+            self.game.collect_gums()
 
             # print("AFTER:", moved, player.pos,
             #     player.target_pos, player.move_progress)
