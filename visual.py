@@ -103,6 +103,19 @@ class Visual:
                 if self.has_wall(cell, 8):
                     pygame.draw.line(maze_sur, WHITE, (left, top), (left, bottom), 2)
 
+
+    def draw_ghosts(self, maze_sur):
+        colors = (RED, PINK, CYAN, ORANGE)
+    
+        for i, ghost in enumerate(self.game.ghosts):
+            pygame.draw.circle(
+                maze_sur,
+                colors[i % len(colors)],
+                (round(ghost.x_pix), round(ghost.y_pix)),
+                20,
+            )
+
+
     def run(self):
 
         pygame.init()
@@ -117,7 +130,7 @@ class Visual:
 
         while running:
             # dt = clock.tick(60) / 1000
-
+            # print("=====score======:", self.game.score)
 
 
             # print(
@@ -159,8 +172,20 @@ class Visual:
 
             # print("BEFORE:", player.direction, player.pos,
             #     self.game.maze.can_move(player.pos, player.direction))
-
             moved = player.update(self.game.maze)
+
+            for ghost in self.game.ghosts:
+                ghost.choose_direction(self.game.maze, self.game.player.pos)
+                ghost.frames_per_cell = 24
+                ghost.update(self.game.maze)
+            if not self.game.game_over:
+               
+                self.game.handle_collisions()
+            if self.game.game_over:
+                print("Game oveeeeeeeeeeeeeeeeeeeer!!!!!")
+                # print("remaining lives:", self.game.lives)
+            
+                # running = False
             self.game.collect_gums()
 
             # print("AFTER:", moved, player.pos,
@@ -173,7 +198,7 @@ class Visual:
             self.draw_supergums(maze_sur)
 
             self.draw_player(maze_sur)
-
+            self.draw_ghosts(maze_sur)
             screen.blit(maze_sur, (PADDING, PADDING))
             # print("here\n",
             #     "player_dir\n",self.game.player.direction,

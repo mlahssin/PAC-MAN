@@ -25,8 +25,14 @@ class Game:
 
         self.gums = self.gums_placement()
         self.super_gums = self.super_gums()
+
         self.visited = set()
+        self.lives = 3
         self.score = 0
+        self.stop = False
+
+        self.game_over = False
+
 
 
 
@@ -43,7 +49,6 @@ class Game:
                 cell = (i, item)
                 
                 if cell in reachable and cell not in self.corners and cell != self.start:
-                    # print("cell", cell)
                     gums.add(cell)
 
         
@@ -67,5 +72,41 @@ class Game:
                 self.score += 50
                 self.visited.add(self.player.pos)
                 self.super_gums.remove(self.player.pos)
-        
-            
+    
+
+    def detect_collision(self):
+        for g in self.ghosts:
+            dx = self.player.x_pix - g.x_pix
+            dy = self.player.y_pix - g.y_pix
+            collision =  dx * dx + dy * dy <= (20 + 20) ** 2
+            if collision:
+                return g
+        return None
+
+    def handle_collisions(self):
+        g = self.detect_collision()
+        if  g is not None:
+            if g.state == "DANGEROUS":
+#                 if self.lives <= 0:
+#                     self.game_over = True
+                    # return
+                self.lives -= 1
+                if self.lives == 0:
+                    self.game_over = True
+                    return
+                self.player.pos = self.start
+                self.player.target_pos = None
+                self.player.direction = None
+                self.player.requested_direction = None
+
+                self.player.x_pix = self.player.pos[0] * CELL + CELL / 2
+                self.player.y_pix = self.player.pos[1] * CELL + CELL / 2
+
+                for i, gos in enumerate(self.ghosts):
+                    gos.pos = self.corners[i]
+                    gos.x_pix = gos.pos[0] * CELL + CELL / 2
+                    gos.y_pix = gos.pos[1] * CELL + CELL / 2
+                    gos.target_pos = None
+                    gos.direction = None
+            # elif g.state == "EDIBLE":
+                
