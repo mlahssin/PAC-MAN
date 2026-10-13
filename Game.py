@@ -55,7 +55,7 @@ class Game:
 
     def super_gums(self):
         return set(self.corners)
-    
+
     def collect_gums(self):
         # visited = set()
         if self.player.target_pos is not None:

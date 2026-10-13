@@ -205,7 +205,11 @@ class Visual:
                          border_bottom_right_radius=20)
         self.draw_timer(sidebar_sur, 90)
         y = 300
-        y = self.draw_board(sidebar_sur, "SCORE", "0012450", y)
+
+        score = self.game.score
+        print(f"{score:01d}")
+
+        y = self.draw_board(sidebar_sur, "SCORE", f"{score:01d}", y)
         y = self.draw_board(sidebar_sur, "HIGH SCORE", "0048200", y)
         y = self.draw_board(sidebar_sur, "LEVEL", "03 / 10", y)
 
