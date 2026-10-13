@@ -176,34 +176,38 @@ class Visual:
                         print("KEYDOWN received:", event.key)
             if direction is not None:
                 self.game.player.request_direction(direction)
-            # print("direction is :", direction)
-            # print("requested:", repr(self.game.player.requested_direction))
+
             
             self.game.player.choose_direction(self.game.maze)
 
-            # self.game.player.update(dt, self.game.maze)
+            
             player = self.game.player
 
-            # print("BEFORE:", player.direction, player.pos,
-            #     self.game.maze.can_move(player.pos, player.direction))
-            moved = player.update(self.game.maze)
+            # 1. Update player
+            player.update(self.game.maze)
 
+            # 2. Collect gums
+            self.game.collect_gums()
+
+            # 3. Update edible timer
+            self.game.ghost_update()
+
+
+            # 4. Update ghosts
             for ghost in self.game.ghosts:
                 ghost.choose_direction(self.game.maze, self.game.player.pos)
                 ghost.frames_per_cell = 24
                 ghost.update(self.game.maze)
 
-            if not self.game.game_over:
-            
-                self.game.handle_collisions()
+            # 5. Check collisions
+            self.game.handle_collisions()
 
             if self.game.game_over:
                 print("Game oveeeeeeeeeeeeeeeeeeeer!!!!!")
-                # print("remaining lives:", self.game.lives)
-            
-                # running = False
-            self.game.collect_gums()
 
+            
+
+            # self.game.ghost_update()
 
             maze_sur.fill(BLACK)
             screen.fill(BLACK)

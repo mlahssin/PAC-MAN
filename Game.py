@@ -1,5 +1,6 @@
 from maze import Maze
 from Caracter import Player, Ghost
+import time 
 
 
 CELL = 80
@@ -23,8 +24,13 @@ class Game:
         self.ghosts = [Ghost((0, 0), None), Ghost((width - 1, height - 1), None),
             Ghost((width - 1, 0), None), Ghost((0, height - 1), None)]
 
+        for ghost in self.ghosts:
+            ghost.start_pos =  ghost.pos
+
         self.gums = self.gums_placement()
         self.super_gums = self.super_gums()
+        # i meant here 7 seconds
+        self.edible_active_unitl = 0.0
 
         self.visited = set()
         self.lives = 3
@@ -32,6 +38,9 @@ class Game:
         self.stop = False
 
         self.game_over = False
+        self.level_completed = False
+
+        level_expires_at = time.monotonic() + 180
 
 
 
@@ -72,6 +81,7 @@ class Game:
                 self.super_gums.remove(self.player.pos)
                 for g in self.ghosts:
                     g.state = "EDIBLE"
+                self.edible_active_unitl = time.monotonic() + 100
     
 
     def detect_collision(self):
@@ -98,6 +108,8 @@ class Game:
                 self.player.target_pos = None
                 self.player.direction = None
                 self.player.requested_direction = None
+                self.player.previous_pos = None
+                
 
                 self.player.x_pix = self.player.pos[0] * CELL + CELL / 2
                 self.player.y_pix = self.player.pos[1] * CELL + CELL / 2
@@ -108,5 +120,42 @@ class Game:
                     gos.y_pix = gos.pos[1] * CELL + CELL / 2
                     gos.target_pos = None
                     gos.direction = None
-            # elif g.state == "EDIBLE":
+                    gos.previous_pos = None
+                    gos.state = "DANGEROUS"
+                    gos.respawn_time_at = 0.0
+                self.edible_active_unitl = 0.0
+
+            elif g.state == "EDIBLE":
+                g.pos = g.start_pos
+                g.x_pix = g.pos[0] * CELL + CELL / 2
+                g.y_pix = g.pos[1] * CELL + CELL / 2
+                g.target_pos = None
+                g.direction = None
+                g.previous_pos = None
+                g.state = "RESPAWNING"
+                g.respawn_time_at = time.monotonic() + 10
+
+            elif g.state == "RESPAWNING":
+                pass
+
                 
+
+    
+    def ghost_update(self):
+        now = time.monotonic()
+        if self.edible_active_unitl and now >= self.edible_active_unitl:
+            for gost in self.ghosts:
+                if gost.state == "EDIBLE":
+                    gost.state = "DANGEROUS"
+            self.edible_active_unitl = 0.0
+
+        for g in self.ghosts:
+            if g.state == "RESPAWNING" and g.respawn_time_at and now >= g.respawn_time_at:
+                g.respawn_time_at = 0.0
+                g.state = "DANGEROUS"
+    
+    def does_level_completed(self):
+        if not self.gums and not self.super_gums:
+            self.level_completed = True
+        elif time.monotonic() >= self.level_expires_at:
+            self.level_completed = True

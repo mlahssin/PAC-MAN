@@ -204,15 +204,27 @@ class Ghost(Character):
         # self.state = EDIBLE
 
         self.state = DANGEROUS
-        self.respawn_time_remaining = 0.0
+        self.start_pos = None
+        self.respawn_time_at = 0.0
 
     def run_away(self, maze, player_pos):
 
         neighbors = maze.get_neighbors(self.pos)
 
         
-        if len(neighbors) >= 2 and self.previous_pos is not None:
-            valid_neighbors = [neighbor for neighbor in neighbors if neighbor != self.previous_pos]
+        if len(neighbors) >= 2:
+            valid_neighbors = [neighbor for neighbor in neighbors
+            if len(maze.get_neighbors(neighbor)) > 1
+            ]
+            if not valid_neighbors:
+                valid_neighbors = neighbors
+            
+            previous_fix = [
+                neighbor for neighbor in valid_neighbors
+                if neighbor != self.previous_pos
+            ]
+            if previous_fix:
+                valid_neighbors = previous_fix 
         else:
             valid_neighbors = neighbors
 
@@ -254,6 +266,10 @@ class Ghost(Character):
                 
         elif self.state == "EDIBLE":
             next_pos = self.run_away(maze, player_pos)
+            if next_pos is None:
+                return False
+        elif self.state == "RESPAWNING":
+            return False
         
         
             
