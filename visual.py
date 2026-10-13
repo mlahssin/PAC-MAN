@@ -299,6 +299,7 @@ class Visual:
         pygame.init()
 
         screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
+
         self.load_images()
 
         maze_sur = pygame.Surface((WIDTH + 2, HEIGHT + 2), pygame.SRCALPHA)
@@ -372,7 +373,9 @@ class Visual:
             screen.blit(maze_sur, (PADDING, PADDING))
             screen.blit(sidebar_sur, (PADDING + WIDTH + GAP, PADDING))
 
+        
             pygame.display.flip()
+
             clock.tick(FPS)
 
         pygame.quit()
