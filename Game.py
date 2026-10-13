@@ -8,13 +8,13 @@ CELL = 80
 
 class Game:
 
-    def __init__(self, width=15, height=15, perfect=False, seed=42):
+    def __init__(self, width=15, height=15, perfect=False, seed=100):
 
         self.width = width
         self.height = height
         self.seed = seed
         self.start = (width // 2, height // 2)
-        # x_pix and y_pix
+        
         self.start_pix = (((width// 2) * CELL) + CELL // 2, (height // 2) * CELL + CELL // 2 )
         self.player_position = self.start
         self.corners = [(0, 0), (width - 1, height - 1), (width - 1, 0), (0, height - 1)]
@@ -29,7 +29,6 @@ class Game:
 
         self.gums = self.gums_placement()
         self.super_gums = self.super_gums()
-        # i meant here 7 seconds
         self.edible_active_unitl = 0.0
 
         self.visited = set()
@@ -37,12 +36,15 @@ class Game:
         self.score = 0
         self.stop = False
 
+
         self.game_over = False
         self.level_completed = False
-
+        self.level = 1
         level_expires_at = time.monotonic() + 180
+        self.game_won = False
 
-
+        def initialize_level():
+            pass
 
 
     def gums_placement(self):
@@ -66,7 +68,6 @@ class Game:
         return set(self.corners)
     
     def collect_gums(self):
-        # visited = set()
         if self.player.target_pos is not None:
             return
         if self.player.pos not in self.visited:
@@ -97,9 +98,6 @@ class Game:
         g = self.detect_collision()
         if  g is not None:
             if g.state == "DANGEROUS":
-#                 if self.lives <= 0:
-#                     self.game_over = True
-                    # return
                 self.lives -= 1
                 if self.lives == 0:
                     self.game_over = True
@@ -157,5 +155,9 @@ class Game:
     def does_level_completed(self):
         if not self.gums and not self.super_gums:
             self.level_completed = True
+            self.level += 1
         elif time.monotonic() >= self.level_expires_at:
             self.level_completed = True
+            self.level += 1
+    
+    
