@@ -129,7 +129,7 @@ class Game:
 
     def super_gum(self):
         return set(self.corners)
-    
+
     def collect_gums(self):
         if self.player.target_pos is not None:
             return
