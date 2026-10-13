@@ -206,6 +206,7 @@ class Ghost(Character):
         self.state = DANGEROUS
         self.start_pos = None
         self.respawn_time_at = 0.0
+        self.coefecient = 4
 
     def run_away(self, maze, player_pos):
 
@@ -249,7 +250,7 @@ class Ghost(Character):
             return False
         
         if self.state == "DANGEROUS":
-            if self.moves % 4 == 0:
+            if self.moves % self.coefecient == 0:
                 nieghbors = maze.get_neighbors(self.pos)
                 if nieghbors:
                     next_pos = random.choice(nieghbors)

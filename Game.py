@@ -8,43 +8,106 @@ CELL = 80
 
 class Game:
 
-    def __init__(self, width=15, height=15, perfect=False, seed=100):
+    def __init__(self, width=15, height=15, perfect=False, seed=42):
 
         self.width = width
         self.height = height
         self.seed = seed
         self.start = (width // 2, height // 2)
+
         
         self.start_pix = (((width// 2) * CELL) + CELL // 2, (height // 2) * CELL + CELL // 2 )
-        self.player_position = self.start
+        # self.player_position = self.start
         self.corners = [(0, 0), (width - 1, height - 1), (width - 1, 0), (0, height - 1)]
-        self.maze = Maze(width, height, perfect,seed)
-        self.grid = self.maze.grid
-        self.player = Player((width // 2, height // 2), None)
-        self.ghosts = [Ghost((0, 0), None), Ghost((width - 1, height - 1), None),
-            Ghost((width - 1, 0), None), Ghost((0, height - 1), None)]
+        # self.maze = Maze(width, height, perfect,seed)
+        # self.grid = self.maze.grid
+        # self.player = Player((width // 2, height // 2), None)
+        # self.ghosts = [Ghost((0, 0), None), Ghost((width - 1, height - 1), None),
+        #     Ghost((width - 1, 0), None), Ghost((0, height - 1), None)]
 
-        for ghost in self.ghosts:
-            ghost.start_pos =  ghost.pos
+        # for ghost in self.ghosts:
+        #     ghost.start_pos =  ghost.pos
 
-        self.gums = self.gums_placement()
-        self.super_gums = self.super_gums()
-        self.edible_active_unitl = 0.0
+        # self.gums = self.gums_placement()
+        # self.super_gums = self.super_gums()
+        # self.edible_active_unitl = 0.0
 
-        self.visited = set()
+        # self.visited = set()
         self.lives = 3
         self.score = 0
         self.stop = False
+        
+        self.level = 1
+        self.levels_frames = [24, 24, 22, 22, 20, 20, 18, 18, 16, 16]
+        
 
+        self.random_per = [3, 4, 5, 6, 7, 8, 9, 10, 20, 100]
+
+        self.levels_seeds = [42, 14, 26, 39, 52, 78, 71, 84, 93, 11]
+        self.initialize_level()
+        self.player.frames_per_cell = 10
+        # self.frames_per_cell = 24
+
+        # self.coeficient = 4
 
         self.game_over = False
-        self.level_completed = False
-        self.level = 1
-        level_expires_at = time.monotonic() + 180
+        # self.level_completed = False
+        
+        # level_expires_at = time.monotonic() + 180
         self.game_won = False
 
-        def initialize_level():
-            pass
+    def initialize_level(self):
+        self.player_position = self.start
+
+        self.maze = Maze(self.width, self.height, False, self.levels_seeds[self.level - 1])
+        self.grid = self.maze.grid
+        self.player = Player((self.width // 2, self.height // 2), None)
+        self.ghosts = [Ghost((0, 0), None), Ghost((self.width - 1, self.height - 1), None),
+            Ghost((self.width - 1, 0), None), Ghost((0, self.height - 1), None)]
+
+
+        self.coeficient = 4
+        for ghost in self.ghosts:
+            ghost.start_pos =  ghost.pos
+            ghost.frames_per_cell = self.levels_frames[self.level - 1]
+            ghost.coefecient = self.random_per[self.level - 1]
+        self.gums = self.gums_placement()
+        self.super_gums = self.super_gum()
+        self.edible_active_unitl = 0.0
+        self.visited = set()
+        self.level_completed = False
+        self.level_expires_at = time.monotonic() + 1000
+    
+    def Next_level(self):
+        self.level += 1
+
+        if self.level > 10:
+            self.game_won = True
+            self.game_over = True
+            return
+
+
+        self.initialize_level()
+
+        
+    def does_level_completed(self):
+        if not self.gums and not self.super_gums:
+            self.level_completed = True
+            # self.level += 1
+            return True
+        elif time.monotonic() >= self.level_expires_at:
+            self.level_completed = True
+            # self.level += 1
+            return True
+        return False
+    
+    def succesfully_complete_level(self):
+        if not self.gums and not self.super_gums:
+            return True
+        return False
+    
+        
+
 
 
     def gums_placement(self):
@@ -64,7 +127,7 @@ class Game:
         return gums
 
 
-    def super_gums(self):
+    def super_gum(self):
         return set(self.corners)
     
     def collect_gums(self):
@@ -152,12 +215,5 @@ class Game:
                 g.respawn_time_at = 0.0
                 g.state = "DANGEROUS"
     
-    def does_level_completed(self):
-        if not self.gums and not self.super_gums:
-            self.level_completed = True
-            self.level += 1
-        elif time.monotonic() >= self.level_expires_at:
-            self.level_completed = True
-            self.level += 1
-    
+
     

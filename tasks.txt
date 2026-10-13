@@ -1,1 +1,241 @@
-Edible mode
+pacman levels implementation :
+
+	check if the level has completed:
+		next level:
+			generate a random maze so  change the see or set it to None the maze can generate a new one 
+			increment the level attriburte
+			put the vitess with the gost is moving as an attribute in the game class so we can incremente it from level to another level
+			i have also the idea to make it har by changing the logic or at least controling the randomly chooooosen
+			
+			Maze(width, heig, perfect , seed) change the seed at each level is enough to generate random maze for that level 
+			also each time adjust the vitess of the ghost 
+			the at last  level a i will use pure bfs so with high vitess for gost so it will be really difficult to pass
+			
+
+
+
+
+
+
+		check if the game has done :
+			all 10 levels are done successufly -> win
+			playerlives done = 0 -> Lose 
+
+# PAC-MAN — Levels Implementation Plan
+
+
+Task1 : 
+	initalise level methode all what level needs 
+Task2:
+	regenerate new maze based on a different seed with maze validation checks assure that it works as wanted
+Task3 : 
+	difficulty change : 
+Task4:
+	Reset Collectibles : gums supergums  visited = set() player ghost  previous pos to None
+Task5:
+	new player and new ghost reseting all there entitis
+Task 6:
+	reset level in case die or time out
+	does level completed would be false in this case
+TASK 7:
+	implement next level  check level_completed would be True
+
+	check weither the current level is 10 so if it completed game over win
+	self.game_won = True
+	otherwise not level 10
+		increment  self.level
+		initialise level prepare all what u need for a new level
+
+TASK 08 — Handle Level Completion and Game End
+
+- [ ] Call `does_level_completed()` after collecting gums.
+- [ ] Complete the level if all required gums and supergums are eaten.
+- [ ] Temporarily consider expiration of the 180-second timer as level completion.
+- [ ] Discuss the final timeout behavior with Ayoub and update it according to the subject.
+- [ ] If all 10 levels are completed, trigger victory.
+- [ ] If player lives reach zero, trigger defeat.
+- [ ] Ensure defeat and victory stop normal gameplay updates.
+- [ ] Decide how collisions and level completion are prioritized if they occur
+
+
+
+	
+						
+	
+	
+
+
+
+## TASK 01 — Refactor Game Initialization
+
+- [ ] Create `initialize_level()` in the `Game` class.
+- [ ] Move level-specific initialization from `__init__()` into this method.
+- [ ] Keep global attributes in `__init__()`:
+  - `self.level`
+  - `self.score`
+  - `self.lives`
+  - `self.game_over`
+  - `self.game_won`
+- [ ] Call `initialize_level()` to initialize Level 1.
+
+**Goal:** Avoid duplicating initialization code when switching levels.
+
+---
+
+## TASK 02 — Implement Maze Regeneration
+
+- [ ] Keep maze width and height unchanged.
+- [ ] Keep `perfect=False`.
+- [ ] Use a fixed seed for Level 1.
+- [ ] Change the seed for every subsequent level (random integer or `None` if supported).
+- [ ] Generate a new `Maze` instance for every level.
+- [ ] Verify that different seeds actually produce different maze layouts.
+- [ ] Recalculate valid player and ghost spawn positions.
+- [ ] Verify that all required collectible positions are reachable.
+
+**Goal:** Each new level has a different playable maze.
+
+---
+
+## TASK 03 — Implement Ghost Difficulty Progression
+
+- [ ] Move ghost `frames_per_cell` configuration out of the game loop.
+- [ ] Make ghost speed configurable through the `Game` class.
+- [ ] Adjust ghost speed according to the current level.
+- [ ] Gradually decrease `frames_per_cell` to make ghosts faster.
+- [ ] Define a minimum `frames_per_cell` to prevent excessive speed.
+- [ ] Make ghost random movement frequency/probability configurable.
+- [ ] Reduce random movements as the level increases.
+- [ ] Use pure BFS chasing on Level 10 (no random moves).
+- [ ] Test whether the final level is challenging but still playable.
+
+**Example difficulty configuration (adjust after testing):**
+
+| Level | Frames per cell | Random movements |
+|---|---:|---:|
+| 1 | 24 | 25% |
+| 2 | 24 | 20% |
+| 3 | 22 | 15% |
+| 4 | 22 | 15% |
+| 5 | 20 | 10% |
+| 6 | 20 | 10% |
+| 7 | 18 | 5% |
+| 8 | 18 | 5% |
+| 9 | 16 | 0% |
+| 10 | 16 | 0% |
+
+**Goal:** Progressively increase difficulty without rewriting the entire ghost AI.
+
+---
+
+## TASK 04 — Reset Collectibles
+
+- [ ] Clear the previous level's gums and supergums.
+- [ ] Regenerate normal gums based on the new maze.
+- [ ] Regenerate four supergums at valid corner positions.
+- [ ] Clear the previous level's collected-position tracking.
+- [ ] Make sure every collectible can be reached.
+- [ ] Ensure each collectible awards points only once.
+
+**Goal:** Every new level starts with fresh collectibles.
+
+---
+
+## TASK 05 — Reset Player and Ghosts
+
+- [ ] Create new player and ghost objects for each level, or reset existing objects completely.
+- [ ] Put the player at the new valid starting position.
+- [ ] Put the four ghosts at their corresponding valid spawn positions.
+- [ ] Reset `target_pos`, `direction`, `requested_direction` and `previous_pos` where applicable.
+- [ ] Set all ghost states to `DANGEROUS`.
+- [ ] Reset every ghost's `respawn_time_at`.
+- [ ] Reset the global `edible_active_unitl` timer.
+- [ ] Apply the current level's ghost speed and AI configuration.
+
+**Goal:** No movement state or ghost effect carries over from the previous level.
+
+---
+
+## TASK 06 — Reset Level-Specific State
+
+- [ ] Set `self.level_completed = False`.
+- [ ] Start a new level timer using `time.monotonic() + 180`.
+- [ ] Ensure the timer starts when gameplay begins.
+- [ ] Ensure pause/resume freezes the level timer and ghost timers.
+- [ ] Preserve the player's current score.
+- [ ] Preserve the player's remaining lives.
+
+**Goal:** A new level starts cleanly without losing overall game progress.
+
+---
+
+## TASK 07 — Implement `next_level()`
+
+- [ ] Check whether `self.level_completed` is `True`.
+- [ ] Prevent repeated transitions from the same completed level.
+- [ ] Check whether the current level is Level 10.
+- [ ] If Level 10 is completed, set `self.game_won = True`.
+- [ ] Otherwise, increment `self.level`.
+- [ ] Call `initialize_level()` to prepare the next level.
+- [ ] Ensure no Level 11 is generated.
+
+	implement next level  check level_completed would be True
+	check weither the current level is 10 so if it completed game over win
+	self.game_won = True
+	otherwise not level 10
+		increment  self.level
+		initialise level prepare all what u need for a new level
+	call
+**Goal:** Move correctly from Level 1 through Level 10.
+
+---
+
+## TASK 08 — Handle Level Completion and Game End
+
+- [ ] Call `does_level_completed()` after collecting gums.
+- [ ] Complete the level if all required gums and supergums are eaten.
+- [ ] Temporarily consider expiration of the 180-second timer as level completion.
+- [ ] Discuss the final timeout behavior with Ayoub and update it according to the subject.
+- [ ] If all 10 levels are completed, trigger victory.
+- [ ] If player lives reach zero, trigger defeat.
+- [ ] Ensure defeat and victory stop normal gameplay updates.
+- [ ] Decide how collisions and level completion are prioritized if they occur on the same frame.
+
+**Goal:** Correct handling of completion, victory, and defeat.
+
+---
+
+## TASK 09 — Integrate With Ayoub's UI
+
+- [ ] Expose the current level number.
+- [ ] Expose the remaining level time.
+- [ ] Expose the score and remaining lives.
+- [ ] Notify the UI when a level starts or finishes.
+- [ ] Notify the UI when the game is won or lost.
+- [ ] Coordinate pause/resume behavior with Ayoub.
+
+**Goal:** Keep the game engine and graphical interface synchronized.
+
+---
+
+## TASK 10 — Final Testing
+
+- [ ] Level 1 always uses the same maze seed.
+- [ ] Levels 2–10 generate new random mazes.
+- [ ] Width and height remain unchanged.
+- [ ] Player and ghosts spawn on valid cells.
+- [ ] All collectibles are reachable.
+- [ ] Ghost speed increases as intended.
+- [ ] Ghost randomness decreases as intended.
+- [ ] Level 10 uses pure BFS chasing.
+- [ ] All gums collected → level completed.
+- [ ] Timer expires → level completed (temporary rule).
+- [ ] Score is preserved between levels.
+- [ ] Remaining lives are preserved between levels.
+- [ ] Ghost states and timers reset correctly.
+- [ ] Level 10 completed → victory.
+- [ ] Zero lives → defeat.
+- [ ] No accidental repeated level transitions.
+- [ ] Game pause doesn't consume gameplay time.
+
+**Final goal:** A playable 10-level PAC-MAN game with procedurally generated mazes, progressive ghost difficulty, persistent score/lives across levels, and correct victory/defeat conditions.

@@ -33,7 +33,32 @@ Task3 :
 Task4:
 	Reset Collectibles : gums supergums  visited = set() player ghost  previous pos to None
 Task5:
-	
+	new player and new ghost reseting all there entitis
+Task 6:
+	reset level in case die or time out
+	does level completed would be false in this case
+TASK 7:
+	implement next level  check level_completed would be True
+
+	check weither the current level is 10 so if it completed game over win
+	self.game_won = True
+	otherwise not level 10
+		increment  self.level
+		initialise level prepare all what u need for a new level
+
+TASK 08 — Handle Level Completion and Game End
+
+- [ ] Call `does_level_completed()` after collecting gums.
+- [ ] Complete the level if all required gums and supergums are eaten.
+- [ ] Temporarily consider expiration of the 180-second timer as level completion.
+- [ ] Discuss the final timeout behavior with Ayoub and update it according to the subject.
+- [ ] If all 10 levels are completed, trigger victory.
+- [ ] If player lives reach zero, trigger defeat.
+- [ ] Ensure defeat and victory stop normal gameplay updates.
+- [ ] Decide how collisions and level completion are prioritized if they occur
+
+
+
 	
 						
 	
@@ -154,6 +179,13 @@ Task5:
 - [ ] Call `initialize_level()` to prepare the next level.
 - [ ] Ensure no Level 11 is generated.
 
+	implement next level  check level_completed would be True
+	check weither the current level is 10 so if it completed game over win
+	self.game_won = True
+	otherwise not level 10
+		increment  self.level
+		initialise level prepare all what u need for a new level
+	call
 **Goal:** Move correctly from Level 1 through Level 10.
 
 ---

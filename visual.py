@@ -13,12 +13,12 @@ CYAN: tuple[int, int, int] = (0, 255, 255)       # Inky
 ORANGE: tuple[int, int, int] = (255, 184, 82)    # Clyde
 
 
-ROWS = 23
-COLS = 21
+ROWS = 11
+COLS = 11
 
 CELL = 80
 
-SEED = 45
+SEED = 42
 
 WIDTH = ROWS * CELL
 HEIGHT = COLS * CELL
@@ -201,6 +201,22 @@ class Visual:
 
             # 5. Check collisions
             self.game.handle_collisions()
+
+            #6 level check:
+            if self.game.does_level_completed():
+                print("yeeeeeeeeeeeeeeeeeeees!")
+                if self.game.succesfully_complete_level():
+                    self.game.Next_level()
+                    print(self.game.level)
+                    print(self.game.lives)
+
+                else:
+                    self.game.initialize_level()
+                    # 
+            
+
+            if self.game.game_won:
+                print("congratualtions")
 
             if self.game.game_over:
                 print("Game oveeeeeeeeeeeeeeeeeeeer!!!!!")
