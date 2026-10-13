@@ -55,7 +55,11 @@ class Game:
 
     def super_gums(self):
         return set(self.corners)
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> Ayoub-branch
     def collect_gums(self):
         # visited = set()
         if self.player.target_pos is not None:
