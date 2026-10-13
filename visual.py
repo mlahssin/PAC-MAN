@@ -21,8 +21,6 @@ CYAN: tuple[int, int, int] = (0, 255, 255)       # Inky
 ORANGE: tuple[int, int, int] = (255, 184, 82)    # Clyde
 
 
-#480058
-
 ROWS = 21
 COLS = 21
 
@@ -53,6 +51,14 @@ class Visual:
         (self.center_x, self.center_y) = self.game.player_position
 
         self.player_img = None
+
+        self.player_right = None
+        self.player_left = None
+        self.facing = "right"
+
+        self.heart_full = None
+        self.heart_empty = None
+
         self.ghost1_img = None
         self.supergum_img = None
         self.gum_img = None
@@ -97,22 +103,58 @@ class Visual:
         self.label_font = self.load_font(bangers, 35)
         self.value_font = self.load_font(bangers, 54)
 
+        self.player_right = self.load_scaled("assets/player/player1.png", CELL - 8)
+        self.player_left = self.load_scaled("assets/player/player2.png", CELL - 8)
+
         ghost_files = ["assets/ghosts/ghost1.png", "assets/ghosts/ghost2.png",
                        "assets/ghosts/ghost3.png", "assets/ghosts/ghost4.png"]
 
         self.ghost_imgs = [self.load_scaled(path, CELL - 8)
                            for path in ghost_files]
 
+        self.heart_full = self.load_scaled("assets/lives/full_heart.png", 90)
+        self.heart_empty = self.load_scaled("assets/lives/empty_heart.png", 90)
+
+    def draw_lives(self, sidebar_sur, lives, y, max_lives=3):
+
+        w = sidebar_sur.get_width()
+        hearth_w = self.heart_full.get_width() if self.heart_full else 40
+        gap = 12
+        row_w = max_lives * hearth_w + (max_lives - 1) * gap
+        x = (w - row_w) // 2
+
+        for i in range(max_lives):
+            img = self.heart_full if i < lives else self.heart_empty
+            if img is not None:
+                sidebar_sur.blit(img, (x, y))
+            else:
+                color = (220, 40, 60) if i < lives else (80, 80, 90)
+                pygame,draw,circle(sidebar_sur, color, (x + 20, y + 20), 18)
+            x += hearth_w + gap
+
+        return y + 100
+
+    
     def draw_player(self, maze_sur):
 
         player = self.game.player
         center = (round(player.x_pix), round(player.y_pix))
 
-        if self.player_img is not None:
-            rect = self.player_img.get_rect(center=center)
-            maze_sur.blit(self.player_img, rect)
+        if player.direction in ("left", "right"):
+            self.facing = player.direction
+
+        img = self.player_left if self.facing == "left" else self.player_right
+
+        if img is not None:
+             maze_sur.blit(img, img.get_rect(center=center))
         else:
             pygame.draw.circle(maze_sur, ORANGE, center, 20)
+
+        # if self.player_img is not None:
+        #     rect = self.player_img.get_rect(center=center)
+        #     maze_sur.blit(self.player_img, rect)
+        # else:
+        #     pygame.draw.circle(maze_sur, ORANGE, center, 20)
 
     def ghosts(self, maze_sur):
 
@@ -204,14 +246,18 @@ class Visual:
                          border_top_right_radius=20,
                          border_bottom_right_radius=20)
         self.draw_timer(sidebar_sur, 90)
-        y = 300
+        y = 200
 
         score = self.game.score
-        print(f"{score:01d}")
 
         y = self.draw_board(sidebar_sur, "SCORE", f"{score:01d}", y)
         y = self.draw_board(sidebar_sur, "HIGH SCORE", "0048200", y)
         y = self.draw_board(sidebar_sur, "LEVEL", "03 / 10", y)
+        y = self.draw_board(sidebar_sur, "LIVES", "", y, lives=self.game.lives)
+
+        board_h = self.board_img.get_height() if self.board_img else 135
+        hearts_y = y - board_h // 2 - 5
+        y = self.draw_lives(sidebar_sur, self.game.lives, hearts_y)
 
     def draw_timer(self, sidebar_sur, time_left):
         w = sidebar_sur.get_width()
@@ -227,7 +273,7 @@ class Visual:
         else:
             sidebar_sur.blit(text, text.get_rect(midtop=(w // 2, 30)))
 
-    def draw_board(self, sidebar_sur, label, value, y):
+    def draw_board(self, sidebar_sur, label, value, y, lives=None):
         w = sidebar_sur.get_width()
         brown = (60, 40, 28)
 
@@ -246,7 +292,7 @@ class Visual:
         sidebar_sur.blit(value_img, value_img.get_rect(
             center=(rect.centerx, rect.centery + 10)))
 
-        return rect.bottom - 10
+        return rect.bottom - 15
 
     def run(self):
 
@@ -299,7 +345,8 @@ class Visual:
 
                 self.game.handle_collisions()
             if self.game.game_over:
-                print("Game oveeeeeeeeeeeeeeeeeeeer!!!!!")
+                pass
+                # print("Game oveeeeeeeeeeeeeeeeeeeer!!!!!")
 
             self.game.collect_gums()
 
