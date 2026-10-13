@@ -161,22 +161,7 @@ class Maze:
         
         return path[::-1]
     
-    def run_away(self, start, player_pos):
-        neighbors = self.get_neighbors(start)
-        chosen_neighbor = None
-        greatest_distance = -1
-        
-        for neighbor in neighbors:
-            path = self.find_shortest_path(neighbor, player_pos)
-
-            if len(path) < 2:
-                continue
-            
-            distance = len(path)
-            if distance > greatest_distance:
-                chosen_neighbor = neighbor
-                greatest_distance = distance
-        return chosen_neighbor       
+      
             # if chosen_neighbor is None:
                 # chosen_neighbor = neighbor
             # else:

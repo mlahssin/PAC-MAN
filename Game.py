@@ -70,6 +70,8 @@ class Game:
                 self.score += 50
                 self.visited.add(self.player.pos)
                 self.super_gums.remove(self.player.pos)
+                for g in self.ghosts:
+                    g.state = "EDIBLE"
     
 
     def detect_collision(self):

@@ -48,6 +48,7 @@ class Character:
             # raise ValueError("Speed must be greater than zero")
         self.target_pos = None
         self.moves = 0
+        self.previous_pos = None
         # self.speed = speed
     
     def start_move(self, maze):
@@ -132,40 +133,15 @@ class Character:
             self.y_pix = target_y_pix
             
         if self.x_pix == target_x_pix and self.y_pix == target_y_pix:
+            self.previous_pos = self.pos
             self.pos = tx, ty
             self.moves += 1
             self.target_pos = None
 
 
         
-        # self.x_pix += pixel_step
-        
-        
-
-        
-        
-        # if right  
-        # elif left
-        # elif up
-        # elif down
-
-        # distance_needed = 1 - self.move_progress
-
-        
-        # if remaining_distance >= distance_needed:
-        #     self.move_progress += distance_needed
-        #     remaining_distance -= distance_needed
-        # self.pos = self.target_pos
-        # self.target_pos = None
-        # self.move_progress = 0
         return True
             
-        # else:
-        #     self.move_progress += remaining_distance
-        #     remaining_distance = 0
-        # moved = True
-
-        # return moved
 
 
 
@@ -230,6 +206,32 @@ class Ghost(Character):
         self.state = DANGEROUS
         self.respawn_time_remaining = 0.0
 
+    def run_away(self, maze, player_pos):
+
+        neighbors = maze.get_neighbors(self.pos)
+
+        
+        if len(neighbors) >= 2 and self.previous_pos is not None:
+            valid_neighbors = [neighbor for neighbor in neighbors if neighbor != self.previous_pos]
+        else:
+            valid_neighbors = neighbors
+
+
+        chosen_neighbor = None
+        greatest_distance = -1
+
+        for neighbor in valid_neighbors:
+            path = maze.find_shortest_path(neighbor, player_pos)
+
+            if len(path) < 2:
+                continue
+            
+            distance = len(path)
+            if distance > greatest_distance:
+                chosen_neighbor = neighbor
+                greatest_distance = distance
+        return chosen_neighbor
+
     def choose_direction(self, maze, player_pos):
         if self.target_pos is not None:
             return False
@@ -251,7 +253,7 @@ class Ghost(Character):
                 next_pos = path[1]
                 
         elif self.state == "EDIBLE":
-            next_pos = maze.run_away(self.pos, player_pos)
+            next_pos = self.run_away(maze, player_pos)
         
         
             
