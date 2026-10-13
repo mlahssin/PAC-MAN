@@ -1,10 +1,11 @@
 import pygame
+from scenes.base import Scene
 
+# class MenuScreen():
 
-class MenuScreen():
+#     def __init__(self):
+#         print("MenuScreen")
 
-    def __init__(self):
-        print("MenuScreen")
-
-    deef draw_background(self):
-        pass
+#     def handle_event(self, event):
+        
+#         # if even

@@ -22,8 +22,6 @@ WOOD_DARK = (60, 40, 28)
 
 
 
-
-
 BLACK: tuple[int, int, int] = (0, 0, 0)
 
 WHITE: tuple[int, int, int] = (255, 255, 255)
@@ -39,8 +37,6 @@ PINK: tuple[int, int, int] = (255, 184, 255)     # Pinky
 CYAN: tuple[int, int, int] = (0, 255, 255)       # Inky
 
 ORANGE: tuple[int, int, int] = (255, 184, 82)    # Clyde
-
-
 
 
 
