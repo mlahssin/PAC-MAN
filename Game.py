@@ -87,15 +87,17 @@ class Game:
         self.pause_started_at = None
 
     def Next_level(self):
-        self.level += 1
+        if not self.game_over:
+            self.level += 1
 
-        if self.level > 10:
-            self.game_won = True
-            self.game_over = True
-            return
+            if self.level > 10:
+                self.game_won = True
+                self.game_over = True
+                return
 
 
-        self.initialize_level()
+            self.initialize_level()
+
 
         
     def does_level_completed(self):
@@ -286,7 +288,7 @@ class Game:
     def skip_level(self):
         if self.cheat_mode:
             self.Next_level()
-        
+            
         # if self.pass_level_active:
         #     self.level_expires_at = time.monotonic() + 1
         # else:
