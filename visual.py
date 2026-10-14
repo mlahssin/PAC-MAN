@@ -693,7 +693,6 @@ class Visual:
 
                         elif event.key == pygame.K_F2:
                             self.game.skip_level()
-                            # pass
                         elif event.key == pygame.K_F3:
                             self.game.ghost_freeze()
 
@@ -756,11 +755,14 @@ class Visual:
 
                 #6 level check:
 
+                # pass level cheat mode:
+
                 if self.game.does_level_completed():
 
                     print("yeeeeeeeeeeeeeeeeeeees!")
 
                     if self.game.succesfully_complete_level():
+
 
                         self.game.Next_level()
 
@@ -769,7 +771,9 @@ class Visual:
                         print(self.game.lives)
 
                     else:
-
+                        # if self.game.pass_level_active:
+                        #     self.game.Next_level()
+                        # else:
                         self.game.initialize_level()
 
                     # 

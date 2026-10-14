@@ -45,7 +45,8 @@ class Game:
         self.cheat_mode = False
         self.invincible = False
         self.ghosts_frozen_active = False
-
+        self.level_normal_time = 180
+        self.pass_level_active = False
         self.levels_seeds = [42, 14, 26, 39, 52, 78, 71, 84, 93, 11]
         self.initialize_level()
 
@@ -81,14 +82,14 @@ class Game:
         self.edible_active_unitl = 0.0
         self.visited = set()
         self.level_completed = False
-        self.level_expires_at = time.monotonic() + 1000
+        self.level_expires_at = time.monotonic() + self.level_normal_time
         self.game_paused = False
         self.pause_started_at = None
 
     def Next_level(self):
         self.level += 1
 
-        if self.level > 2:
+        if self.level > 10:
             self.game_won = True
             self.game_over = True
             return
@@ -252,7 +253,8 @@ class Game:
         self.invincible = False
         self.speed_boost_active = False
         self.speed_boost()
-        self.ghosts_frozen_active =False
+        self.ghosts_frozen_active = False
+        self.pass_level_active = False
         
 
     def iron_man(self):
@@ -280,7 +282,15 @@ class Game:
     def ghost_freeze(self):
         if self.cheat_mode:
             self.ghosts_frozen_active = not self.ghosts_frozen_active
+    
+    def skip_level(self):
+        if self.cheat_mode:
+            self.Next_level()
         
+        # if self.pass_level_active:
+        #     self.level_expires_at = time.monotonic() + 1
+        # else:
+        #     self.level_expires_at = time.monotonic() + self.level_normal_time
         
 
     
