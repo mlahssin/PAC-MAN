@@ -1,6 +1,7 @@
+from scenes.base import Scene
 
+class Instructions(Scene):
 
-class Instructions():
-
-    def __init__(self):
+    def __init__(self, app):
+        super().__init__(app)
         print("instructions")

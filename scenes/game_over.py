@@ -1,6 +1,11 @@
+from scenes.base import Scene
 
 
-class GameOver():
+class GameOver(Scene):
 
-    def __init__(self):
-        print("game over")
+    def __init__(self, app):
+        super().__init__(app)
+        print("CLASS: game over")
+
+    def run(self):
+        print("CLASS: game over")
