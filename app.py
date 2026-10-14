@@ -6,10 +6,12 @@ from scenes.instructions import Instructions
 
 class App:
 
-    def __init__(self):
+    def __init__(self, width, height):
 
         pygame.init()
-        self.window = pygame.display.set_mode((800, 600))
+        pygame.display.set_caption("PAC MAN")
+
+        self.window = pygame.display.set_mode((width, height))
         self.clock = pygame.time.Clock()
         self.scenes = {
             "menu": MenuScene(self),
@@ -23,16 +25,13 @@ class App:
     def change_scene(self, scene):
         print("!!!! CHANGE SCENE!!!!!!!")
         print("scene:", scene)
-        self.current_scene = scene
-        self.scenes[scene]
+        self.current_scene = self.scenes[scene]
 
     def run(self):
 
-        menu = MenuScene(self)
+        # menu = MenuScene(self)
 
-        menu_sur = pygame.Surface((200, 200), pygame.SRCALPHA)
-
-        pygame.display.set_caption("PAC MAN")
+        # menu_sur = pygame.Surface((200, 200), pygame.SRCALPHA)
 
         while self.running:
 
@@ -40,17 +39,15 @@ class App:
 
                 if event.type == pygame.QUIT:
                     self.running = False
+                else:
+                    self.current_scene.handle_event(event)
+                self.current_scene.draw(self.window)
 
-                menu.handle_event(event)
-                menu.draw(menu_sur)
-
-            self.window.fill((150, 150, 123))
             pygame.display.flip()
             self.clock.tick(self.fps)
 
         pygame.quit()
 
 
-app = App()
-
+app = App(1000, 800)
 app.run()

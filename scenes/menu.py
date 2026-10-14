@@ -14,7 +14,9 @@ class MenuScene(Scene):
             ("QUIT", "quit"),
         ]
 
-        self.background = self.load_image("assets/menu_background.jpeg", 300,)
+        size = self.app.window.get_size() 
+        self.background = self.load_image("assets/menu_background.jpeg", size)
+
         self.button_img = None
 
         print("MENU   (1: game, 2: game_over, 3: leaderboard, Q: quit)")
@@ -24,9 +26,14 @@ class MenuScene(Scene):
         try:
             image = pygame.image.load(path)
             image = image.convert_alpha()
+            image = pygame.transform.scale(image, size)
+            return image
 
         except (pygame.error, FileNotFoundError, OSError):
             return None
+
+    def on_enter():
+        print("MENU")
 
     def handle_event(self, event):
 
@@ -35,7 +42,7 @@ class MenuScene(Scene):
 
         if event.key == pygame.K_1:
             print("game")
-            self.app.change_scene("game")
+            self.app.change_scene("menu")
 
         if event.key == pygame.K_2:
             print("game_over")
@@ -52,3 +59,5 @@ class MenuScene(Scene):
 
         if self.background is not None:
             screen.blit(self.background, (0, 0))
+        else:
+            screen.fill((150, 10, 20))

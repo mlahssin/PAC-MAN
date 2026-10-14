@@ -9,7 +9,7 @@ class Scene:
     def on_enter(self):
         pass
 
-    def handle_event(self):
+    def handle_event(self, event):
         pass
 
     def update(self):
