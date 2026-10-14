@@ -40,7 +40,8 @@ class Character:
         
         self.direction = direction
         # i should protect it to be strictement positive
-        self.frames_per_cell = 16
+        self.normal_frames_per_cell = 20
+        self.frames_per_cell = self.normal_frames_per_cell
         if self.frames_per_cell <= 0:
             raise ValueError("the frame cell must be non negative")
 

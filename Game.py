@@ -40,12 +40,15 @@ class Game:
         self.level = 1
         self.levels_frames = [24, 24, 22, 22, 20, 20, 18, 18, 16, 16]
         
-
+        self.speed_boost_active = False
         self.random_per = [3, 4, 5, 6, 7, 8, 9, 10, 20, 100]
+        self.cheat_mode = False
+        self.invincible = False
+        self.ghosts_frozen_active = False
 
         self.levels_seeds = [42, 14, 26, 39, 52, 78, 71, 84, 93, 11]
         self.initialize_level()
-        self.player.frames_per_cell = 10
+
         # self.frames_per_cell = 24
 
         # self.coeficient = 4
@@ -55,6 +58,8 @@ class Game:
         
         # level_expires_at = time.monotonic() + 180
         self.game_won = False
+
+
 
     def initialize_level(self):
         self.player_position = self.start
@@ -77,11 +82,13 @@ class Game:
         self.visited = set()
         self.level_completed = False
         self.level_expires_at = time.monotonic() + 1000
-    
+        self.game_paused = False
+        self.pause_started_at = None
+
     def Next_level(self):
         self.level += 1
 
-        if self.level > 10:
+        if self.level > 2:
             self.game_won = True
             self.game_over = True
             return
@@ -161,30 +168,31 @@ class Game:
         g = self.detect_collision()
         if  g is not None:
             if g.state == "DANGEROUS":
-                self.lives -= 1
-                if self.lives == 0:
-                    self.game_over = True
-                    return
-                self.player.pos = self.start
-                self.player.target_pos = None
-                self.player.direction = None
-                self.player.requested_direction = None
-                self.player.previous_pos = None
-                
+                if not self.invincible:
+                    self.lives -= 1
+                    if self.lives == 0:
+                        self.game_over = True
+                        return
+                    self.player.pos = self.start
+                    self.player.target_pos = None
+                    self.player.direction = None
+                    self.player.requested_direction = None
+                    self.player.previous_pos = None
+                    
 
-                self.player.x_pix = self.player.pos[0] * CELL + CELL / 2
-                self.player.y_pix = self.player.pos[1] * CELL + CELL / 2
+                    self.player.x_pix = self.player.pos[0] * CELL + CELL / 2
+                    self.player.y_pix = self.player.pos[1] * CELL + CELL / 2
 
-                for i, gos in enumerate(self.ghosts):
-                    gos.pos = self.corners[i]
-                    gos.x_pix = gos.pos[0] * CELL + CELL / 2
-                    gos.y_pix = gos.pos[1] * CELL + CELL / 2
-                    gos.target_pos = None
-                    gos.direction = None
-                    gos.previous_pos = None
-                    gos.state = "DANGEROUS"
-                    gos.respawn_time_at = 0.0
-                self.edible_active_unitl = 0.0
+                    for i, gos in enumerate(self.ghosts):
+                        gos.pos = self.corners[i]
+                        gos.x_pix = gos.pos[0] * CELL + CELL / 2
+                        gos.y_pix = gos.pos[1] * CELL + CELL / 2
+                        gos.target_pos = None
+                        gos.direction = None
+                        gos.previous_pos = None
+                        gos.state = "DANGEROUS"
+                        gos.respawn_time_at = 0.0
+                    self.edible_active_unitl = 0.0
 
             elif g.state == "EDIBLE":
                 g.pos = g.start_pos
@@ -195,7 +203,7 @@ class Game:
                 g.previous_pos = None
                 g.state = "RESPAWNING"
                 g.respawn_time_at = time.monotonic() + 10
-
+                self.score += 200
             elif g.state == "RESPAWNING":
                 pass
 
@@ -215,5 +223,64 @@ class Game:
                 g.respawn_time_at = 0.0
                 g.state = "DANGEROUS"
     
+    def pause_option(self):
+        self.game_paused = True
+        self.pause_started_at = time.monotonic()
+    
+    def resume_game(self):
+        paused_time = time.monotonic() - self.pause_started_at
+        self.level_expires_at += paused_time
+
+        if self.edible_active_unitl:
+            self.edible_active_unitl += paused_time
+        
+        for g in self.ghosts:
+            if g.state == "Respawn":
+                g.respawn_time_at += paused_time
+
+
+        self.game_paused =False
+        self.pause_started_at = None
+
+
+
+    def switch_to_cheat_mode(self):
+        self.cheat_mode = True
+    
+    def switch_to_normal_mode(self):
+        self.cheat_mode = False
+        self.invincible = False
+        self.speed_boost_active = False
+        self.speed_boost()
+        self.ghosts_frozen_active =False
+        
+
+    def iron_man(self):
+        if self.cheat_mode:
+            self.invincible = not self.invincible
+
+    def add_life(self):
+        if self.cheat_mode:
+            self.lives += 1
+
+
+    def speed_boost(self):
+        if self.cheat_mode:
+            self.speed_boost_active = not self.speed_boost_active
+        
+        if self.speed_boost_active:
+            self.player.frames_per_cell = max(
+                1,
+                self.player.normal_frames_per_cell // 2
+            )
+        else:
+            self.player.frames_per_cell = self.player.normal_frames_per_cell
+
+
+    def ghost_freeze(self):
+        if self.cheat_mode:
+            self.ghosts_frozen_active = not self.ghosts_frozen_active
+        
+        
 
     

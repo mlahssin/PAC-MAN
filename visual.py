@@ -651,10 +651,20 @@ class Visual:
                 if event.type == pygame.QUIT:
 
                     running = False
-
                 elif event.type == pygame.KEYDOWN:
-
-                    if event.key == pygame.K_LEFT:
+                    # this option is for pause feature
+                    if event.key == pygame.K_p:
+                        if not self.game.game_paused:
+                            self.game.pause_option()
+                        else:
+                            self.game.resume_game()
+                    #====================================#
+                    elif event.key == pygame.K_c:
+                        if not self.game.cheat_mode:
+                            self.game.switch_to_cheat_mode()
+                        else:
+                            self.game.switch_to_normal_mode()
+                    elif event.key == pygame.K_LEFT:
 
                         print("KEYDOWN received:", event.key)
 
@@ -677,7 +687,21 @@ class Visual:
                         direction = "down"
 
                         print("KEYDOWN received:", event.key)
+                    elif self.game.cheat_mode:
+                        if event.key == pygame.K_F1:
+                            self.game.iron_man()
 
+                        elif event.key == pygame.K_F2:
+                            self.game.skip_level()
+                            # pass
+                        elif event.key == pygame.K_F3:
+                            self.game.ghost_freeze()
+
+                        elif event.key == pygame.K_F4:
+                            self.game.add_life()
+
+                        elif event.key == pygame.K_F5:
+                            self.game.speed_boost()
             if direction is not None:
 
                 self.game.player.request_direction(direction)
@@ -690,74 +714,80 @@ class Visual:
 
             player = self.game.player
 
+            #====================================#
+            #if the game is stope i did not update nothing
+            if not self.game.game_paused:
+                # 1. Update player
 
-
-            # 1. Update player
-
-            player.update(self.game.maze)
-
-
-
-            # 2. Collect gums
-
-            self.game.collect_gums()
+                player.update(self.game.maze)
 
 
 
-            # 3. Update edible timer
+                # 2. Collect gums
 
-            self.game.ghost_update()
-
-
+                self.game.collect_gums()
 
 
 
-            # 4. Update ghosts
+                # 3. Update edible timer
 
-            for ghost in self.game.ghosts:
-
-                ghost.choose_direction(self.game.maze, self.game.player.pos)
-
-                ghost.frames_per_cell = 24
-
-                ghost.update(self.game.maze)
-
-            # 5. Check collisions
-
-            self.game.handle_collisions()
+                self.game.ghost_update()
 
 
 
-            #6 level check:
-
-            if self.game.does_level_completed():
-
-                print("yeeeeeeeeeeeeeeeeeeees!")
-
-                if self.game.succesfully_complete_level():
-
-                    self.game.Next_level()
-
-                    print(self.game.level)
-
-                    print(self.game.lives)
 
 
+                # 4. Update ghosts
+                if not self.game.ghosts_frozen_active:
+                    for ghost in self.game.ghosts:
 
-                else:
+                        ghost.choose_direction(self.game.maze, self.game.player.pos)
 
-                    self.game.initialize_level()
+                        # ghost.frames_per_cell = ghost.normal_frames_per_cell
+
+                        ghost.update(self.game.maze)
+
+                # 5. Check collisions
+
+                self.game.handle_collisions()
+
+                print("lives :", self.game.lives)
+
+
+                #6 level check:
+
+                if self.game.does_level_completed():
+
+                    print("yeeeeeeeeeeeeeeeeeeees!")
+
+                    if self.game.succesfully_complete_level():
+
+                        self.game.Next_level()
+
+                        print(self.game.level)
+
+                        print(self.game.lives)
+
+                    else:
+
+                        self.game.initialize_level()
 
                     # 
-            if self.game.game_won:
+            # if self.game.game_won:
 
-                print("congratualtions")
+            #     print("congratualtions")
 
 
-
+            # here to check if the game is finished 
+            # and to to check if player win/lose
             if self.game.game_over:
 
+
                 print("Game oveeeeeeeeeeeeeeeeeeeer!!!!!")
+                if self.game.game_won:
+                    print("Moaaaaaaaad WON !")
+                else:
+                    print("Moaad losee this game")
             # maze_sur.fill(BLACK)
 
             maze_sur.fill((0, 0, 0, 120))
