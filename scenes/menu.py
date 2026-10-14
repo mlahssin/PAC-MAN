@@ -7,7 +7,6 @@ class MenuScene(Scene):
     def __init__(self, app):
         super().__init__(app)
 
-
         self.options = ["PLAY", "INSTRUCTIONS", "LEADERBOARD", "QUIT"]
         self.scenes = ["game", "instructions", "leaderboard", "quit"]
 
@@ -15,12 +14,14 @@ class MenuScene(Scene):
 
         try:
 
-            self.background = pygame.image.load("assets/menu_background.jpeg").convert()
+            self.background = pygame.image.load(
+                "assets/menu_background.jpeg").convert()
             self.background = pygame.transform.smoothscale(
                 self.background, (width, height)
             )
 
-            self.button = pygame.image.load("assets/buttons/menu_button.png").convert_alpha()
+            self.button = pygame.image.load(
+                "assets/buttons/menu_button.png").convert_alpha()
             self.button = pygame.transform.smoothscale(
                 self.button, (380, 85)
             )
