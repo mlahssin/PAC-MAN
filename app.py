@@ -49,5 +49,5 @@ class App:
         pygame.quit()
 
 
-app = App(1000, 800)
+app = App(1200, 800)
 app.run()

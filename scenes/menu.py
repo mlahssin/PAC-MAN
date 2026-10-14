@@ -7,57 +7,53 @@ class MenuScene(Scene):
     def __init__(self, app):
         super().__init__(app)
 
-        self.options = [
-            ("PLAY", "game"),
-            ("INSTRUCTIONS", "instructions"),
-            ("LEADERBOARD", "leaderboard"),
-            ("QUIT", "quit"),
-        ]
 
-        size = self.app.window.get_size() 
-        self.background = self.load_image("assets/menu_background.jpeg", size)
+        self.options = ["PLAY", "INSTRUCTIONS", "LEADERBOARD", "QUIT"]
+        self.scenes = ["game", "instructions", "leaderboard", "quit"]
 
-        self.button_img = None
-
-        print("MENU   (1: game, 2: game_over, 3: leaderboard, Q: quit)")
-
-    def load_image(self, path, size):
+        width, height = self.app.window.get_size()
 
         try:
-            image = pygame.image.load(path)
-            image = image.convert_alpha()
-            image = pygame.transform.scale(image, size)
-            return image
 
-        except (pygame.error, FileNotFoundError, OSError):
-            return None
+            self.background = pygame.image.load("assets/menu_background.jpeg").convert()
+            self.background = pygame.transform.smoothscale(
+                self.background, (width, height)
+            )
 
-    def on_enter():
-        print("MENU")
+            self.button = pygame.image.load("assets/buttons/menu_button.png").convert_alpha()
+            self.button = pygame.transform.smoothscale(
+                self.button, (380, 85)
+            )
 
-    def handle_event(self, event):
+            self.font = pygame.font.Font("assets/fonts/Bangers-Regular.ttf", 40)
 
-        if event.type != pygame.KEYDOWN:
-            return
-
-        if event.key == pygame.K_1:
-            print("game")
-            self.app.change_scene("menu")
-
-        if event.key == pygame.K_2:
-            print("game_over")
-            self.app.change_scene("game_over")
-
-        if event.key == pygame.K_3:
-            print("instructions")
-            self.app.change_scene("instructions")
-
-        if event.key == pygame.K_q:
-            self.app.change_scene("instructions")
+        except (pygame.error, FileNotFoundError):
+            print("Error: could not load menu assets")
+            self.app.running = False
 
     def draw(self, screen):
 
-        if self.background is not None:
-            screen.blit(self.background, (0, 0))
-        else:
-            screen.fill((150, 10, 20))
+        screen.blit(self.background, (0, 0))
+
+        button_width = self.button.get_width()
+        button_height = self.button.get_height()
+
+        x = screen.get_width() // 2
+        x -= button_width // 2
+
+        y = 400
+
+        for i in range(4):
+            screen.blit(self.button, (x, y))
+
+            text = self.font.render(self.options[i], True, (255, 255, 255))
+
+            center_x = x + button_width // 2
+            center_y = y + button_height // 2
+
+            text_x = center_x - text.get_width() // 2
+            text_y = center_y - text.get_height() // 2
+
+            screen.blit(text, (text_x + 12, text_y))
+
+            y += 80
