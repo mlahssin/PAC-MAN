@@ -255,7 +255,7 @@ class Visual:
 
                 color = (220, 40, 60) if i < lives else (80, 80, 90)
 
-                pygame,draw,circle(sidebar_sur, color, (x + 20, y + 20), 18)
+                pygame, draw, circle(sidebar_sur, color, (x + 20, y + 20), 18)
 
             x += hearth_w + gap
 
