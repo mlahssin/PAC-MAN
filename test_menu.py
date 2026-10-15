@@ -12,7 +12,7 @@ menu = MenuScene(app)
 screen = pygame.display.set_mode((500, 500))
 
 # menu.handle_event(event)
-
+#flflf
 pygame.display.set_caption("MENU")
 
 clock = pygame.time.Clock()
