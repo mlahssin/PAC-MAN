@@ -28,16 +28,15 @@ When a ghost is in the `DANGEROUS` state, it can chase the player's current grid
 
 ## 3. Random Movement
 
-To avoid fully predictable chasing, ghosts sometimes select a random accessible neighbor instead of following BFS.
+Since all ghosts use the same BFS algorithm, ghosts reaching the same position may follow identical paths and move together. We introduced occasional random movements to reduce this synchronization and prevent ghosts from reaching the player too quickly.
 
-- `self.coefecient` controls when random movement occurs.
-- In `DANGEROUS` state, when `self.moves % self.coefecient == 0`, the ghost chooses a random cell from `Maze.get_neighbors(self.pos)`.
-- Otherwise, it chooses the next cell on the BFS path toward the player.
-- If there are no accessible neighbors, the ghost clears its direction and returns `False`.
+- `self.coefecient` controls how frequently random movement occurs.
+- When `self.moves % self.coefecient == 0`, the ghost selects a random accessible neighbor using `Maze.get_neighbors()`.
+- Otherwise, it follows the BFS shortest path toward the player.
+- If no accessible neighbor exists, the ghost stops moving.
 
-The initial coefficient is `4`. `Game.initialize_level()` adjusts it according to the current level through `self.random_per`.
+The initial coefficient is `4`, and `Game.initialize_level()` adjusts it for each level using `self.random_per`.
 
-**Implementation detail:** Because `moves` starts at `0`, the first decision also follows the random-movement branch.
 
 ## 4. Converting the Destination into a Direction
 
@@ -56,14 +55,3 @@ If the ghost is already moving toward a `target_pos`, the method does not select
 | `Character.update()` | Move progressively toward the target and complete the cell transition. |
 | `Game.initialize_level()` | Set the ghost's movement parameters for the level. |
 
-## 6. Verification Checklist
-
-- [ ] A dangerous ghost follows accessible paths toward the player.
-- [ ] Ghosts cannot cross walls or leave maze boundaries.
-- [ ] The next BFS destination is an adjacent accessible cell.
-- [ ] Random movement selects only accessible neighbors.
-- [ ] The random-movement frequency responds to the level parameter.
-- [ ] Ghosts do not choose a new direction in the middle of a cell transition.
-- [ ] When no valid next move is available, movement stops safely.
-
-**Scope:** This milestone documents Mlahssin's backend ghost-chasing and random-navigation implementation. Fleeing (`EDIBLE`), respawning, collisions, rendering, and keyboard or Pygame UI behavior are documented in other milestones. The checklist records tests to perform; it does not claim they have already passed.

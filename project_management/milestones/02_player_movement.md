@@ -54,13 +54,4 @@ The default value is **20 movement updates per cell**. The logical grid position
 | `Character.update()` | Progress pixel movement and complete cell transitions. |
 | `Maze.can_move()` | Check boundaries and walls before movement. |
 
-## 6. Verification Checklist
 
-- [ ] The player cannot cross walls or leave the maze.
-- [ ] Valid directions are accepted; invalid directions are rejected.
-- [ ] Blocked turns preserve the current direction.
-- [ ] Pixel movement progresses smoothly between cell centers.
-- [ ] Grid position changes correctly after a completed move.
-- [ ] Reversing halfway through a cell behaves smoothly.
-
-**Scope:** This document covers Mlahssin's backend movement implementation only (`Character`, `Player`, and maze movement validation). Keyboard-event handling, sprite rendering, and other Pygame interface code are excluded. Ghost AI, scoring, collisions, and level progression belong to later milestones.
