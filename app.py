@@ -25,8 +25,6 @@ class App:
         self.fps = 60
 
     def change_scene(self, scene):
-        print("!!!! CHANGE SCENE!!!!!!!")
-        print("scene:", scene)
         self.current_scene = self.scenes[scene]
 
     def run(self):

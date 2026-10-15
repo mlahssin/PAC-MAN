@@ -18,13 +18,16 @@ class Leaderboard(Scene):
         self.width, self.height = self.app.window.get_size()
 
         self.users = [
-            ("9andou7", "340"),
-            ("Claude", "300"),
-            ("Test1", "132"),
-            ("Test2", "124"),
-            ("Test3", "78"),
-            ("Test4", "45"),
-            ("Test5", "32"),
+            ("9azdou7", 48250),
+            ("AYOUB", 41980),
+            ("MOAAD", 39500),
+            ("KAGE 42", 27110),
+            ("RAIN", 19870),
+            ("TSUKI", 15420),
+            ("KUNAI", 12030),
+            ("NIGHTOWL", 9800),
+            ("ZEN", 6450),
+            ("PLAYER", 2100),
         ]
 
         try:
@@ -93,7 +96,7 @@ class Leaderboard(Scene):
         name_x = left + 50
         right = panel_x + self.panel_w - 130
 
-        y = panel_y + 100
+        y = panel_y + 80
         self.write(screen, "RANK", self.header_font, LIGHT_BROWN, midleft=(left, y))
         self.write(screen, "NAME", self.header_font, LIGHT_BROWN, midleft=(name_x, y))
         self.write(screen, "SCORE", self.header_font, LIGHT_BROWN, midright=(right, y))
@@ -121,7 +124,7 @@ class Leaderboard(Scene):
             self.write(screen, str(score), self.row_font, color,
                        midright=(right, y))
 
-            y += 43
+            y += 35
 
 
         screen.blit(self.back_button, self.back_rect)
