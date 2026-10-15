@@ -11,20 +11,24 @@ DIRECTIONS = {
 }
 
 
-
-
 class Maze:
-    def __init__(self, width, height,perfect, seed):
+    """Represent a maze and provide navigation utilities."""
+
+    def __init__(self, width, height, perfect, seed):
+        """Generate a maze with the given dimensions and seed."""
+
         if not isinstance(width, int) or not isinstance(height, int):
-            raise TypeError("heigh and width must be integers")
-        
+            raise TypeError("Maze width and height must be integers.")
+
         if width < 2 or height < 2 or width > 65 or height > 35:
-            raise ValueError("the width and the height must not be out those limit")
-        
+            raise ValueError(
+                "Invalid maze dimensions: width must be between 2 and 65, "
+                "and height must be between 2 and 35."
+            )
         if not isinstance(seed, int):
-            raise TypeError("the seed must be an integer")
+            raise TypeError("Maze seed must be an integer.")
         if seed < 0:
-            raise ValueError("Seed must be nonnegative")
+            raise ValueError("Maze seed must be a non-negative integer.")
         self.width = width
         self.height = height
         self.seed = seed
@@ -35,10 +39,12 @@ class Maze:
         ).maze
 
     def is_inside(self, pos):
+        """Check whether a position is inside the maze boundaries."""
         x, y = pos
         return x >= 0 and y >= 0 and x < self.width and y < self.height
 
     def can_move(self, pos, direction):
+        """Check whether movement is allowed without crossing walls."""
         if (
             not isinstance(pos, tuple) or len(pos) != 2
             or not isinstance(pos[0], int)
@@ -59,8 +65,9 @@ class Maze:
         ):
             return False
         return True
-    
+
     def get_neighbors(self, pos):
+        """Return all accessible neighboring cells of a position."""
         if (
             not isinstance(pos, tuple) or len(pos) != 2
             or not isinstance(pos[0], int)
@@ -70,7 +77,7 @@ class Maze:
 
         if not self.is_inside(pos):
             return []
-        
+
         neighbors = []
         x, y = pos
         for direction in DIRECTIONS:
@@ -78,38 +85,38 @@ class Maze:
                 dx, dy = DIRECTIONS[direction][0], DIRECTIONS[direction][1]
                 neighbors.append((x + dx, y + dy))
         return neighbors
-    
+
     def get_reachable_cells(self, start):
+        """Find all cells reachable from a starting position using BFS."""
         if (
             not isinstance(start, tuple) or len(start) != 2
             or not isinstance(start[0], int)
             or not isinstance(start[1], int)
         ):
             raise TypeError("start must be a tuple of two integers (x, y)")
-        
+
         if not self.is_inside(start):
-            
             return set()
         x, y = start
-        
-        if self.grid[y][x] == 15:
-            print("helloooooooo1\n")
-            return set()
-        dq = deque([start])
-        reachable = {start}
 
-        while dq:
-            
-            pos = dq.popleft()
+        if self.grid[y][x] == 15:
+            return set()
+        queue = deque([start])
+        reachable_cells = {start}
+
+        while queue:
+
+            pos = queue.popleft()
             neighbors = self.get_neighbors(pos)
 
-            for n in neighbors:
-                if n not in reachable:
-                    reachable.add(n)
-                    dq.append(n)
-        return reachable
+            for neighbor in neighbors:
+                if neighbor not in reachable_cells:
+                    reachable_cells.add(neighbor)
+                    queue.append(neighbor)
+        return reachable_cells
 
     def get_42_cells(self):
+        """Return the positions of all fully walled cells."""
         closed_cells = set()
         for y in range(self.height):
             for x in range(self.width):
@@ -117,8 +124,8 @@ class Maze:
                     closed_cells.add((x, y))
         return closed_cells
 
-
     def validate_spawns(self):
+        """Check whether the center and four corners are reachable."""
         centre = (self.width // 2, self.height // 2)
         corner1 = (0, 0)
         corner2 = (self.width - 1, self.height - 1)
@@ -131,9 +138,11 @@ class Maze:
                 and corner3 in reachable and corner4 in reachable)
 
     def start_reachable_cells(self, start):
+        """Return all cells reachable from the given starting position."""
         return self.get_reachable_cells(start)
 
     def find_shortest_path(self, start, goal):
+        """Find the shortest path between two cells using BFS."""
         visited = {start}
         predecessor = {}
 
@@ -141,6 +150,7 @@ class Maze:
         queue = deque([start])
 
         while queue:
+
             element = queue.popleft()
 
             neighbors = self.get_neighbors(element)
@@ -150,7 +160,10 @@ class Maze:
                     visited.add(neighbor)
                     queue.append(neighbor)
                     predecessor[neighbor] = element
-        
+
+            if goal in neighbors:
+                break
+
         if goal not in predecessor:
             return []
         path = []
@@ -158,72 +171,4 @@ class Maze:
         while cell is not None:
             path.append(cell)
             cell = predecessor[cell]
-        
         return path[::-1]
-    
-      
-            # if chosen_neighbor is None:
-                # chosen_neighbor = neighbor
-            # else:
-
-        # dist = {}
-        # paths = []
-        # self.find_shortest_path(self.)
-        # for neighbor in neighbors:
-            # path = self.find_shortest_path(neighbor, player_pos)
-            # paths.append(path)
-# 
-        # paths = sorted(paths, reverse=True)
-# 
-        # target = paths[0][0]
-        # return target
-            # dist[neighbor] = self.find_shortest_path(neighbor, player_pos)
-        
-        # dist = list(sorted(dist.items(), key=lambda x: x[1], reverse=True))
-
-        # if not dist:
-            # return None
-        # return dist[0][0]
-
-
-
-
-
-            
-            
-
-
-
-
-
-
-        
-    
-    
-
-
-# m1 = Maze(15, 15, 42)
-# m2 = Maze(20, 20, 42)
-
-# print(m1.validate_spawns())
-# print(m2.validate_spawns())
-# print(m2.grid[10][10])
-# print(m2.grid[0][19])
-
-# print(m2.grid[19][0])
-# print(m2.grid[19][19])
-# print(m2.grid[0][0])
-
-# print(m1.can_move((0, 0), "up"))       # False
-# print(m1.can_move((0, 0), "left"))     # False
-# print(m1.can_move((-1, 0), "right"))  # False
-# print(m1.can_move((0, 0), "diagonal")) # False
-
-# print("\n=====test========\n")
-
-# print(m1.grid[0][0])
-# print(m1.can_move((0, 0), "right"))
-# print(m1.can_move((0, 0), "down"))
-
-# print(m2.grid[10][10])
-# print(m2.get_reachable_cells((10, 10)))
