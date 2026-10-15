@@ -18,7 +18,7 @@ class App:
             "game_over": GameOver(self),
             "instructions": Instructions(self),
         }
-        self.current_scene = self.scenes["menu"]
+        self.current_scene = self.scenes["instructions"]
         self.running = True
         self.fps = 60
 

@@ -6,24 +6,37 @@ class Instructions(Scene):
 
     def __init__(self, app):
         super().__init__(app)
-        print("Inside: instructions")
 
-    def handle_event(self, event):
+        self.width, self.height = self.app.window.get_size()
 
-        if event.type != pygame.KEYDOWN:
-            return
+        try:
 
-        if event.key == pygame.K_1:
-            print("game")
-            self.app.change_scene("game")
+            self.background = pygame.image.load(
+                "assets/menu_background.jpeg").convert()
+            self.background = pygame.transform.smoothscale(
+                self.background, (self.width, self.height)
+            )
 
-        if event.key == pygame.K_2:
-            print("game_over")
-            self.app.change_scene("game_over")
+            self.scroll_panel = pygame.image.load(
+                "assets/scroll_panel.png").convert_alpha()
+            self.scroll_panel = pygame.transform.smoothscale(
+                self.scroll_panel, (400, 550)
+            )
 
-        if event.key == pygame.K_3:
-            print("instructions")
-            self.app.change_scene("instructions")
+            self.panel_w, self.panel_h = self.scroll_panel.get_size()
 
-        if event.key == pygame.K_q:
-            self.app.change_scene("instructions")
+            self.font = pygame.font.Font(
+                "assets/fonts/Bangers-Regular.ttf", 40)
+
+        except (pygame.error, FileNotFoundError):
+            print("Error: could not load menu assets")
+            self.app.running = False
+
+    def draw(self, screen):
+
+        screen.blit(self.background, (0, 0))
+
+        panel_x = self.width // 2 - self.panel_w // 2
+        panel_y = self.height // 6
+
+        screen.blit(self.scroll_panel, (panel_x, panel_y))

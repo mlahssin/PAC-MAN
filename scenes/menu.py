@@ -26,7 +26,8 @@ class MenuScene(Scene):
                 self.button, (380, 85)
             )
 
-            self.font = pygame.font.Font("assets/fonts/Bangers-Regular.ttf", 40)
+            self.font = pygame.font.Font(
+                "assets/fonts/Bangers-Regular.ttf", 40)
 
         except (pygame.error, FileNotFoundError):
             print("Error: could not load menu assets")
