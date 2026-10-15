@@ -33,6 +33,27 @@ class MenuScene(Scene):
             print("Error: could not load menu assets")
             self.app.running = False
 
+        self.button_rects = []
+        y = 400
+        for i in range(4):
+            rect = self.button.get_rect(midtop=(width // 2, y))
+            self.button_rects.append(rect)
+            y += 80
+
+    def choose(self, index):
+
+        target = self.scenes[index]
+        if target == "quit":
+            self.app.running = False
+        else:
+            self.app.change_scene(self.scenes[index])
+
+    def handle_event(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            for i in range(4):
+                if self.button_rects[i].collidepoint(event.pos):
+                    self.choose(i)
+
     def draw(self, screen):
 
         screen.blit(self.background, (0, 0))
