@@ -87,6 +87,15 @@ class Leaderboard(Scene):
 
         screen.blit(self.background, (0, 0))
 
+        self.write(screen, "HALL OF SHADOWS", self.title_font, (0, 0, 0),
+                   center=(center_x + 4, 64))
+        self.write(screen, "HALL OF SHADOWS", self.title_font, WHITE,
+                   center=(center_x, 60))
+        self.write(screen, "TOP 10 NINJAS", self.subtitle_font, (0, 0, 0),
+                   center=(center_x + 4, 114))
+        self.write(screen, "TOP 10 NINJAS", self.subtitle_font, WHITE,
+                   center=(center_x, 112))
+
         panel_x = self.width // 2 - self.panel_w // 2
         panel_y = 145
 
@@ -125,7 +134,6 @@ class Leaderboard(Scene):
                        midright=(right, y))
 
             y += 35
-
 
         screen.blit(self.back_button, self.back_rect)
         self.write(screen, "BACK", self.button_font, WHITE,

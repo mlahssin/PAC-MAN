@@ -20,7 +20,7 @@ class App:
             "instructions": Instructions(self),
             "leaderboard": Leaderboard(self),
         }
-        self.current_scene = self.scenes["leaderboard"]
+        self.current_scene = self.scenes["menu"]
         self.running = True
         self.fps = 60
 
