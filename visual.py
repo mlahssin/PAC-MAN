@@ -22,6 +22,11 @@ WOOD_DARK = (60, 40, 28)
 
 
 
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> origin/moaad
 BLACK: tuple[int, int, int] = (0, 0, 0)
 
 WHITE: tuple[int, int, int] = (255, 255, 255)
@@ -40,6 +45,11 @@ ORANGE: tuple[int, int, int] = (255, 184, 82)    # Clyde
 
 
 
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> origin/moaad
 ROWS = 11
 COLS = 11
 
@@ -255,7 +265,11 @@ class Visual:
 
                 color = (220, 40, 60) if i < lives else (80, 80, 90)
 
+<<<<<<< HEAD
                 pygame, draw, circle(sidebar_sur, color, (x + 20, y + 20), 18)
+=======
+                pygame,draw,circle(sidebar_sur, color, (x + 20, y + 20), 18)
+>>>>>>> origin/moaad
 
             x += hearth_w + gap
 
@@ -649,8 +663,24 @@ class Visual:
                     running = False
 
                 elif event.type == pygame.KEYDOWN:
+<<<<<<< HEAD
 
                     if event.key == pygame.K_LEFT:
+=======
+                    # this option is for pause feature
+                    if event.key == pygame.K_p:
+                        if not self.game.game_paused:
+                            self.game.pause_option()
+                        else:
+                            self.game.resume_game()
+                    #====================================#
+                    elif event.key == pygame.K_c:
+                        if not self.game.cheat_mode:
+                            self.game.switch_to_cheat_mode()
+                        else:
+                            self.game.switch_to_normal_mode()
+                    elif event.key == pygame.K_LEFT:
+>>>>>>> origin/moaad
 
                         print("KEYDOWN received:", event.key)
 
@@ -673,7 +703,24 @@ class Visual:
                         direction = "down"
 
                         print("KEYDOWN received:", event.key)
+<<<<<<< HEAD
 
+=======
+                    elif self.game.cheat_mode:
+                        if event.key == pygame.K_F1:
+                            self.game.iron_man()
+
+                        elif event.key == pygame.K_F2:
+                            self.game.skip_level()
+                        elif event.key == pygame.K_F3:
+                            self.game.ghost_freeze()
+
+                        elif event.key == pygame.K_F4:
+                            self.game.add_life()
+
+                        elif event.key == pygame.K_F5:
+                            self.game.speed_boost()
+>>>>>>> origin/moaad
             if direction is not None:
 
                 self.game.player.request_direction(direction)
@@ -686,6 +733,7 @@ class Visual:
 
             player = self.game.player
 
+<<<<<<< HEAD
 
 
             # 1. Update player
@@ -703,11 +751,32 @@ class Visual:
             # 3. Update edible timer
 
             self.game.ghost_update()
+=======
+            #====================================#
+            #if the game is stope i did not update nothing
+            if not self.game.game_paused:
+                # 1. Update player
+
+                player.update(self.game.maze)
+
+
+
+                # 2. Collect gums
+
+                self.game.collect_gums()
+
+
+
+                # 3. Update edible timer
+
+                self.game.ghost_update()
+>>>>>>> origin/moaad
 
 
 
 
 
+<<<<<<< HEAD
             # 4. Update ghosts
 
             for ghost in self.game.ghosts:
@@ -754,6 +823,64 @@ class Visual:
             if self.game.game_over:
 
                 print("Game oveeeeeeeeeeeeeeeeeeeer!!!!!")
+=======
+                # 4. Update ghosts
+                if not self.game.ghosts_frozen_active:
+                    for ghost in self.game.ghosts:
+
+                        ghost.choose_direction(self.game.maze, self.game.player.pos)
+
+                        # ghost.frames_per_cell = ghost.normal_frames_per_cell
+
+                        ghost.update(self.game.maze)
+
+                # 5. Check collisions
+
+                self.game.handle_collisions()
+
+                print("lives :", self.game.lives)
+
+
+                #6 level check:
+
+                # pass level cheat mode:
+
+                if self.game.does_level_completed():
+
+                    print("yeeeeeeeeeeeeeeeeeeees!")
+
+                    if self.game.succesfully_complete_level():
+
+
+                        self.game.Next_level()
+
+                        print(self.game.level)
+
+                        print(self.game.lives)
+
+                    else:
+                        # if self.game.pass_level_active:
+                        #     self.game.Next_level()
+                        # else:
+                        self.game.initialize_level()
+
+                    # 
+            # if self.game.game_won:
+
+            #     print("congratualtions")
+
+
+            # here to check if the game is finished 
+            # and to to check if player win/lose
+            if self.game.game_over:
+
+
+                print("Game oveeeeeeeeeeeeeeeeeeeer!!!!!")
+                if self.game.game_won:
+                    print("Moaaaaaaaad WON !")
+                else:
+                    print("Moaad losee this game")
+>>>>>>> origin/moaad
             # maze_sur.fill(BLACK)
 
             maze_sur.fill((0, 0, 0, 120))
