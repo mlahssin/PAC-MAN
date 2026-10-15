@@ -39,6 +39,8 @@ pixel_step = CELL / 10
 
 this are hardcoded in character.py file we should handle it 
 
+time added in the project management
+
  
 ===========================================================================================
 Project Mangement :
