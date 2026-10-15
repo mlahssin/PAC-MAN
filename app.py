@@ -2,6 +2,7 @@ import pygame
 from scenes.menu import MenuScene
 from scenes.game_over import GameOver
 from scenes.instructions import Instructions
+from scenes.leaderboard import Leaderboard
 
 
 class App:
@@ -17,8 +18,9 @@ class App:
             "menu": MenuScene(self),
             "game_over": GameOver(self),
             "instructions": Instructions(self),
+            "leaderboard": Leaderboard(self),
         }
-        self.current_scene = self.scenes["instructions"]
+        self.current_scene = self.scenes["leaderboard"]
         self.running = True
         self.fps = 60
 
@@ -28,10 +30,6 @@ class App:
         self.current_scene = self.scenes[scene]
 
     def run(self):
-
-        # menu = MenuScene(self)
-
-        # menu_sur = pygame.Surface((200, 200), pygame.SRCALPHA)
 
         while self.running:
 
