@@ -1,6 +1,7 @@
 import pygame
-from scenes.game import MenuScene
-from scenes.game_over import GameOver
+from scenes.game import GameScene
+from scenes.menu import MenuScene
+# from scenes.game_over import GameOver
 from scenes.instructions import Instructions
 from scenes.leaderboard import Leaderboard
 
@@ -16,7 +17,7 @@ class App:
         self.clock = pygame.time.Clock()
         self.scenes = {
             "game": GameScene(self),
-            "game_over": GameOver(self),
+            "menu": MenuScene(self),
             "instructions": Instructions(self),
             "leaderboard": Leaderboard(self),
         }
@@ -45,5 +46,5 @@ class App:
         pygame.quit()
 
 
-app = App(1200, 800)
+app = App(2100, 1500)
 app.run()

@@ -32,13 +32,13 @@ class GameScene(Scene):
     size = (GAME_WIDTH, GAME_HEIGHT)
 
     def __init__(self, app):
-        super.__init__(app)
+        super().__init__(app)
 
         self.game = None
         self.facing = "right"
         self.direction = None
 
-        self.load_images()
+        # self.load_image()
 
         self.player_right = self.load_image("assets/player/player1.png", CELL - 8)
         self.player_left = self.load_image("assets/player/player2.png", CELL - 8)
@@ -66,6 +66,8 @@ class GameScene(Scene):
 
         self.maze_sur = pygame.Surface((MAZE_WIDTH + 2, MAZE_HEIGHT + 2), pygame.SRCALPHA)
         self.sidebar_sur = pygame.Surface((SIDEBAR_WIDTH, MAZE_HEIGHT), pygame.SRCALPHA)
+
+        self.on_enter()
 
     def on_enter(self):
         self.game = Game(ROWS, COLS, perfect=False, seed=SEED)

@@ -138,7 +138,6 @@ class Visual:
                   round(img.get_height() * scale)))
 
 
-
     def load_font(self, path, size):
 
         try:
