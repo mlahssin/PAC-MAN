@@ -1,7 +1,7 @@
 import pygame
 from scenes.game import GameScene
 from scenes.menu import MenuScene
-# from scenes.game_over import GameOver
+from scenes.game_over import GameOver
 from scenes.instructions import Instructions
 from scenes.leaderboard import Leaderboard
 
@@ -20,8 +20,9 @@ class App:
             "menu": MenuScene(self),
             "instructions": Instructions(self),
             "leaderboard": Leaderboard(self),
+            "game_over": GameOver(self)
         }
-        self.current_scene = self.scenes["menu"]
+        self.current_scene = self.scenes["game_over"]
         self.running = True
         self.fps = 60
 
@@ -33,15 +34,15 @@ class App:
         while self.running:
 
             for event in pygame.event.get():
-
                 if event.type == pygame.QUIT:
                     self.running = False
                 else:
                     self.current_scene.handle_event(event)
-                self.current_scene.draw(self.window)
 
+            dt = self.clock.tick(self.fps)
+            self.current_scene.update(dt)
+            self.current_scene.draw(self.window)
             pygame.display.flip()
-            self.clock.tick(self.fps)
 
         pygame.quit()
 

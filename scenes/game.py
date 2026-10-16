@@ -4,14 +4,14 @@ from scenes.base import Scene
 from maze import Maze
 from Game import Game
 
-ROWS = 11
-COLS = 11
+ROWS = 15
+COLS = 15
 CELL = 80
 SEED = 42
 
 PADDING = 40
 GAP = 20
-SIDEBAR_WIDTH = 700
+SIDEBAR_WIDTH = 800
 
 MAZE_WIDTH = ROWS * CELL
 MAZE_HEIGHT = COLS * CELL
@@ -29,16 +29,12 @@ FONT = "assets/fonts/Bangers-Regular.ttf"
 
 class GameScene(Scene):
 
-    size = (GAME_WIDTH, GAME_HEIGHT)
-
     def __init__(self, app):
         super().__init__(app)
 
         self.game = None
         self.facing = "right"
         self.direction = None
-
-        # self.load_image()
 
         self.player_right = self.load_image("assets/player/player1.png", CELL - 8)
         self.player_left = self.load_image("assets/player/player2.png", CELL - 8)
@@ -47,7 +43,7 @@ class GameScene(Scene):
         self.gum_img = self.load_image("assets/gum.png", CELL // 3)
         self.supergum_img = self.load_image("assets/supergum.png", CELL // 2)
         self.timer_img = self.load_image("assets/timer_sign.png", 300)
-        self.board_img = self.load_image("assets/board.png", 600)
+        self.board_img = self.load_image("assets/board.png", 500)
         self.heart_full = self.load_image("assets/lives/full_heart.png", 90)
         self.heart_empty = self.load_image("assets/lives/empty_heart.png", 90)
 
@@ -55,7 +51,7 @@ class GameScene(Scene):
             self.background = pygame.image.load(
                 "assets/background.jpeg").convert()
             self.background = pygame.transform.smoothscale(
-                self.background, (GAME_WIDTH, GAME_HEIGHT))
+                self.background, self.app.window.get_size())
             self.timer_font = pygame.font.Font(FONT, 40)
             self.label_font = pygame.font.Font(FONT, 35)
             self.value_font = pygame.font.Font(FONT, 54)
@@ -63,6 +59,17 @@ class GameScene(Scene):
         except (pygame.error, FileNotFoundError):
             print("Error: could not load game assets")
             self.app.running = False
+
+        self.canvas = pygame.Surface((GAME_WIDTH, GAME_HEIGHT), pygame.SRCALPHA)
+
+        # scale the canvas to fit the window: 2100x1500 -> 1.25
+        win_w, win_h = self.app.window.get_size()
+        self.scale = min(win_w / GAME_WIDTH, win_h / GAME_HEIGHT)
+        self.scaled_size = (int(GAME_WIDTH * self.scale),
+                            int(GAME_HEIGHT * self.scale))
+        # centered in the window
+        self.offset = ((win_w - self.scaled_size[0]) // 2,
+                       (win_h - self.scaled_size[1]) // 2)
 
         self.maze_sur = pygame.Surface((MAZE_WIDTH + 2, MAZE_HEIGHT + 2), pygame.SRCALPHA)
         self.sidebar_sur = pygame.Surface((SIDEBAR_WIDTH, MAZE_HEIGHT), pygame.SRCALPHA)
@@ -88,7 +95,6 @@ class GameScene(Scene):
     def handle_event(self, event):
         if event.type != pygame.KEYDOWN:
             return
-
         if event.key in (pygame.K_LEFT, pygame.K_a):
             self.direction = "left"
         elif event.key in (pygame.K_RIGHT, pygame.K_d):
@@ -131,6 +137,9 @@ class GameScene(Scene):
     def draw(self, screen):
         screen.blit(self.background, (0, 0))
 
+        canvas = self.canvas
+        canvas.fill((0, 0, 0, 0)) 
+
         # maze layer
         self.maze_sur.fill((0, 0, 0, 120))
         self.draw_42_cells()
@@ -139,12 +148,15 @@ class GameScene(Scene):
         self.draw_supergums()
         self.draw_player()
         self.draw_ghosts()
-        screen.blit(self.maze_sur, (PADDING, PADDING))
+        canvas.blit(self.maze_sur, (PADDING, PADDING))
 
         # sidebar layer
         self.sidebar_sur.fill((0, 0, 0, 70))
         self.draw_sidebar()
-        screen.blit(self.sidebar_sur, (PADDING + MAZE_WIDTH + GAP, PADDING))
+        canvas.blit(self.sidebar_sur, (PADDING + MAZE_WIDTH + GAP, PADDING))
+
+        screen.blit(pygame.transform.smoothscale(canvas, self.scaled_size),
+            self.offset)
 
     def load_scaled(self, path, size):
         try:
