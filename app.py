@@ -1,5 +1,5 @@
 import pygame
-from scenes.menu import MenuScene
+from scenes.game import MenuScene
 from scenes.game_over import GameOver
 from scenes.instructions import Instructions
 from scenes.leaderboard import Leaderboard
@@ -15,7 +15,7 @@ class App:
         self.window = pygame.display.set_mode((width, height))
         self.clock = pygame.time.Clock()
         self.scenes = {
-            "menu": MenuScene(self),
+            "game": GameScene(self),
             "game_over": GameOver(self),
             "instructions": Instructions(self),
             "leaderboard": Leaderboard(self),

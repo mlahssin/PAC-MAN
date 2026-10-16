@@ -9,72 +9,46 @@ from Game import Game
 
 
 CREAM = (245, 230, 205)
-
 LABEL = (190, 170, 160)
-
 GOLD = (255, 200, 80)
-
 CRIMSON = (200, 40, 50)
-
 WOOD = (92, 62, 40)
-
 WOOD_DARK = (60, 40, 28)
 
 
 
 BLACK: tuple[int, int, int] = (0, 0, 0)
-
 WHITE: tuple[int, int, int] = (255, 255, 255)
-
 YELLOW: tuple[int, int, int] = (255, 255, 0)     # Pac-Man
-
 ORANGE_42: tuple[int, int, int] = (219, 70, 4)       # walls
-
 RED: tuple[int, int, int] = (255, 0, 0)          # Blinky
-
 PINK: tuple[int, int, int] = (255, 184, 255)     # Pinky
-
 CYAN: tuple[int, int, int] = (0, 255, 255)       # Inky
-
 ORANGE: tuple[int, int, int] = (255, 184, 82)    # Clyde
-
 
 
 ROWS = 11
 COLS = 11
 
 
-
 CELL = 80
-
-
-
 SEED = 42
 
 
-
 WIDTH = ROWS * CELL
-
 HEIGHT = COLS * CELL
 
 
-
 PADDING = 40
-
 GAP = 20
-
 SIDEBAR_WIDTH = 700
 
 
-
 WINDOW_WIDTH = PADDING + WIDTH + GAP + SIDEBAR_WIDTH + PADDING
-
 WINDOW_HEIGHT = PADDING + HEIGHT + PADDING
 
 
-
 FPS = 60
-
 STEP = 40
 
 
