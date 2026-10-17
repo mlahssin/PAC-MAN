@@ -1,31 +1,26 @@
 import pygame
 from scenes.base import Scene
 
+FONT = "assets/fonts/Bangers-Regular.ttf"
+GAME_OVER_RED = (230, 50, 60)
+DARK_BROWN = (45, 25, 15)
+MID_BROWN = (75, 45, 25)
+LIGHT_BROWN = (110, 70, 40)
+WHITE = (255, 255, 255)
+ICE_BLUE = (120, 220, 255)
+MEDALS = [(230, 180, 40), (190, 195, 205), (200, 120, 60)]   # gold, silver, bronze
+
 # the layout was designed for this window size
 DESIGN_W = 1200
 DESIGN_H = 800
+
+MAX_NAME = 10
 
 
 class GameOver(Scene):
 
     def __init__(self, app):
         super().__init__(app)
-
-        config = {"points_per_pacgum": 10, "points_per_super_pacgum": 50,
-                  "points_per_ghost": 200, "lives": 3}
-
-        self.rules = [
-            ("arrows", "MOVE WITH ARROWS / WASD",
-             "Run through the village maze"),
-            ("gum", "EAT EVERY GUM",
-             f"+{config['points_per_pacgum']} pts - clear them all to win"),
-            ("super", "GRAB A SUPER GUM",
-             f"+{config['points_per_super_pacgum']} pts - rivals become weak"),
-            ("ghost", "HUNT WEAK RIVALS",
-             f"+{config['points_per_ghost']} pts - otherwise, run!"),
-            ("heart", f"YOU HAVE {config['lives']} LIVES",
-             "Touched by a rival = lose one"),
-        ]
 
         self.width, self.height = self.app.window.get_size()
 
@@ -34,7 +29,6 @@ class GameOver(Scene):
         # empty space left at the top so the layout is centered vertically
         self.top = (self.height - int(DESIGN_H * self.scale)) // 2
 
-        font = "assets/fonts/Bangers-Regular.ttf"
 
         try:
             self.background = pygame.image.load(
@@ -47,39 +41,37 @@ class GameOver(Scene):
             self.scroll_panel = pygame.transform.smoothscale(
                 self.scroll_panel, (self.s(470), self.s(500)))
 
-            self.panel_w, self.panel_h = self.scroll_panel.get_size()
-
-            self.back_button = pygame.image.load(
+            self.save_button = pygame.image.load(
                 "assets/button.png").convert_alpha()
-            self.back_button = pygame.transform.smoothscale(
-                self.back_button, (self.s(420), self.s(80)))
+            self.save_button = pygame.transform.smoothscale(
+                self.save_button, (self.s(420), self.s(80)))
 
-            self.big_font = pygame.font.Font(font, self.s(22))
-            self.small_font = pygame.font.Font(font, self.s(17))
-            self.button_font = pygame.font.Font(font, self.s(36))
+            self.title_font = pygame.font.Font(FONT, self.s(80))
+            self.score_font = pygame.font.Font(FONT, self.s(60))
+            self.subtitle_font = pygame.font.Font(FONT, self.s(26))
+            self.level_font = pygame.font.Font(FONT, self.s(40))
+            self.header_font = pygame.font.Font(FONT, self.s(15))
+            self.row_font = pygame.font.Font(FONT, self.s(18))
+
+            self.label_font = pygame.font.Font(FONT, self.s(26))
+            self.name_font = pygame.font.Font(FONT, self.s(40))
+            self.hint_font = pygame.font.Font(FONT, self.s(18))
+
+            self.name_box = pygame.Rect(0, 0, self.s(250), self.s(58))
+            self.name_box.center = (self.width // 2, self.y(500))
+
+            self.name = ""
+            self.cursor_timer = 0.0
+
+            self.button_font = pygame.font.Font(FONT, self.s(40))
 
         except (pygame.error, FileNotFoundError):
-            print("Error: could not load instructions assets")
+            print("Error: could not load leaderboard assets")
             self.app.running = False
             return
 
-        self.icons = {}
-        files = {
-            "arrows": "assets/icon_arrows.png",
-            "gum": "assets/gum.png",
-            "super": "assets/supergum.png",
-            "ghost": "assets/ghost.png",
-            "heart": "assets/lives/full_heart.png"
-        }
-        for name, path in files.items():
-            try:
-                icon = pygame.image.load(path).convert_alpha()
-                self.icons[name] = pygame.transform.smoothscale(
-                    icon, (self.s(34), self.s(32)))
-            except (pygame.error, FileNotFoundError):
-                print(f"Warning: icon '{name}' not found at {path}")
-
-        self.back_rect = self.back_button.get_rect(
+        self.panel_w, self.panel_h = self.scroll_panel.get_size()
+        self.back_rect = self.save_button.get_rect(
             center=(self.width // 2, self.y(635)))
 
     def s(self, value):
@@ -92,42 +84,79 @@ class GameOver(Scene):
 
     def handle_event(self, event):
         if event.type == pygame.KEYDOWN:
-            if event.key in (pygame.K_ESCAPE, pygame.K_RETURN):
-                self.app.change_scene("menu")
+
+            if event.key == pygame.K_BACKSPACE:
+                self.name = self.name[:-1]
+            else:
+                letter = event.unicode
+                if (len(letter) == 1 and (letter.isalnum() or letter == " ")) and len(self.name) < MAX_NAME:
+                    self.name += letter.upper()
 
         if event.type == pygame.MOUSEBUTTONDOWN:
             if self.back_rect.collidepoint(event.pos):
-                self.app.change_scene("menu")
+                self.save_name()
+
+    def write(self, screen, text, font, color, **position):
+        surface = font.render(text, True, color)
+        screen.blit(surface, surface.get_rect(**position))
+
+    def save_name(self):
+
+        self.name = self.name.strip()
+
+        if self.name == "":
+            return
+
+        print(f"SAVE: {self.name}")
+        self.app.change_scene("menu")
 
     def draw(self, screen):
         center_x = self.width // 2
+        shadow = self.s(4)
 
         screen.blit(self.background, (0, 0))
 
+        # title + subtitle (black copy shifted = shadow)
+        self.write(screen, "GAME OVER", self.title_font, (0, 0, 0),
+                   center=(center_x + shadow, self.y(64)))
+        self.write(screen, "GAME OVER", self.title_font, GAME_OVER_RED,
+                   center=(center_x, self.y(60)))
+        self.write(screen, "THE SHADOWS CAUGHT YOU...", self.subtitle_font, (0, 0, 0),
+                   center=(center_x + shadow, self.y(114)))
+        self.write(screen, "THE SHADOWS CAUGHT YOU...", self.subtitle_font, WHITE,
+                   center=(center_x, self.y(112)))
+
+        # scroll
         panel_x = center_x - self.panel_w // 2
         panel_y = self.y(145)
         screen.blit(self.scroll_panel, (panel_x, panel_y))
 
-        y = panel_y + self.s(95)
-        for icon_name, big, small in self.rules:
+        self.write(screen, "FINAL SCORE", self.subtitle_font, LIGHT_BROWN,
+                   center=(center_x, self.y(235)))
 
-            if icon_name in self.icons:
-                screen.blit(self.icons[icon_name],
-                            (panel_x + self.s(105), y + self.s(6)))
+        self.write(screen, "12 345", self.score_font, DARK_BROWN,
+                   center=(center_x, self.y(275)))
 
-            text = self.big_font.render(big, True, (45, 25, 15))
-            screen.blit(text, (panel_x + self.s(145), y))
+        self.write(screen, "LEVEL", self.subtitle_font, LIGHT_BROWN,
+                   center=(center_x, self.y(350)))
 
-            text = self.small_font.render(small, True, (110, 70, 40))
-            screen.blit(text, (panel_x + self.s(145), y + self.s(22)))
+        self.write(screen, "4 / 10", self.level_font, DARK_BROWN,
+                   center=(center_x, self.y(380)))
 
-            y += self.s(70)
+        self.write(screen, "Enter your name", self.label_font, LIGHT_BROWN,
+                   center=(center_x, self.y(455)))
 
-        screen.blit(self.back_button, self.back_rect)
+        pygame.draw.rect(screen, (250, 240, 220), self.name_box, 0, self.s(10))
+        pygame.draw.rect(screen, (40, 120, 190), self.name_box, max(1, self.s(3)), self.s(10))
 
-        label = self.button_font.render("BACK", True, (255, 255, 255))
-        screen.blit(label, label.get_rect(center=self.back_rect.center))
+        text = self.name_font.render(self.name, True, DARK_BROWN)
+        text_rect = text.get_rect(
+            midleft=(self.name_box.left + self.s(18), self.name_box.centery + self.s(2))
+        )
+        screen.blit(text, text_rect)
 
-        hint = self.small_font.render("ESC or ENTER : BACK TO MENU",
-                                      True, (255, 255, 255))
-        screen.blit(hint, hint.get_rect(center=(center_x, self.y(775))))
+        # back button
+        screen.blit(self.save_button, self.back_rect)
+        self.write(screen, "SAVE", self.button_font, WHITE,
+                   center=(self.back_rect.centerx + self.s(10),
+                           self.back_rect.centery))

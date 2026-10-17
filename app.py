@@ -2,6 +2,7 @@ import pygame
 from scenes.game import GameScene
 from scenes.menu import MenuScene
 from scenes.game_over import GameOver
+from scenes.victory import Victory
 from scenes.instructions import Instructions
 from scenes.leaderboard import Leaderboard
 
@@ -20,9 +21,10 @@ class App:
             "menu": MenuScene(self),
             "instructions": Instructions(self),
             "leaderboard": Leaderboard(self),
-            "game_over": GameOver(self)
+            "game_over": GameOver(self),
+            "victory": Victory(self),
         }
-        self.current_scene = self.scenes["game_over"]
+        self.current_scene = self.scenes["menu"]
         self.running = True
         self.fps = 60
 
