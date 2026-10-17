@@ -123,7 +123,6 @@ class Game:
                 if cell in reachable and cell not in self.corners and cell != self.start:
                     gums.add(cell)
 
-        
         return gums
 
 
@@ -199,9 +198,7 @@ class Game:
             elif g.state == "RESPAWNING":
                 pass
 
-                
 
-    
     def ghost_update(self):
         now = time.monotonic()
         if self.edible_active_unitl and now >= self.edible_active_unitl:
@@ -214,6 +211,4 @@ class Game:
             if g.state == "RESPAWNING" and g.respawn_time_at and now >= g.respawn_time_at:
                 g.respawn_time_at = 0.0
                 g.state = "DANGEROUS"
-    
-
     

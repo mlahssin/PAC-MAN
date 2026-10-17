@@ -104,7 +104,7 @@ class GameScene(Scene):
         elif event.key in (pygame.K_DOWN, pygame.K_s):
             self.direction = "down"
         elif event.key == pygame.K_ESCAPE:
-            self.app.change_scene("menu")
+            self.app.change_scene("pause")
 
     def update(self, dt):
         game = self.game

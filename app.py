@@ -3,6 +3,7 @@ from scenes.game import GameScene
 from scenes.menu import MenuScene
 from scenes.game_over import GameOver
 from scenes.victory import Victory
+from scenes.pause import Pause
 from scenes.instructions import Instructions
 from scenes.leaderboard import Leaderboard
 
@@ -23,8 +24,9 @@ class App:
             "leaderboard": Leaderboard(self),
             "game_over": GameOver(self),
             "victory": Victory(self),
+            "pause": Pause(self)
         }
-        self.current_scene = self.scenes["menu"]
+        self.current_scene = self.scenes["pause"]
         self.running = True
         self.fps = 60
 
