@@ -115,7 +115,6 @@ class Game:
 
         reachable = self.maze.get_reachable_cells(self.start)
 
-
         for i in range(self.width):
             for item in range(self.height):
                 cell = (i, item)

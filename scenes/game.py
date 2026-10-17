@@ -152,8 +152,6 @@ class GameScene(Scene):
         self.draw_player()
         self.draw_ghosts()
 
-        
-
         canvas.blit(self.maze_sur, (PADDING, PADDING))
 
         # sidebar layer
