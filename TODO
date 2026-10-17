@@ -6,4 +6,8 @@ SCENES:
 
 GAME OVER - done
 VICTOR - done
-PAUSE SCENE
+PAUSE SCENE - done
+
+
+In-Game HUD:
+    Remaining time for the level

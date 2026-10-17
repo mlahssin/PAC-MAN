@@ -40,6 +40,8 @@ class GameScene(Scene):
         self.player_left = self.load_image("assets/player/player2.png", CELL - 8)
         self.ghost_imgs = [self.load_image(f"assets/ghosts/ghost{i}.png", CELL - 8) for i in range(1, 5)]
 
+        self.pause_button = self.load_image("assets/buttons/pause_button.png", 100)
+
         self.gum_img = self.load_image("assets/gum.png", CELL // 3)
         self.supergum_img = self.load_image("assets/supergum.png", CELL // 2)
         self.timer_img = self.load_image("assets/timer_sign.png", 300)
@@ -52,6 +54,7 @@ class GameScene(Scene):
                 "assets/background.jpeg").convert()
             self.background = pygame.transform.smoothscale(
                 self.background, self.app.window.get_size())
+
             self.timer_font = pygame.font.Font(FONT, 40)
             self.label_font = pygame.font.Font(FONT, 35)
             self.value_font = pygame.font.Font(FONT, 54)
@@ -138,7 +141,7 @@ class GameScene(Scene):
         screen.blit(self.background, (0, 0))
 
         canvas = self.canvas
-        canvas.fill((0, 0, 0, 0)) 
+        canvas.fill((0, 0, 0, 0))
 
         # maze layer
         self.maze_sur.fill((0, 0, 0, 120))
@@ -148,6 +151,9 @@ class GameScene(Scene):
         self.draw_supergums()
         self.draw_player()
         self.draw_ghosts()
+
+        
+
         canvas.blit(self.maze_sur, (PADDING, PADDING))
 
         # sidebar layer

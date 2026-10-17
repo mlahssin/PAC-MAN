@@ -24,7 +24,7 @@ class Pause(Scene):
 
         try:
             self.shade = pygame.Surface((self.width, self.height), pygame.SRCALPHA)
-            self.shade.fill((0, 5, 20, 170))
+            self.shade.fill((0, 5, 0, 200))
 
             self.button = pygame.image.load(
                 "assets/buttons/menu_button.png").convert_alpha()
@@ -33,7 +33,7 @@ class Pause(Scene):
 
             self.font = pygame.font.Font(FONT, self.s(40))
 
-            self.title_font = pygame.font.Font(FONT, self.s(80))
+            self.title_font = pygame.font.Font(FONT, self.s(90))
 
         except (pygame.error, FileNotFoundError):
             print("Error: could not load menu assets")
@@ -89,9 +89,9 @@ class Pause(Scene):
         screen.blit(self.shade, (0, 0))
 
         self.write(screen, "PAUSED", self.title_font, (0, 0, 0),
-                   center=(center_x + shadow, self.y(154)))
+                   center=(center_x + shadow, self.y(214)))
         self.write(screen, "PAUSED", self.title_font, (225, 225, 255),
-                   center=(center_x, self.y(150)))
+                   center=(center_x, self.y(210)))
 
         for i in range(3):
             rect = self.button_rects[i]
