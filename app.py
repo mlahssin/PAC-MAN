@@ -26,7 +26,7 @@ class App:
             "victory": Victory(self),
             "pause": Pause(self)
         }
-        self.current_scene = self.scenes["pause"]
+        self.current_scene = self.scenes["game"]
         self.running = True
         self.fps = 60
 

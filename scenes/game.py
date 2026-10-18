@@ -40,8 +40,6 @@ class GameScene(Scene):
         self.player_left = self.load_image("assets/player/player2.png", CELL - 8)
         self.ghost_imgs = [self.load_image(f"assets/ghosts/ghost{i}.png", CELL - 8) for i in range(1, 5)]
 
-        self.pause_button = self.load_image("assets/buttons/pause_button.png", 100)
-
         self.gum_img = self.load_image("assets/gum.png", CELL // 3)
         self.supergum_img = self.load_image("assets/supergum.png", CELL // 2)
         self.timer_img = self.load_image("assets/timer_sign.png", 300)
@@ -54,6 +52,11 @@ class GameScene(Scene):
                 "assets/background.jpeg").convert()
             self.background = pygame.transform.smoothscale(
                 self.background, self.app.window.get_size())
+
+            self.pause_button = pygame.image.load("assets/buttons/pause_button.png").convert_alpha()
+            self.pause_button = pygame.transform.smoothscale(
+                self.pause_button, (80, 80)
+            )
 
             self.timer_font = pygame.font.Font(FONT, 40)
             self.label_font = pygame.font.Font(FONT, 35)
@@ -77,6 +80,8 @@ class GameScene(Scene):
         self.maze_sur = pygame.Surface((MAZE_WIDTH + 2, MAZE_HEIGHT + 2), pygame.SRCALPHA)
         self.sidebar_sur = pygame.Surface((SIDEBAR_WIDTH, MAZE_HEIGHT), pygame.SRCALPHA)
 
+        self.pause_rect = self.pause_button.get_rect(topright=(win_w - 30, 20))
+
         self.on_enter()
 
     def on_enter(self):
@@ -96,6 +101,11 @@ class GameScene(Scene):
         return pygame.transform.smoothscale(img, new_size)
 
     def handle_event(self, event):
+
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if self.pause_rect.collidepoint(event.pos):
+                self.app.change_scene("pause")
+
         if event.type != pygame.KEYDOWN:
             return
         if event.key in (pygame.K_LEFT, pygame.K_a):
@@ -161,6 +171,8 @@ class GameScene(Scene):
 
         screen.blit(pygame.transform.smoothscale(canvas, self.scaled_size),
             self.offset)
+
+        screen.blit(self.pause_button, self.pause_rect)
 
     def load_scaled(self, path, size):
         try:
