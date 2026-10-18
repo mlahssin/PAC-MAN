@@ -4,11 +4,8 @@ from scenes.base import Scene
 FONT = "assets/fonts/Bangers-Regular.ttf"
 GAME_OVER_RED = (230, 50, 60)
 DARK_BROWN = (45, 25, 15)
-MID_BROWN = (75, 45, 25)
 LIGHT_BROWN = (110, 70, 40)
 WHITE = (255, 255, 255)
-ICE_BLUE = (120, 220, 255)
-MEDALS = [(230, 180, 40), (190, 195, 205), (200, 120, 60)]   # gold, silver, bronze
 
 # the layout was designed for this window size
 DESIGN_W = 1200
@@ -50,18 +47,14 @@ class GameOver(Scene):
             self.score_font = pygame.font.Font(FONT, self.s(60))
             self.subtitle_font = pygame.font.Font(FONT, self.s(26))
             self.level_font = pygame.font.Font(FONT, self.s(40))
-            self.header_font = pygame.font.Font(FONT, self.s(15))
-            self.row_font = pygame.font.Font(FONT, self.s(18))
 
             self.label_font = pygame.font.Font(FONT, self.s(26))
             self.name_font = pygame.font.Font(FONT, self.s(40))
-            self.hint_font = pygame.font.Font(FONT, self.s(18))
 
             self.name_box = pygame.Rect(0, 0, self.s(250), self.s(58))
             self.name_box.center = (self.width // 2, self.y(500))
 
             self.name = ""
-            self.cursor_timer = 0.0
 
             self.button_font = pygame.font.Font(FONT, self.s(40))
 
@@ -131,16 +124,19 @@ class GameOver(Scene):
         panel_y = self.y(145)
         screen.blit(self.scroll_panel, (panel_x, panel_y))
 
+        level = self.app.last_level
+        score = self.app.last_score
+
         self.write(screen, "FINAL SCORE", self.subtitle_font, LIGHT_BROWN,
                    center=(center_x, self.y(235)))
 
-        self.write(screen, "12 345", self.score_font, DARK_BROWN,
+        self.write(screen, f"{score:02d}", self.score_font, DARK_BROWN,
                    center=(center_x, self.y(275)))
 
         self.write(screen, "LEVEL", self.subtitle_font, LIGHT_BROWN,
                    center=(center_x, self.y(350)))
 
-        self.write(screen, "4 / 10", self.level_font, DARK_BROWN,
+        self.write(screen, f"{level:02d} / 10", self.level_font, DARK_BROWN,
                    center=(center_x, self.y(380)))
 
         self.write(screen, "Enter your name", self.label_font, LIGHT_BROWN,

@@ -8,10 +8,8 @@ GAME OVER - done
 VICTOR - done
 PAUSE SCENE - done
 
+Things to fix:
 
-In-Game HUD:
-    Remaining time for the level
-
-in the game:
-
-    add time, ghosts colors, restart, 
+=> Pause timer
+=> check vectory scene is work
+=> Fix some bugs in victory scene(name, )

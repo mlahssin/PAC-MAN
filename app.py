@@ -26,12 +26,17 @@ class App:
             "victory": Victory(self),
             "pause": Pause(self)
         }
-        self.current_scene = self.scenes["instructions"]
+        self.current_scene = self.scenes["menu"]
+        self.current_scene.on_enter()
         self.running = True
         self.fps = 60
 
+        self.last_score = None
+        self.last_level = None
+
     def change_scene(self, scene):
         self.current_scene = self.scenes[scene]
+        self.current_scene.on_enter()
 
     def run(self):
 

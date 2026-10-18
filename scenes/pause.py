@@ -13,7 +13,7 @@ class Pause(Scene):
     def __init__(self, app):
         super().__init__(app)
 
-        self.options = ["RESUME", "RESTART", "MAIN MENU"]
+        self.options = ["RESUME", "MAIN MENU"]
 
         self.width, self.height = self.app.window.get_size()
 
@@ -66,10 +66,10 @@ class Pause(Scene):
 
         if target == "RESUME":
             self.app.change_scene("game")
-        elif target == "RESTART":
-            game_scene.game = None
-            self.app.change_scene("game")
+        # elif target == "RESTART":
+        #     self.app.change_scene("game")
         elif target == "MAIN MENU":
+            game_scene.game = None
             self.app.change_scene("menu")
         else:
             self.app.change_scene(target)
@@ -93,7 +93,7 @@ class Pause(Scene):
         self.write(screen, "PAUSED", self.title_font, (225, 225, 255),
                    center=(center_x, self.y(210)))
 
-        for i in range(3):
+        for i in range(2):
             rect = self.button_rects[i]
             screen.blit(self.button, rect)
 

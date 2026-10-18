@@ -1,9 +1,7 @@
 import time
 import pygame
-from mazegenerator import MazeGenerator
-from scenes.base import Scene
-from maze import Maze
 from Game import Game
+from scenes.base import Scene
 
 ROWS = 15
 COLS = 15
@@ -89,12 +87,11 @@ class GameScene(Scene):
 
         self.pause_rect = self.pause_button.get_rect(topright=(win_w - 30, 20))
 
-        self.on_enter()
-
     def on_enter(self):
-        self.game = Game(ROWS, COLS, perfect=False, seed=SEED)
+        if self.game is None or self.game.game_over:
+            self.game = Game(ROWS, COLS, perfect=False, seed=SEED)
+            self.facing = "right"
         self.direction = None
-        self.facing = "right"
 
     def load_image(self, path, size):
         """Load an image and scale its biggest side to size. None if missing."""
@@ -111,6 +108,7 @@ class GameScene(Scene):
 
         if event.type == pygame.MOUSEBUTTONDOWN:
             if self.pause_rect.collidepoint(event.pos):
+                self.paused_at = time.monotonic()
                 self.app.change_scene("pause")
 
         if event.type != pygame.KEYDOWN:
@@ -124,6 +122,7 @@ class GameScene(Scene):
         elif event.key in (pygame.K_DOWN, pygame.K_s):
             self.direction = "down"
         elif event.key == pygame.K_ESCAPE:
+            self.paused_at = time.monotonic()
             self.app.change_scene("pause")
         elif event.key == pygame.K_F2:
             self.game.Next_level()
@@ -142,7 +141,6 @@ class GameScene(Scene):
 
         for ghost in game.ghosts:
             ghost.choose_direction(game.maze, game.player.pos)
-            ghost.frames_per_cell = 24
             ghost.update(game.maze)
 
         game.handle_collisions()
@@ -154,7 +152,16 @@ class GameScene(Scene):
                 game.initialize_level()
 
         if game.game_over or game.game_won:
-            self.app.change_scene("game_over")
+            self.app.last_score = game.score
+            self.app.last_level = game.level
+
+            self.game = None
+
+            if game.game_won:
+                self.app.change_scene("victory")
+            else:
+                self.app.change_scene("game_over")
+            return
 
     def draw(self, screen):
         screen.blit(self.background, (0, 0))
@@ -182,22 +189,6 @@ class GameScene(Scene):
             self.offset)
 
         screen.blit(self.pause_button, self.pause_rect)
-
-    def load_scaled(self, path, size):
-        try:
-            img = pygame.image.load(path).convert_alpha()
-        except (pygame.error, FileNotFoundError):
-            return None
-        scale = size / max(img.get_width(), img.get_height())
-        return pygame.transform.smoothscale(
-            img, (round(img.get_width() * scale),
-                  round(img.get_height() * scale)))
-
-    def load_font(self, path, size):
-        try:
-            return pygame.font.Font(path, size)
-        except (pygame.error, FileNotFoundError, OSError):
-            return pygame.font.SysFont("dejavusans", size, bold=True)
 
     def cell_center(self, col, row):
         return (col * CELL + CELL // 2, row * CELL + CELL // 2)

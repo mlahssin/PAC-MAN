@@ -81,6 +81,9 @@ class Victory(Scene):
         """Scale a vertical position from the design to the real window."""
         return self.top + self.s(value)
 
+    def on_enter(self):
+        self.name = ""
+
     def handle_event(self, event):
         if event.type == pygame.KEYDOWN:
 
@@ -130,16 +133,19 @@ class Victory(Scene):
         panel_y = self.y(145)
         screen.blit(self.scroll_panel, (panel_x, panel_y))
 
+        level = self.app.last_level
+        score = self.app.last_score
+
         self.write(screen, "FINAL SCORE", self.subtitle_font, LIGHT_BROWN,
                    center=(center_x, self.y(235)))
 
-        self.write(screen, "12 345", self.score_font, DARK_BROWN,
+        self.write(screen, f"{score}", self.score_font, DARK_BROWN,
                    center=(center_x, self.y(275)))
 
         self.write(screen, "LEVEL", self.subtitle_font, LIGHT_BROWN,
                    center=(center_x, self.y(350)))
 
-        self.write(screen, "10 / 10", self.level_font, DARK_BROWN,
+        self.write(screen, f"{level} / 10", self.level_font, DARK_BROWN,
                    center=(center_x, self.y(380)))
 
         self.write(screen, "Enter your name", self.label_font, LIGHT_BROWN,
