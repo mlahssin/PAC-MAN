@@ -11,20 +11,21 @@ class Instructions(Scene):
     def __init__(self, app):
         super().__init__(app)
 
-        config = {"points_per_pacgum": 10, "points_per_super_pacgum": 50,
-                  "points_per_ghost": 200, "lives": 3}
+        config = {"points_per_pacgum": 10, "points_per_super_pacgum": 50, "points_per_ghost": 200, "lives": 3, "level_max_time": 90}
 
         self.rules = [
             ("arrows", "MOVE WITH ARROWS / WASD",
-             "Run through the village maze"),
+             "P or ESC to pause"),
             ("gum", "EAT EVERY GUM",
-             f"+{config['points_per_pacgum']} pts - clear them all to win"),
+             f"+{config['points_per_pacgum']} pts - clear them all to finish the level"),
             ("super", "GRAB A SUPER GUM",
-             f"+{config['points_per_super_pacgum']} pts - rivals become weak"),
+             f"+{config['points_per_super_pacgum']} pts - rivals are weak for a short time"),
             ("ghost", "HUNT WEAK RIVALS",
              f"+{config['points_per_ghost']} pts - otherwise, run!"),
             ("heart", f"YOU HAVE {config['lives']} LIVES",
-             "Touched by a rival = lose one"),
+             "touched by a rival = lose one, back to the center"),
+            ("time", "BEAT THE CLOCK",
+             f"{config['level_max_time']} s per level - finish 10 levels to win"),
         ]
 
         self.width, self.height = self.app.window.get_size()
@@ -45,7 +46,7 @@ class Instructions(Scene):
             self.scroll_panel = pygame.image.load(
                 "assets/scroll_panel.png").convert_alpha()
             self.scroll_panel = pygame.transform.smoothscale(
-                self.scroll_panel, (self.s(470), self.s(500)))
+                self.scroll_panel, (self.s(600), self.s(500)))
 
             self.panel_w, self.panel_h = self.scroll_panel.get_size()
 
@@ -54,8 +55,9 @@ class Instructions(Scene):
             self.back_button = pygame.transform.smoothscale(
                 self.back_button, (self.s(420), self.s(80)))
 
+            self.title_font = pygame.font.Font(font, self.s(80))
             self.big_font = pygame.font.Font(font, self.s(22))
-            self.small_font = pygame.font.Font(font, self.s(17))
+            self.small_font = pygame.font.Font(font, self.s(16))
             self.button_font = pygame.font.Font(font, self.s(36))
 
         except (pygame.error, FileNotFoundError):
@@ -69,13 +71,15 @@ class Instructions(Scene):
             "gum": "assets/gum.png",
             "super": "assets/supergum.png",
             "ghost": "assets/ghost.png",
-            "heart": "assets/lives/full_heart.png"
+            "heart": "assets/lives/full_heart.png",
+            "time": "assets/clock.png",
         }
         for name, path in files.items():
             try:
                 icon = pygame.image.load(path).convert_alpha()
+                # if 
                 self.icons[name] = pygame.transform.smoothscale(
-                    icon, (self.s(34), self.s(32)))
+                    icon, (self.s(34), self.s(33)))
             except (pygame.error, FileNotFoundError):
                 print(f"Warning: icon '{name}' not found at {path}")
 
@@ -90,6 +94,10 @@ class Instructions(Scene):
         """Scale a vertical position from the design to the real window."""
         return self.top + self.s(value)
 
+    def write(self, screen, text, font, color, **position):
+        surface = font.render(text, True, color)
+        screen.blit(surface, surface.get_rect(**position))
+
     def handle_event(self, event):
         if event.type == pygame.KEYDOWN:
             if event.key in (pygame.K_ESCAPE, pygame.K_RETURN):
@@ -101,8 +109,14 @@ class Instructions(Scene):
 
     def draw(self, screen):
         center_x = self.width // 2
+        shadow = self.s(4)
 
         screen.blit(self.background, (0, 0))
+
+        self.write(screen, "INSTRUCTIONS", self.title_font, (0, 0, 0),
+                   center=(center_x + shadow, self.y(64)))
+        self.write(screen, "INSTRUCTIONS", self.title_font, (255, 255, 255),
+                   center=(center_x, self.y(60)))
 
         panel_x = center_x - self.panel_w // 2
         panel_y = self.y(145)
@@ -113,15 +127,15 @@ class Instructions(Scene):
 
             if icon_name in self.icons:
                 screen.blit(self.icons[icon_name],
-                            (panel_x + self.s(105), y + self.s(6)))
+                            (panel_x + self.s(140), y + self.s(6)))
 
             text = self.big_font.render(big, True, (45, 25, 15))
-            screen.blit(text, (panel_x + self.s(145), y))
+            screen.blit(text, (panel_x + self.s(185), y))
 
             text = self.small_font.render(small, True, (110, 70, 40))
-            screen.blit(text, (panel_x + self.s(145), y + self.s(22)))
+            screen.blit(text, (panel_x + self.s(185), y + self.s(22)))
 
-            y += self.s(70)
+            y += self.s(60)
 
         screen.blit(self.back_button, self.back_rect)
 
