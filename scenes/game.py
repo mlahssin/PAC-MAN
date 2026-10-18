@@ -40,6 +40,12 @@ class GameScene(Scene):
         self.player_left = self.load_image("assets/player/player2.png", CELL - 8)
         self.ghost_imgs = [self.load_image(f"assets/ghosts/ghost{i}.png", CELL - 8) for i in range(1, 5)]
 
+        self.ghosts_edible_imgs = []
+        for img in self.ghost_imgs:
+            blue = img.copy()
+            blue.fill((120, 255, 255), special_flags=pygame.BLEND_RGB_MULT)
+            self.ghosts_edible_imgs.append(blue)
+
         self.gum_img = self.load_image("assets/gum.png", CELL // 3)
         self.supergum_img = self.load_image("assets/supergum.png", CELL // 2)
         self.timer_img = self.load_image("assets/timer_sign.png", 300)
@@ -118,6 +124,8 @@ class GameScene(Scene):
             self.direction = "down"
         elif event.key == pygame.K_ESCAPE:
             self.app.change_scene("pause")
+        elif event.key == pygame.K_F2:
+            self.game.Next_level()
 
     def update(self, dt):
         game = self.game
@@ -246,26 +254,28 @@ class GameScene(Scene):
             pygame.draw.circle(self.maze_sur, (255, 184, 82), center, 20)
 
     def draw_ghosts(self):
-        colors = [(255, 0, 0), (255, 184, 255), (0, 255, 255), (255, 184, 82)]
 
         for i, ghost in enumerate(self.game.ghosts):
             center = (round(ghost.x_pix), round(ghost.y_pix))
-            img = self.ghost_imgs[i % 4]
-            if img:
-                self.maze_sur.blit(img, img.get_rect(center=center))
+
+            if ghost.state == "EDIBLE":
+                img = self.ghosts_edible_imgs[i]
             else:
-                pygame.draw.circle(self.maze_sur, colors[i % 4], center, 20)
+                img = self.ghost_imgs[i]
+
+            self.maze_sur.blit(img, img.get_rect(center=center))
 
     def draw_sidebar(self):
         pygame.draw.rect(self.sidebar_sur, WHITE, self.sidebar_sur.get_rect(), 2,
                          border_top_right_radius=20, border_bottom_right_radius=20)
 
         self.draw_timer(90)
+        level = self.game.level
 
         y = 200
         y = self.draw_board("SCORE", str(self.game.score), y)
         y = self.draw_board("HIGH SCORE", "0048200", y)
-        y = self.draw_board("LEVEL", "03 / 10", y)
+        y = self.draw_board("LEVEL", f"{level:02d} / 10", y)
         y = self.draw_board("LIVES", "", y)
 
         # hearts go inside the LIVES board
