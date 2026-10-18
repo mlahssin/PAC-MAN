@@ -1,3 +1,4 @@
+import time
 import pygame
 from mazegenerator import MazeGenerator
 from scenes.base import Scene
@@ -269,7 +270,8 @@ class GameScene(Scene):
         pygame.draw.rect(self.sidebar_sur, WHITE, self.sidebar_sur.get_rect(), 2,
                          border_top_right_radius=20, border_bottom_right_radius=20)
 
-        self.draw_timer(90)
+        time_left = self.game.level_expires_at - time.monotonic()
+        self.draw_timer(max(0, time_left))
         level = self.game.level
 
         y = 200

@@ -76,8 +76,8 @@ class Game:
         self.edible_active_unitl = 0.0
         self.visited = set()
         self.level_completed = False
-        self.level_expires_at = time.monotonic() + 1000
-    
+        self.level_expires_at = time.monotonic() + 90
+
     def Next_level(self):
         self.level += 1
 
