@@ -152,6 +152,7 @@ class GameScene(Scene):
                 game.initialize_level()
 
         if game.game_over or game.game_won:
+            print("LEVLE:", game.level)
             self.app.last_score = game.score
             self.app.last_level = game.level
 

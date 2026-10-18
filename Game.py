@@ -82,6 +82,7 @@ class Game:
         self.level += 1
 
         if self.level > 10:
+            self.level = 10
             self.game_won = True
             self.game_over = True
             return
