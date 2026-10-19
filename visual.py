@@ -1,5 +1,6 @@
 import pygame
 from Game import Game
+from Leaderboard import Leaderboard
 
 CREAM = (245, 230, 205)
 LABEL = (190, 170, 160)
@@ -47,6 +48,7 @@ class Visual:
         self.timer_img = None
         self.board_img = None
         self.ghost_imgs = []
+        self.Leaderboard = Leaderboard()
 
     def load_maze(self):
         return self.game.grid

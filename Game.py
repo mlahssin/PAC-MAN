@@ -16,7 +16,7 @@ class Game:
         self.height = height
         self.seed = seed
         self.start = (width // 2, height // 2)
-
+        
         self.start_pix = (
             ((width // 2) * CELL) + CELL // 2,
             (height // 2) * CELL + CELL // 2
