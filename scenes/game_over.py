@@ -7,7 +7,6 @@ DARK_BROWN = (45, 25, 15)
 LIGHT_BROWN = (110, 70, 40)
 WHITE = (255, 255, 255)
 
-# the layout was designed for this window size
 DESIGN_W = 1200
 DESIGN_H = 800
 
@@ -15,17 +14,24 @@ MAX_NAME = 10
 
 
 class GameOver(Scene):
+    """Screen shown when the player loses all lives or runs out of time.
+
+    It shows the final score and level, and lets the player type a name
+    (max 10 letters, digits or spaces) to save the score.
+    """
 
     def __init__(self, app):
+        """Load the images and fonts, and place the name box and button.
+
+        Args:
+            app: The main App object (gives the window and change_scene).
+        """
         super().__init__(app)
 
         self.width, self.height = self.app.window.get_size()
 
-        # how much bigger than the design: 2100x1500 -> 1.75
         self.scale = min(self.width / DESIGN_W, self.height / DESIGN_H)
-        # empty space left at the top so the layout is centered vertically
         self.top = (self.height - int(DESIGN_H * self.scale)) // 2
-
 
         try:
             self.background = pygame.image.load(
@@ -68,21 +74,48 @@ class GameOver(Scene):
             center=(self.width // 2, self.y(635)))
 
     def s(self, value):
-        """Scale a size from the 1200x800 design to the real window."""
+        """Scale a size from the 1200x800 design to the real window.
+
+        Args:
+            value: A size in the 1200x800 design.
+
+        Returns:
+            The same size in real window pixels.
+        """
         return int(value * self.scale)
 
     def y(self, value):
-        """Scale a vertical position from the design to the real window."""
+        """Scale a vertical position from the design to the real window.
+
+        Args:
+            value: A y position in the 1200x800 design.
+
+        Returns:
+            The y position in the real window (centered vertically).
+        """
         return self.top + self.s(value)
 
     def handle_event(self, event):
+        """Type the name with the keyboard, or save it with a click.
+
+        Backspace removes the last letter. Letters, digits and spaces
+        are added in uppercase, up to MAX_NAME. A left click on the
+        SAVE button saves the name.
+
+        Args:
+            event: The pygame event to handle.
+        """
         if event.type == pygame.KEYDOWN:
 
             if event.key == pygame.K_BACKSPACE:
                 self.name = self.name[:-1]
             else:
                 letter = event.unicode
-                if (len(letter) == 1 and (letter.isalnum() or letter == " ")) and len(self.name) < MAX_NAME:
+                if (
+                    len(letter) == 1
+                    and (letter.isalnum() or letter == " ")
+                    and len(self.name) < MAX_NAME
+                ):
                     self.name += letter.upper()
 
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -90,11 +123,25 @@ class GameOver(Scene):
                 self.save_name()
 
     def write(self, screen, text, font, color, **position):
+        """Draw a text on the screen at a given position.
+
+        Args:
+            screen: The surface to draw on.
+            text: The text to draw.
+            font: The pygame font to use.
+            color: The text color (R, G, B).
+            **position: A Rect anchor, for example center=(x, y)
+                or midleft=(x, y).
+        """
         surface = font.render(text, True, color)
         screen.blit(surface, surface.get_rect(**position))
 
     def save_name(self):
+        """Save the typed name and go back to the main menu.
 
+        Spaces at the start and end are removed. Nothing happens if
+        the name is empty.
+        """
         self.name = self.name.strip()
 
         if self.name == "":
@@ -104,22 +151,27 @@ class GameOver(Scene):
         self.app.change_scene("menu")
 
     def draw(self, screen):
+        """Draw the title, the score, the level, the name box and SAVE.
+
+        Args:
+            screen: The window surface to draw on.
+        """
         center_x = self.width // 2
         shadow = self.s(4)
 
         screen.blit(self.background, (0, 0))
 
-        # title + subtitle (black copy shifted = shadow)
         self.write(screen, "GAME OVER", self.title_font, (0, 0, 0),
                    center=(center_x + shadow, self.y(64)))
         self.write(screen, "GAME OVER", self.title_font, GAME_OVER_RED,
                    center=(center_x, self.y(60)))
-        self.write(screen, "THE SHADOWS CAUGHT YOU...", self.subtitle_font, (0, 0, 0),
-                   center=(center_x + shadow, self.y(114)))
-        self.write(screen, "THE SHADOWS CAUGHT YOU...", self.subtitle_font, WHITE,
-                   center=(center_x, self.y(112)))
+        self.write(
+            screen, "THE SHADOWS CAUGHT YOU...", self.subtitle_font, (0, 0, 0),
+            center=(center_x + shadow, self.y(114)))
+        self.write(
+            screen, "THE SHADOWS CAUGHT YOU...", self.subtitle_font, WHITE,
+            center=(center_x, self.y(112)))
 
-        # scroll
         panel_x = center_x - self.panel_w // 2
         panel_y = self.y(145)
         screen.blit(self.scroll_panel, (panel_x, panel_y))
@@ -143,15 +195,19 @@ class GameOver(Scene):
                    center=(center_x, self.y(455)))
 
         pygame.draw.rect(screen, (250, 240, 220), self.name_box, 0, self.s(10))
-        pygame.draw.rect(screen, (40, 120, 190), self.name_box, max(1, self.s(3)), self.s(10))
+        pygame.draw.rect(
+            screen, (40, 120, 190), self.name_box, max(1, self.s(3)),
+            self.s(10)
+        )
 
         text = self.name_font.render(self.name, True, DARK_BROWN)
         text_rect = text.get_rect(
-            midleft=(self.name_box.left + self.s(18), self.name_box.centery + self.s(2))
+            midleft=(
+                self.name_box.left + self.s(18),
+                self.name_box.centery + self.s(2))
         )
         screen.blit(text, text_rect)
 
-        # back button
         screen.blit(self.save_button, self.back_rect)
         self.write(screen, "SAVE", self.button_font, WHITE,
                    center=(self.back_rect.centerx + self.s(10),

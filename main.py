@@ -1,5 +1,9 @@
+from app import App
+
+
 def main():
-    print("Hello from pac-man!")
+    app = App(2100, 1500)
+    app.run()
 
 
 if __name__ == "__main__":

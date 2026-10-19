@@ -54,7 +54,3 @@ class App:
             pygame.display.flip()
 
         pygame.quit()
-
-
-app = App(2100, 1500)
-app.run()
