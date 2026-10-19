@@ -5,6 +5,7 @@ from mazegenerator import MazeGenerator
 from maze import Maze
 
 from Game import Game
+from Leaderboard import Leaderboard
 
 
 
@@ -102,6 +103,7 @@ class Visual:
 
 
         self.ghost_imgs = []
+        self.Leaderboard = Leaderboard()
 
 
 
