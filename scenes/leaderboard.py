@@ -1,3 +1,5 @@
+"""Leaderboard scene: shows the top 10 highscores."""
+
 import pygame
 from scenes.base import Scene
 
@@ -6,16 +8,31 @@ DARK_BROWN = (45, 25, 15)
 MID_BROWN = (75, 45, 25)
 LIGHT_BROWN = (110, 70, 40)
 WHITE = (255, 255, 255)
-ICE_BLUE = (120, 220, 255)
-MEDALS = [(230, 180, 40), (190, 195, 205), (200, 120, 60)]   # gold, silver, bronze
+MEDALS = [(230, 180, 40), (190, 195, 205), (200, 120, 60)]
+
+DESIGN_W = 1200
+DESIGN_H = 800
 
 
 class Leaderboard(Scene):
+    """Screen that shows the 10 best players on a scroll.
+
+    The top 3 get a gold, silver or bronze medal. A BACK button
+    returns to the main menu.
+    """
 
     def __init__(self, app):
+        """Load the images and fonts, and place the BACK button.
+
+        Args:
+            app: The main App object (gives the window and change_scene).
+        """
         super().__init__(app)
 
         self.width, self.height = self.app.window.get_size()
+
+        self.scale = min(self.width / DESIGN_W, self.height / DESIGN_H)
+        self.top = (self.height - int(DESIGN_H * self.scale)) // 2
 
         self.users = [
             ("9azdou7", 48250),
@@ -31,110 +48,169 @@ class Leaderboard(Scene):
         ]
 
         try:
-
             self.background = pygame.image.load(
                 "assets/menu_background.jpeg").convert()
             self.background = pygame.transform.smoothscale(
-                self.background, (self.width, self.height)
-            )
+                self.background, (self.width, self.height))
 
             self.scroll_panel = pygame.image.load(
                 "assets/scroll_panel.png").convert_alpha()
             self.scroll_panel = pygame.transform.smoothscale(
-                self.scroll_panel, (470, 500)
-            )
-
-            self.panel_w, self.panel_h = self.scroll_panel.get_size()
+                self.scroll_panel, (self.s(470), self.s(500)))
 
             self.back_button = pygame.image.load(
                 "assets/button.png").convert_alpha()
-
             self.back_button = pygame.transform.smoothscale(
-                self.back_button, (420, 80))
+                self.back_button, (self.s(420), self.s(80)))
 
-            self.title_font = pygame.font.Font(FONT, 80)
-            self.subtitle_font = pygame.font.Font(FONT, 26)
-            self.header_font = pygame.font.Font(FONT, 15)
-            self.row_font = pygame.font.Font(FONT, 18)
-            self.button_font = pygame.font.Font(FONT, 40)
+            self.title_font = pygame.font.Font(FONT, self.s(80))
+            self.subtitle_font = pygame.font.Font(FONT, self.s(26))
+            self.header_font = pygame.font.Font(FONT, self.s(15))
+            self.row_font = pygame.font.Font(FONT, self.s(18))
+            self.button_font = pygame.font.Font(FONT, self.s(40))
 
-        except (pygame.error, FileNotFoundError):
+        except (pygame.error, OSError):
             print("Error: could not load leaderboard assets")
             self.app.running = False
             return
 
         self.panel_w, self.panel_h = self.scroll_panel.get_size()
         self.back_rect = self.back_button.get_rect(
-            center=(self.width // 2, 635))
+            center=(self.width // 2, self.y(635)))
+
+    def s(self, value):
+        """Scale a size from the 1200x800 design to the real window.
+
+        Args:
+            value: A size in the 1200x800 design.
+
+        Returns:
+            The same size in real window pixels.
+        """
+        return int(value * self.scale)
+
+    def y(self, value):
+        """Scale a vertical position from the design to the real window.
+
+        Args:
+            value: A y position in the 1200x800 design.
+
+        Returns:
+            The y position in the real window (centered vertically).
+        """
+        return self.top + self.s(value)
 
     def handle_event(self, event):
+        """Go back to the menu with ESC, ENTER or a click on BACK.
 
+        Args:
+            event: The pygame event to handle.
+        """
         if event.type == pygame.KEYDOWN:
             if event.key in (pygame.K_ESCAPE, pygame.K_RETURN):
                 self.app.change_scene("menu")
 
-        if event.type == pygame.MOUSEBUTTONDOWN:
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             if self.back_rect.collidepoint(event.pos):
                 self.app.change_scene("menu")
 
     def write(self, screen, text, font, color, **position):
+        """Draw a text on the screen at a given position.
+
+        Args:
+            screen: The surface to draw on.
+            text: The text to draw.
+            font: The pygame font to use.
+            color: The text color (R, G, B).
+            **position: A Rect anchor, for example center=(x, y).
+        """
         surface = font.render(text, True, color)
         screen.blit(surface, surface.get_rect(**position))
 
     def draw(self, screen):
+        """Draw the title, the scroll with the 10 best players, and BACK.
 
+        Args:
+            screen: The window surface to draw on.
+        """
         center_x = self.width // 2
+        shadow = self.s(4)
 
         screen.blit(self.background, (0, 0))
 
         self.write(screen, "HALL OF SHADOWS", self.title_font, (0, 0, 0),
-                   center=(center_x + 4, 64))
+                   center=(center_x + shadow, self.y(64)))
         self.write(screen, "HALL OF SHADOWS", self.title_font, WHITE,
-                   center=(center_x, 60))
+                   center=(center_x, self.y(60)))
         self.write(screen, "TOP 10 NINJAS", self.subtitle_font, (0, 0, 0),
-                   center=(center_x + 4, 114))
+                   center=(center_x + shadow, self.y(114)))
         self.write(screen, "TOP 10 NINJAS", self.subtitle_font, WHITE,
-                   center=(center_x, 112))
+                   center=(center_x, self.y(112)))
 
-        panel_x = self.width // 2 - self.panel_w // 2
-        panel_y = 145
-
+        # scroll
+        panel_x = center_x - self.panel_w // 2
+        panel_y = self.y(145)
         screen.blit(self.scroll_panel, (panel_x, panel_y))
 
-        left = panel_y + 350
-        name_x = left + 50
-        right = panel_x + self.panel_w - 130
+        # columns
+        left = panel_x + self.s(130)          # rank
+        name_x = left + self.s(50)            # name
+        right = panel_x + self.panel_w - self.s(130)   # score (right edge)
 
-        y = panel_y + 80
-        self.write(screen, "RANK", self.header_font, LIGHT_BROWN, midleft=(left, y))
-        self.write(screen, "NAME", self.header_font, LIGHT_BROWN, midleft=(name_x, y))
-        self.write(screen, "SCORE", self.header_font, LIGHT_BROWN, midright=(right, y))
-        pygame.draw.line(screen, (150, 110, 70), (left, y + 16), (right, y + 16), 2)
+        # header
+        y = panel_y + self.s(80)
+        self.write(
+            screen, "RANK", self.header_font, LIGHT_BROWN,
+            midleft=(left, y),
+        )
+        self.write(
+            screen, "NAME", self.header_font, LIGHT_BROWN,
+            midleft=(name_x, y),
+        )
+        self.write(
+            screen, "SCORE", self.header_font, LIGHT_BROWN,
+            midright=(right, y),
+        )
+        line_y = y + self.s(16)
+        pygame.draw.line(
+            screen,
+            (150, 110, 70),
+            (left, line_y),
+            (right, line_y),
+            max(1, self.s(2)),
+        )
 
-        y += 40
+        y += self.s(40)
         if not self.users:
             self.write(screen, "No ninja has fought yet", self.row_font,
-                MID_BROWN, center=(center_x, y+100))
+                       MID_BROWN, center=(center_x, y + self.s(100)))
 
+        medal_x = left + self.s(18)
         for i, (name, score) in enumerate(self.users[:10]):
 
             if i < 3:
-                pygame.draw.circle(screen, (60, 35, 20), (left + 18, y), 16)
-                pygame.draw.circle(screen, MEDALS[i], (left + 18, y), 14)
+                pygame.draw.circle(
+                    screen,
+                    (60, 35, 20),
+                    (medal_x, y),
+                    self.s(16),
+                )
+                pygame.draw.circle(screen, MEDALS[i], (medal_x, y), self.s(14))
                 self.write(screen, str(i + 1), self.header_font, DARK_BROWN,
-                           center=(left + 18, y + 1))
+                           center=(medal_x, y + self.s(1)))
                 color = DARK_BROWN
             else:
                 self.write(screen, f"{i + 1}.", self.row_font, LIGHT_BROWN,
-                           center=(left + 18, y))
+                           center=(medal_x, y))
                 color = MID_BROWN
 
             self.write(screen, name, self.row_font, color, midleft=(name_x, y))
             self.write(screen, str(score), self.row_font, color,
                        midright=(right, y))
 
-            y += 35
+            y += self.s(35)
 
         screen.blit(self.back_button, self.back_rect)
         self.write(screen, "BACK", self.button_font, WHITE,
-                   center=(self.back_rect.centerx + 10, self.back_rect.centery))
+                   center=(self.back_rect.centerx + self.s(10),
+                           self.back_rect.centery))

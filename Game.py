@@ -32,7 +32,6 @@ class Game:
         self.lives = 3
         self.score = 0
         self.stop = False
-    
 
         self.level = 1
         self.levels_frames = [
@@ -53,7 +52,6 @@ class Game:
         self.game_over = False
         self.game_won = False
 
-        
 
     def initialize_level(self):
         """Generate the maze and initialize entities and level state."""
@@ -270,7 +268,10 @@ class Game:
 
     def resume_game(self):
         """Resume the game and compensate for elapsed pause time."""
+        self.game_paused = False
+        # if self.pause_started_at is not None:
         paused_time = time.monotonic() - self.pause_started_at
+        
         self.level_expires_at += paused_time
 
         if self.edible_active_unitl:

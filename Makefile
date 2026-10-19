@@ -5,10 +5,10 @@ install:
 	uv sync
 
 run:
-	uv run python visual.py $(ARGS)
+	uv run python main.py $(ARGS)
 
 debug:
-	uv run python -m pdb visual.py $(ARGS)
+	uv run python -m pdb main.py $(ARGS)
 
 clean:
 	find . -type d -name "__pycache__" -prune -exec rm -rf {} +

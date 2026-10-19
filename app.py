@@ -1,6 +1,9 @@
 import pygame
+from scenes.game import GameScene
 from scenes.menu import MenuScene
 from scenes.game_over import GameOver
+from scenes.victory import Victory
+from scenes.pause import Pause
 from scenes.instructions import Instructions
 from scenes.leaderboard import Leaderboard
 
@@ -14,36 +17,42 @@ class App:
 
         self.window = pygame.display.set_mode((width, height))
         self.clock = pygame.time.Clock()
-        self.scenes = {
-            "menu": MenuScene(self),
-            "game_over": GameOver(self),
-            "instructions": Instructions(self),
-            "leaderboard": Leaderboard(self),
-        }
-        self.current_scene = self.scenes["menu"]
         self.running = True
         self.fps = 60
 
+        self.last_score = 0
+        self.last_level = 1
+
+        self.scenes = {
+            "game": GameScene(self),
+            "menu": MenuScene(self),
+            "instructions": Instructions(self),
+            "leaderboard": Leaderboard(self),
+            "game_over": GameOver(self),
+            "victory": Victory(self),
+            "pause": Pause(self)
+        }
+
+        self.current_scene = self.scenes["menu"]
+        self.current_scene.on_enter()
+
     def change_scene(self, scene):
         self.current_scene = self.scenes[scene]
+        self.current_scene.on_enter()
 
     def run(self):
 
         while self.running:
 
             for event in pygame.event.get():
-
                 if event.type == pygame.QUIT:
                     self.running = False
                 else:
                     self.current_scene.handle_event(event)
-                self.current_scene.draw(self.window)
 
+            dt = self.clock.tick(self.fps)
+            self.current_scene.update(dt)
+            self.current_scene.draw(self.window)
             pygame.display.flip()
-            self.clock.tick(self.fps)
 
         pygame.quit()
-
-
-app = App(1200, 800)
-app.run()

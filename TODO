@@ -1,3 +1,15 @@
-Ayoub's UI currently uses draw_lives(..., max_lives=3).
 
-don't limit it bro !!!
+
+Ayoub:
+
+SCENES:
+
+GAME OVER - done
+VICTOR - done
+PAUSE SCENE - done
+
+Things to fix:
+
+=> Pause timer
+=> check vectory scene is working
+=> Fix some bugs in victory scene(name, ) - [done]
