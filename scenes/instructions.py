@@ -1,38 +1,73 @@
+"""Instructions scene: explains the controls and the rules."""
+
 import pygame
 from scenes.base import Scene
 
-# the layout was designed for this window size
 DESIGN_W = 1200
 DESIGN_H = 800
 
 
 class Instructions(Scene):
+    """Screen that shows the game rules on a scroll, with a BACK button.
+
+    Each rule has an icon, a title and a short explanation.
+    """
 
     def __init__(self, app):
+        """Build the rules, load the images, fonts and icons.
+
+        If a main image or font is missing, the game stops cleanly.
+        If only an icon is missing, the rule is drawn without it.
+
+        Args:
+            app: The main App object (gives the window and change_scene).
+        """
         super().__init__(app)
 
-        config = {"points_per_pacgum": 10, "points_per_super_pacgum": 50, "points_per_ghost": 200, "lives": 3, "level_max_time": 90}
+        config = {
+            "points_per_pacgum": 10,
+            "points_per_super_pacgum": 50,
+            "points_per_ghost": 200,
+            "lives": 3,
+            "level_max_time": 90,
+        }
 
         self.rules = [
             ("arrows", "MOVE WITH ARROWS / WASD",
-             "P or ESC to pause"),
-            ("gum", "EAT EVERY GUM",
-             f"+{config['points_per_pacgum']} pts - clear them all to finish the level"),
-            ("super", "GRAB A SUPER GUM",
-             f"+{config['points_per_super_pacgum']} pts - rivals are weak for a short time"),
-            ("ghost", "HUNT WEAK RIVALS",
-             f"+{config['points_per_ghost']} pts - otherwise, run!"),
-            ("heart", f"YOU HAVE {config['lives']} LIVES",
-             "touched by a rival = lose one, back to the center"),
-            ("time", "BEAT THE CLOCK",
-             f"{config['level_max_time']} s per level - finish 10 levels to win"),
+                "P or ESC to pause"),
+            (
+                "gum",
+                "EAT EVERY GUM",
+                f"+{config['points_per_pacgum']} pts - "
+                "clear them all to finish the level",
+            ),
+            (
+                "super",
+                "GRAB A SUPER GUM",
+                f"+{config['points_per_super_pacgum']} pts - "
+                "rivals are weak for a short time",
+            ),
+            (
+                "ghost",
+                "HUNT WEAK RIVALS",
+                f"+{config['points_per_ghost']} pts - otherwise, run!",
+            ),
+            (
+                "heart",
+                f"YOU HAVE {config['lives']} LIVES",
+                "touched by a rival = lose one, back to the center",
+            ),
+            (
+                "time",
+                "BEAT THE CLOCK",
+                f"{config['level_max_time']} s per level - "
+                "finish 10 levels to win",
+            ),
         ]
 
         self.width, self.height = self.app.window.get_size()
 
-        # how much bigger than the design: 2100x1500 -> 1.75
         self.scale = min(self.width / DESIGN_W, self.height / DESIGN_H)
-        # empty space left at the top so the layout is centered vertically
         self.top = (self.height - int(DESIGN_H * self.scale)) // 2
 
         font = "assets/fonts/Bangers-Regular.ttf"
@@ -60,7 +95,7 @@ class Instructions(Scene):
             self.small_font = pygame.font.Font(font, self.s(16))
             self.button_font = pygame.font.Font(font, self.s(36))
 
-        except (pygame.error, FileNotFoundError):
+        except (pygame.error, OSError):
             print("Error: could not load instructions assets")
             self.app.running = False
             return
@@ -77,37 +112,69 @@ class Instructions(Scene):
         for name, path in files.items():
             try:
                 icon = pygame.image.load(path).convert_alpha()
-                # if 
                 self.icons[name] = pygame.transform.smoothscale(
                     icon, (self.s(34), self.s(33)))
-            except (pygame.error, FileNotFoundError):
+            except (pygame.error, OSError):
                 print(f"Warning: icon '{name}' not found at {path}")
 
         self.back_rect = self.back_button.get_rect(
             center=(self.width // 2, self.y(635)))
 
     def s(self, value):
-        """Scale a size from the 1200x800 design to the real window."""
+        """Scale a size from the 1200x800 design to the real window.
+
+        Args:
+            value: A size in the 1200x800 design.
+
+        Returns:
+            The same size in real window pixels.
+        """
         return int(value * self.scale)
 
     def y(self, value):
-        """Scale a vertical position from the design to the real window."""
+        """Scale a vertical position from the design to the real window.
+
+        Args:
+            value: A y position in the 1200x800 design.
+
+        Returns:
+            The y position in the real window (centered vertically).
+        """
         return self.top + self.s(value)
 
     def write(self, screen, text, font, color, **position):
+        """Draw a text on the screen at a given position.
+
+        Args:
+            screen: The surface to draw on.
+            text: The text to draw.
+            font: The pygame font to use.
+            color: The text color (R, G, B).
+            **position: A Rect anchor, for example center=(x, y).
+        """
         surface = font.render(text, True, color)
         screen.blit(surface, surface.get_rect(**position))
 
     def handle_event(self, event):
+        """Go back to the menu with ESC, ENTER or a click on BACK.
+
+        Args:
+            event: The pygame event to handle.
+        """
         if event.type == pygame.KEYDOWN:
             if event.key in (pygame.K_ESCAPE, pygame.K_RETURN):
                 self.app.change_scene("menu")
 
-        if event.type == pygame.MOUSEBUTTONDOWN:
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             if self.back_rect.collidepoint(event.pos):
                 self.app.change_scene("menu")
 
     def draw(self, screen):
+        """Draw the title, the scroll with all the rules, and BACK.
+
+        Args:
+            screen: The window surface to draw on.
+        """
         center_x = self.width // 2
         shadow = self.s(4)
 

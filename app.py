@@ -17,6 +17,12 @@ class App:
 
         self.window = pygame.display.set_mode((width, height))
         self.clock = pygame.time.Clock()
+        self.running = True
+        self.fps = 60
+
+        self.last_score = 0
+        self.last_level = 1
+
         self.scenes = {
             "game": GameScene(self),
             "menu": MenuScene(self),
@@ -26,13 +32,9 @@ class App:
             "victory": Victory(self),
             "pause": Pause(self)
         }
+
         self.current_scene = self.scenes["menu"]
         self.current_scene.on_enter()
-        self.running = True
-        self.fps = 60
-
-        self.last_score = None
-        self.last_level = None
 
     def change_scene(self, scene):
         self.current_scene = self.scenes[scene]

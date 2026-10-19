@@ -131,26 +131,30 @@ class GameScene(Scene):
             self.app.change_scene("pause")
 
         elif event.key == pygame.K_c:
-
             if game.cheat_mode:
+                print("REMOVE cheat mode")
                 game.switch_to_normal_mode()
             else:
-                print("Cheat Mode!!!!!")
+                print("Cheat mode activited")
                 game.switch_to_cheat_mode()
 
-        elif game.cheat_mode:
-            
-            if event.key == pygame.K_F1:
-                print("irooooooooooon maaaaaaaaaaaaaaaan !!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-                game.iron_man()
-            elif event.key == pygame.K_F2:
-                game.skip_level()
-            elif event.key == pygame.K_F3:
-                game.ghost_freeze()
-            elif event.key == pygame.K_F4:
-                game.add_life()
-            elif event.key == pygame.K_F5:
-                game.speed_boost()
+        # elif game.cheat_mode:
+        # print("INSIDE CHEAT MODE!!!")
+        elif event.key == pygame.K_F1:
+            print("IRON MAN")
+            game.iron_man()
+        elif event.key == pygame.K_F2:
+            print("SKIP LELVEL")
+            game.skip_level()
+        elif event.key == pygame.K_F3:
+            print("GOHST FREEZE")
+            game.ghost_freeze()
+        elif event.key == pygame.K_F4:
+            print("ADD LIVE")
+            game.add_life()
+        elif event.key == pygame.K_F5:
+            print("BOOST SPEED")
+            game.speed_boost()
 
 
     def update(self, dt):
@@ -205,9 +209,9 @@ class GameScene(Scene):
                     )
                     ghost.update(self.game.maze)
             self.game.handle_collisions()
-            print("lives :", self.game.lives)
+            # print("lives :", self.game.lives)
             if self.game.does_level_completed():
-                print("yeeeeeeeeeeeeeeeeeeees!")
+                # print("yeeeeeeeeeeeeeeeeeeees!")
                 if self.game.succesfully_complete_level():
                     self.game.Next_level()
                     print(self.game.level)
@@ -215,11 +219,13 @@ class GameScene(Scene):
                 else:
                     self.game.initialize_level()
         if self.game.game_over:
-            print("Game oveeeeeeeeeeeeeeeeeeeer!!!!!")
+            # print("Game oveeeeeeeeeeeeeeeeeeeer!!!!!")
             if self.game.game_won:
-                print("Moaaaaaaaad WON !")
+                pass
+                # print("Moaaaaaaaad WON !")
             else:
-                print("Moaad losee this game")
+                pass
+                # print("Moaad losee this game")
 
     def draw(self, screen):
         screen.blit(self.background, (0, 0))

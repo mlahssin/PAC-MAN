@@ -1,3 +1,5 @@
+"""Leaderboard scene: shows the top 10 highscores."""
+
 import pygame
 from scenes.base import Scene
 
@@ -6,24 +8,30 @@ DARK_BROWN = (45, 25, 15)
 MID_BROWN = (75, 45, 25)
 LIGHT_BROWN = (110, 70, 40)
 WHITE = (255, 255, 255)
-ICE_BLUE = (120, 220, 255)
-MEDALS = [(230, 180, 40), (190, 195, 205), (200, 120, 60)]   # gold, silver, bronze
+MEDALS = [(230, 180, 40), (190, 195, 205), (200, 120, 60)]
 
-# the layout was designed for this window size
 DESIGN_W = 1200
 DESIGN_H = 800
 
 
 class Leaderboard(Scene):
+    """Screen that shows the 10 best players on a scroll.
+
+    The top 3 get a gold, silver or bronze medal. A BACK button
+    returns to the main menu.
+    """
 
     def __init__(self, app):
+        """Load the images and fonts, and place the BACK button.
+
+        Args:
+            app: The main App object (gives the window and change_scene).
+        """
         super().__init__(app)
 
         self.width, self.height = self.app.window.get_size()
 
-        # how much bigger than the design: 2100x1500 -> 1.75
         self.scale = min(self.width / DESIGN_W, self.height / DESIGN_H)
-        # empty space left at the top so the layout is centered vertically
         self.top = (self.height - int(DESIGN_H * self.scale)) // 2
 
         self.users = [
@@ -61,7 +69,7 @@ class Leaderboard(Scene):
             self.row_font = pygame.font.Font(FONT, self.s(18))
             self.button_font = pygame.font.Font(FONT, self.s(40))
 
-        except (pygame.error, FileNotFoundError):
+        except (pygame.error, OSError):
             print("Error: could not load leaderboard assets")
             self.app.running = False
             return
@@ -71,33 +79,65 @@ class Leaderboard(Scene):
             center=(self.width // 2, self.y(635)))
 
     def s(self, value):
-        """Scale a size from the 1200x800 design to the real window."""
+        """Scale a size from the 1200x800 design to the real window.
+
+        Args:
+            value: A size in the 1200x800 design.
+
+        Returns:
+            The same size in real window pixels.
+        """
         return int(value * self.scale)
 
     def y(self, value):
-        """Scale a vertical position from the design to the real window."""
+        """Scale a vertical position from the design to the real window.
+
+        Args:
+            value: A y position in the 1200x800 design.
+
+        Returns:
+            The y position in the real window (centered vertically).
+        """
         return self.top + self.s(value)
 
     def handle_event(self, event):
+        """Go back to the menu with ESC, ENTER or a click on BACK.
+
+        Args:
+            event: The pygame event to handle.
+        """
         if event.type == pygame.KEYDOWN:
             if event.key in (pygame.K_ESCAPE, pygame.K_RETURN):
                 self.app.change_scene("menu")
 
-        if event.type == pygame.MOUSEBUTTONDOWN:
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             if self.back_rect.collidepoint(event.pos):
                 self.app.change_scene("menu")
 
     def write(self, screen, text, font, color, **position):
+        """Draw a text on the screen at a given position.
+
+        Args:
+            screen: The surface to draw on.
+            text: The text to draw.
+            font: The pygame font to use.
+            color: The text color (R, G, B).
+            **position: A Rect anchor, for example center=(x, y).
+        """
         surface = font.render(text, True, color)
         screen.blit(surface, surface.get_rect(**position))
 
     def draw(self, screen):
+        """Draw the title, the scroll with the 10 best players, and BACK.
+
+        Args:
+            screen: The window surface to draw on.
+        """
         center_x = self.width // 2
         shadow = self.s(4)
 
         screen.blit(self.background, (0, 0))
 
-        # title + subtitle (black copy shifted = shadow)
         self.write(screen, "HALL OF SHADOWS", self.title_font, (0, 0, 0),
                    center=(center_x + shadow, self.y(64)))
         self.write(screen, "HALL OF SHADOWS", self.title_font, WHITE,
@@ -119,14 +159,27 @@ class Leaderboard(Scene):
 
         # header
         y = panel_y + self.s(80)
-        self.write(screen, "RANK", self.header_font, LIGHT_BROWN, midleft=(left, y))
-        self.write(screen, "NAME", self.header_font, LIGHT_BROWN, midleft=(name_x, y))
-        self.write(screen, "SCORE", self.header_font, LIGHT_BROWN, midright=(right, y))
+        self.write(
+            screen, "RANK", self.header_font, LIGHT_BROWN,
+            midleft=(left, y),
+        )
+        self.write(
+            screen, "NAME", self.header_font, LIGHT_BROWN,
+            midleft=(name_x, y),
+        )
+        self.write(
+            screen, "SCORE", self.header_font, LIGHT_BROWN,
+            midright=(right, y),
+        )
         line_y = y + self.s(16)
-        pygame.draw.line(screen, (150, 110, 70), (left, line_y), (right, line_y),
-                         max(1, self.s(2)))
+        pygame.draw.line(
+            screen,
+            (150, 110, 70),
+            (left, line_y),
+            (right, line_y),
+            max(1, self.s(2)),
+        )
 
-        # rows
         y += self.s(40)
         if not self.users:
             self.write(screen, "No ninja has fought yet", self.row_font,
@@ -136,7 +189,12 @@ class Leaderboard(Scene):
         for i, (name, score) in enumerate(self.users[:10]):
 
             if i < 3:
-                pygame.draw.circle(screen, (60, 35, 20), (medal_x, y), self.s(16))
+                pygame.draw.circle(
+                    screen,
+                    (60, 35, 20),
+                    (medal_x, y),
+                    self.s(16),
+                )
                 pygame.draw.circle(screen, MEDALS[i], (medal_x, y), self.s(14))
                 self.write(screen, str(i + 1), self.header_font, DARK_BROWN,
                            center=(medal_x, y + self.s(1)))
@@ -152,7 +210,6 @@ class Leaderboard(Scene):
 
             y += self.s(35)
 
-        # back button
         screen.blit(self.back_button, self.back_rect)
         self.write(screen, "BACK", self.button_font, WHITE,
                    center=(self.back_rect.centerx + self.s(10),
