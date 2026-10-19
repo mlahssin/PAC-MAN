@@ -106,13 +106,18 @@ class GameScene(Scene):
 
     def handle_event(self, event):
 
+        game = self.game
+        if game is None:
+            return
+
         if event.type == pygame.MOUSEBUTTONDOWN:
             if self.pause_rect.collidepoint(event.pos):
-                self.paused_at = time.monotonic()
                 self.app.change_scene("pause")
+            return
 
         if event.type != pygame.KEYDOWN:
             return
+
         if event.key in (pygame.K_LEFT, pygame.K_a):
             self.direction = "left"
         elif event.key in (pygame.K_RIGHT, pygame.K_d):
@@ -121,48 +126,100 @@ class GameScene(Scene):
             self.direction = "up"
         elif event.key in (pygame.K_DOWN, pygame.K_s):
             self.direction = "down"
+
         elif event.key == pygame.K_ESCAPE:
-            self.paused_at = time.monotonic()
             self.app.change_scene("pause")
-        elif event.key == pygame.K_F2:
-            self.game.Next_level()
+
+        elif event.key == pygame.K_c:
+
+            if game.cheat_mode:
+                game.switch_to_normal_mode()
+            else:
+                print("Cheat Mode!!!!!")
+                game.switch_to_cheat_mode()
+
+        elif game.cheat_mode:
+            
+            if event.key == pygame.K_F1:
+                print("irooooooooooon maaaaaaaaaaaaaaaan !!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                game.iron_man()
+            elif event.key == pygame.K_F2:
+                game.skip_level()
+            elif event.key == pygame.K_F3:
+                game.ghost_freeze()
+            elif event.key == pygame.K_F4:
+                game.add_life()
+            elif event.key == pygame.K_F5:
+                game.speed_boost()
+
 
     def update(self, dt):
-        game = self.game
+        # game = self.game
 
+        # if self.direction is not None:
+        #     game.player.request_direction(self.direction)
+        #     self.direction = None
+
+        # game.player.choose_direction(game.maze)
+        # game.player.update(game.maze)
+        # game.collect_gums()
+        # game.ghost_update()
+
+        # for ghost in game.ghosts:
+        #     ghost.choose_direction(game.maze, game.player.pos)
+        #     ghost.update(game.maze)
+
+        # game.handle_collisions()
+
+        # if game.does_level_completed():
+        #     if game.succesfully_complete_level():
+        #         game.Next_level()
+        #     else:
+        #         game.initialize_level()
+
+        # if game.game_over or game.game_won:
+        #     print("LEVLE:", game.level)
+        #     self.app.last_score = game.score
+        #     self.app.last_level = game.level
+
+        #     self.game = None
+
+        #     if game.game_won:
+        #         self.app.change_scene("victory")
+        #     else:
+        #         self.app.change_scene("game_over")
+        #     return
         if self.direction is not None:
-            game.player.request_direction(self.direction)
-            self.direction = None
+            self.game.player.request_direction(self.direction)
 
-        game.player.choose_direction(game.maze)
-        game.player.update(game.maze)
-        game.collect_gums()
-        game.ghost_update()
-
-        for ghost in game.ghosts:
-            ghost.choose_direction(game.maze, game.player.pos)
-            ghost.update(game.maze)
-
-        game.handle_collisions()
-
-        if game.does_level_completed():
-            if game.succesfully_complete_level():
-                game.Next_level()
+        self.game.player.choose_direction(self.game.maze)
+        player = self.game.player
+        if not self.game.game_paused:
+            player.update(self.game.maze)
+            self.game.collect_gums()
+            self.game.ghost_update()
+            if not self.game.ghosts_frozen_active:
+                for ghost in self.game.ghosts:
+                    ghost.choose_direction(
+                        self.game.maze, self.game.player.pos
+                    )
+                    ghost.update(self.game.maze)
+            self.game.handle_collisions()
+            print("lives :", self.game.lives)
+            if self.game.does_level_completed():
+                print("yeeeeeeeeeeeeeeeeeeees!")
+                if self.game.succesfully_complete_level():
+                    self.game.Next_level()
+                    print(self.game.level)
+                    print(self.game.lives)
+                else:
+                    self.game.initialize_level()
+        if self.game.game_over:
+            print("Game oveeeeeeeeeeeeeeeeeeeer!!!!!")
+            if self.game.game_won:
+                print("Moaaaaaaaad WON !")
             else:
-                game.initialize_level()
-
-        if game.game_over or game.game_won:
-            print("LEVLE:", game.level)
-            self.app.last_score = game.score
-            self.app.last_level = game.level
-
-            self.game = None
-
-            if game.game_won:
-                self.app.change_scene("victory")
-            else:
-                self.app.change_scene("game_over")
-            return
+                print("Moaad losee this game")
 
     def draw(self, screen):
         screen.blit(self.background, (0, 0))
