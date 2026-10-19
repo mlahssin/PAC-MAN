@@ -138,61 +138,20 @@ class GameScene(Scene):
                 print("Cheat mode activited")
                 game.switch_to_cheat_mode()
 
-        # elif game.cheat_mode:
-        # print("INSIDE CHEAT MODE!!!")
-        elif event.key == pygame.K_F1:
-            print("IRON MAN")
-            game.iron_man()
-        elif event.key == pygame.K_F2:
-            print("SKIP LELVEL")
-            game.skip_level()
-        elif event.key == pygame.K_F3:
-            print("GOHST FREEZE")
-            game.ghost_freeze()
-        elif event.key == pygame.K_F4:
-            print("ADD LIVE")
-            game.add_life()
-        elif event.key == pygame.K_F5:
-            print("BOOST SPEED")
-            game.speed_boost()
-
+        elif game.cheat_mode:
+            if event.key == pygame.K_F1:
+                game.iron_man()
+            elif event.key == pygame.K_F2:
+                game.skip_level()
+            elif event.key == pygame.K_F3:
+                game.ghost_freeze()
+            elif event.key == pygame.K_F4:
+                game.add_life()
+            elif event.key == pygame.K_F5:
+                game.speed_boost()
 
     def update(self, dt):
-        # game = self.game
 
-        # if self.direction is not None:
-        #     game.player.request_direction(self.direction)
-        #     self.direction = None
-
-        # game.player.choose_direction(game.maze)
-        # game.player.update(game.maze)
-        # game.collect_gums()
-        # game.ghost_update()
-
-        # for ghost in game.ghosts:
-        #     ghost.choose_direction(game.maze, game.player.pos)
-        #     ghost.update(game.maze)
-
-        # game.handle_collisions()
-
-        # if game.does_level_completed():
-        #     if game.succesfully_complete_level():
-        #         game.Next_level()
-        #     else:
-        #         game.initialize_level()
-
-        # if game.game_over or game.game_won:
-        #     print("LEVLE:", game.level)
-        #     self.app.last_score = game.score
-        #     self.app.last_level = game.level
-
-        #     self.game = None
-
-        #     if game.game_won:
-        #         self.app.change_scene("victory")
-        #     else:
-        #         self.app.change_scene("game_over")
-        #     return
         if self.direction is not None:
             self.game.player.request_direction(self.direction)
 
@@ -209,23 +168,24 @@ class GameScene(Scene):
                     )
                     ghost.update(self.game.maze)
             self.game.handle_collisions()
-            # print("lives :", self.game.lives)
+
             if self.game.does_level_completed():
-                # print("yeeeeeeeeeeeeeeeeeeees!")
                 if self.game.succesfully_complete_level():
                     self.game.Next_level()
-                    print(self.game.level)
-                    print(self.game.lives)
+
                 else:
                     self.game.initialize_level()
-        if self.game.game_over:
-            # print("Game oveeeeeeeeeeeeeeeeeeeer!!!!!")
+
+        if self.game.game_over or self.game.game_won:
+
+            self.app.last_score = self.game.score
+            self.app.last_level = self.game.level
+
             if self.game.game_won:
-                pass
-                # print("Moaaaaaaaad WON !")
+                self.app.change_scene("victory")
             else:
-                pass
-                # print("Moaad losee this game")
+                self.app.change_scene("game_over")
+            return
 
     def draw(self, screen):
         screen.blit(self.background, (0, 0))
@@ -249,7 +209,8 @@ class GameScene(Scene):
         self.draw_sidebar()
         canvas.blit(self.sidebar_sur, (PADDING + MAZE_WIDTH + GAP, PADDING))
 
-        screen.blit(pygame.transform.smoothscale(canvas, self.scaled_size),
+        screen.blit(
+            pygame.transform.smoothscale(canvas, self.scaled_size),
             self.offset)
 
         screen.blit(self.pause_button, self.pause_rect)
@@ -271,19 +232,25 @@ class GameScene(Scene):
                 bottom = top + CELL
 
                 if cell & 1:    # north
-                    pygame.draw.line(self.maze_sur, WHITE, (left, top), (right, top), 2)
+                    pygame.draw.line(
+                        self.maze_sur, WHITE, (left, top), (right, top), 2)
                 if cell & 2:    # east
-                    pygame.draw.line(self.maze_sur, WHITE, (right, top), (right, bottom), 2)
+                    pygame.draw.line(
+                        self.maze_sur, WHITE, (right, top), (right, bottom), 2)
                 if cell & 4:    # south
-                    pygame.draw.line(self.maze_sur, WHITE, (left, bottom), (right, bottom), 2)
+                    pygame.draw.line(
+                        self.maze_sur, WHITE, (left, bottom), (right, bottom),
+                        2)
                 if cell & 8:    # west
-                    pygame.draw.line(self.maze_sur, WHITE, (left, top), (left, bottom), 2)
+                    pygame.draw.line(
+                        self.maze_sur, WHITE, (left, top), (left, bottom), 2)
 
     def draw_gums(self):
         for (col, row) in self.game.gums:
             center = self.cell_center(col, row)
             if self.gum_img:
-                self.maze_sur.blit(self.gum_img, self.gum_img.get_rect(center=center))
+                self.maze_sur.blit(
+                    self.gum_img, self.gum_img.get_rect(center=center))
             else:
                 pygame.draw.circle(self.maze_sur, WHITE, center, 4)
 
@@ -322,10 +289,18 @@ class GameScene(Scene):
             self.maze_sur.blit(img, img.get_rect(center=center))
 
     def draw_sidebar(self):
-        pygame.draw.rect(self.sidebar_sur, WHITE, self.sidebar_sur.get_rect(), 2,
-                         border_top_right_radius=20, border_bottom_right_radius=20)
+        pygame.draw.rect(
+            self.sidebar_sur, WHITE, self.sidebar_sur.get_rect(), 2,
+            border_top_right_radius=20, border_bottom_right_radius=20
+        )
 
-        time_left = self.game.level_expires_at - time.monotonic()
+        fixed_time = time.monotonic()
+
+        time_left = self.game.level_expires_at - fixed_time
+
+        if self.game.game_paused:
+            time_left += fixed_time - self.game.pause_started_at
+
         self.draw_timer(max(0, time_left))
         level = self.game.level
 

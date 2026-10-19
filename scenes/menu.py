@@ -51,9 +51,10 @@ class MenuScene(Scene):
 
         self.button_rects = []
         y = self.y(400)
-        for i in range(len(self.options)):
+        for i in range(4):
             rect = self.button.get_rect(midtop=(width // 2, y))
             self.button_rects.append(rect)
+            y += self.s(80)
 
     def s(self, value):
         """Scale a size from the 1200x800 design to the real window.
@@ -99,7 +100,7 @@ class MenuScene(Scene):
             event: The pygame event to handle.
         """
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-            for i in range(len(self.options)):
+            for i in range(4):
                 if self.button_rects[i].collidepoint(event.pos):
                     self.choose(i)
 
@@ -111,7 +112,7 @@ class MenuScene(Scene):
         """
         screen.blit(self.background, (0, 0))
 
-        for i in range(len(self.options)):
+        for i in range(4):
             rect = self.button_rects[i]
             screen.blit(self.button, rect)
 

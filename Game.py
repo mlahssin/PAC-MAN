@@ -268,7 +268,10 @@ class Game:
 
     def resume_game(self):
         """Resume the game and compensate for elapsed pause time."""
+        self.game_paused = False
+        # if self.pause_started_at is not None:
         paused_time = time.monotonic() - self.pause_started_at
+        
         self.level_expires_at += paused_time
 
         if self.edible_active_unitl:

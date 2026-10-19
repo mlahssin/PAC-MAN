@@ -656,7 +656,7 @@ class Visual:
             self.game.player.choose_direction(self.game.maze)
 
 
-            
+z            
             player = self.game.player
 
 

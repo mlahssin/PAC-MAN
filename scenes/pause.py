@@ -1,6 +1,6 @@
 import pygame
 from scenes.base import Scene
-
+import time
 
 FONT = "assets/fonts/Bangers-Regular.ttf"
 # the layout was designed for this window size
@@ -65,9 +65,8 @@ class Pause(Scene):
         target = self.options[index]
 
         if target == "RESUME":
+            game_scene.game.resume_game()
             self.app.change_scene("game")
-        # elif target == "RESTART":
-        #     self.app.change_scene("game")
         elif target == "MAIN MENU":
             game_scene.game = None
             self.app.change_scene("menu")
@@ -100,3 +99,9 @@ class Pause(Scene):
             text = self.font.render(self.options[i], True, (255, 255, 255))
             text_rect = text.get_rect(center=rect.center)
             screen.blit(text, text_rect.move(self.s(12), 0))
+
+    def on_enter(self):
+        game = self.app.scenes["game"].game
+        if game is not None:
+            game.game_paused = True
+            game.pause_started_at = time.monotonic()
