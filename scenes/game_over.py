@@ -147,7 +147,13 @@ class GameOver(Scene):
         if self.name == "":
             return
 
+        self.app.leadearboard.add_scores(self.name, self.app.last_score)
+
         print(f"SAVE: {self.name}")
+
+        # self.app.leadearboard.load_scores()
+        # self.app.scores = self.app.leadearboard.scores
+        
         self.app.change_scene("menu")
 
     def draw(self, screen):

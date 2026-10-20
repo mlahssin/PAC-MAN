@@ -1,7 +1,7 @@
 from pathlib import Path
 import json
 
-class Leaderboard:
+class Leaderboard_Engine:
     def __init__(self):
         self.scores = []
         self.file_name = Path("scores.json")
@@ -15,8 +15,11 @@ class Leaderboard:
                 json.dump(self.scores, f, indent=4)
     
     def load_scores(self):
+        # try:
         with open(self.file_name, "r") as f:
             self.scores = json.load(f)
+        # except Exception as e:
+        #     print("here is where the problem ")
     
     def add_scores(self, name, score):
         self.scores.append({

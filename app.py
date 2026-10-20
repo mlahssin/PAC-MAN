@@ -6,6 +6,7 @@ from scenes.victory import Victory
 from scenes.pause import Pause
 from scenes.instructions import Instructions
 from scenes.leaderboard import Leaderboard
+from Leaderboard import Leaderboard_Engine
 
 
 class App:
@@ -22,6 +23,8 @@ class App:
 
         self.last_score = 0
         self.last_level = 1
+
+        self.leadearboard = Leaderboard_Engine()
 
         self.scenes = {
             "game": GameScene(self),
