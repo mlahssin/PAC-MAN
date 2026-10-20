@@ -106,4 +106,3 @@ class Config:
 
 config = Config("config.json")
 data = config.load()
-# print("Data:", data)

@@ -1,3 +1,5 @@
+### mlahssin
+
 ## 1. Maze Generator Installation — Issue and Resolution
 
 ### Problem
@@ -108,5 +110,88 @@ Four supergums are placed at the maze corners using the predefined `self.corners
 
 Their positions are also stored in a `set` to prevent duplicates.
 
+### ayait-ih
 
+## 5. First Visual Prototype (`visual.py`)
 
+To check the maze and the entities on screen, I built a first Pygame prototype that reads the data from `Game` and draws it.
+ 
+### Window and Layout
+ 
+The window is split into two surfaces:
+ 
+| Surface | Content |
+|---|---|
+| `maze_sur` | The maze, the gums and the characters |
+| `sidebar_sur` | The future HUD (score, lives, timer, level) |
+ 
+Their positions are controlled by layout constants (`CELL`, `PADDING`, `GAP`, `SIDEBAR_WIDTH`), so the window size is calculated from the maze size instead of being hard-coded.
+ 
+### Drawing Methods
+ 
+| Method | Responsibility |
+|---|---|
+| `draw_maze()` | Reads `game.grid` and draws each wall from its bitmask. |
+| `draw_42_cells()` | Fills the cells returned by `maze.get_42_cells()` to show the 42 pattern. |
+| `draw_gums()` | Draws a small dot in every position of `game.gums`. |
+| `draw_supergums()` | Draws a bigger dot in every position of `game.super_gums`. |
+| `draw_player()` | Draws the player at its pixel position (`x_pix`, `y_pix`). |
+| `draw_ghosts()` | Draws the four ghosts, each with its own color. |
+| `draw_maze_side_bar()` | Draws the border of the sidebar panel. |
+ 
+### Wall Drawing
+ 
+Each cell is an integer where every bit is one wall:
+ 
+| Bit | Value | Wall |
+|---|---|---|
+| North | `1` | top line |
+| East | `2` | right line |
+| South | `4` | bottom line |
+| West | `8` | left line |
+ 
+`cell & side != 0` tells whether a wall exists, then a line is drawn on that side of the cell. A cell is converted to pixels with `col * CELL` and `row * CELL`.
+ 
+### Why a Prototype First
+ 
+- It gave a **visual check** of Moaad's work: maze generation, the 42 pattern, the player at the center, the ghosts in the corners and the gum placement.
+- It let us test the maze with the real `Game` data before the menus and scenes existed.
+- Simple shapes (circles and lines) were used first, so the logic could be validated before spending time on images.
+---
+ 
+## 6. Visual Theme and Assets
+ 
+### Theme Choice
+ 
+We chose an original **ninja / moonlit night** theme: a blue night background, wooden and scroll-style UI elements, and ninja-style characters. All assets are original and do not use any existing franchise.
+ 
+### Assets
+ 
+| Asset | Usage |
+|---|---|
+| Player sprites (`player1.png`, `player2.png`) | Facing right and facing left |
+| Ghost sprites (`ghost1` → `ghost4`) | One image per ghost |
+| `gum.png`, `supergum.png` | Gums and supergums |
+| Background images | Game scene and menus |
+| Buttons, scroll panel, boards, hearts, timer sign | Menus and HUD |
+| `Bangers-Regular.ttf` | Font used in the whole game |
+ 
+### Technical Choices
+ 
+- **Image scaling:** every image is resized to the cell size with `smoothscale`, so the sprites fit any maze size.
+- **Fallback shapes:** if an image is missing, a simple circle or rectangle is drawn instead, so the game never crashes because of a missing asset.
+- **Transparency:** PNG images are loaded with `convert_alpha()` to keep their transparent background, and the background with `convert()` for faster drawing.
+---
+ 
+## 7. From Prototype to Game Scene
+ 
+The prototype was then turned into `GameScene`, the first scene of the scene architecture used for the whole UI (menu, instructions, leaderboard, pause, game over, victory).
+ 
+| Prototype (`visual.py`) | Game scene (`scenes/game.py`) |
+|---|---|
+| Own window and game loop | Uses the window and loop of `App` |
+| Fixed window size | Draws on a canvas, then scales it to fit any window |
+| Circles and lines | Sprites, with shapes as fallback |
+| No input | Arrow keys / WASD sent to `player.request_direction()` |
+ 
+This separation keeps **drawing** in the UI part and **game rules** in `Game`, so both of us could work on our parts at the same time.
