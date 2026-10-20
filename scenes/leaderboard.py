@@ -35,10 +35,6 @@ class Leaderboard(Scene):
         self.scale = min(self.width / DESIGN_W, self.height / DESIGN_H)
         self.top = (self.height - int(DESIGN_H * self.scale)) // 2
         self.users = []
-        # self.leadearboard = Leaderboard_Engine()
-
-
-        # print("Users", self.users)
 
         try:
             self.background = pygame.image.load(
@@ -121,7 +117,6 @@ class Leaderboard(Scene):
         screen.blit(surface, surface.get_rect(**position))
 
     def on_enter(self):
-        print("Enter LeaderBoard!!!")
 
         self.app.leadearboard.load_scores()
         self.scores = self.app.leadearboard.scores
@@ -172,6 +167,7 @@ class Leaderboard(Scene):
             midright=(right, y),
         )
         line_y = y + self.s(16)
+
         pygame.draw.line(
             screen,
             (150, 110, 70),
@@ -186,12 +182,8 @@ class Leaderboard(Scene):
                        MID_BROWN, center=(center_x, y + self.s(100)))
 
         medal_x = left + self.s(18)
-        # self.app.leadearboard.load_scores()
-        # self.scores = self.app.leadearboard.scores
-        # self.users = [(score["name"], score["score"]) for score in self.scores]
 
         for i, (name, score) in enumerate(self.users[:10]):
-            print(i, name, score)
 
             if i < 3:
                 pygame.draw.circle(

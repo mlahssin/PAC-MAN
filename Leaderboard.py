@@ -36,19 +36,8 @@ class Leaderboard_Engine:
             reverse=True
         )
 
-        
     def save_scores(self):
         self.scores = self.scores[:10]
 
         with open(self.file_name, "w") as f:
             json.dump(self.scores, f, indent=4)
-
-    
-
-
-
-
-
-
-
-            

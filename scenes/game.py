@@ -132,10 +132,8 @@ class GameScene(Scene):
 
         elif event.key == pygame.K_c:
             if game.cheat_mode:
-                print("REMOVE cheat mode")
                 game.switch_to_normal_mode()
             else:
-                print("Cheat mode activited")
                 game.switch_to_cheat_mode()
 
         elif game.cheat_mode:
