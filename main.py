@@ -1,4 +1,5 @@
 from app import App
+from config import Config
 import sys
 
 
@@ -9,6 +10,12 @@ def main():
         sys.exit(1)
 
     filepath = sys.argv[1]
+    if not filepath.endswith(".json"):
+        print(f"Error: '{filepath}' must be a .json file", file=sys.stderr)
+        sys.exit(1)
+
+    settings = Config(filepath).load()
+    print("Settings:", settings.pacgum)
 
     app = App(2100, 1500)
     app.run()

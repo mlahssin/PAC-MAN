@@ -32,13 +32,18 @@ class Config:
 
     def load_to_dict(self, text):
 
+        if not text.strip():
+            return {}
+
         try:
             data = json.loads(text)
         except json.JSONDecodeError as error:
-            print(f"Config: invalid JSON ({error.msg})")
+            self.warn(f"invalid JSON at line {error.lineno} "
+                      f"({error.msg}), using defaults")
             return {}
+
         if not isinstance(data, dict):
-            print("Config: the file must contain { ... }")
+            self.warn("the file must contain { ... }, using defaults")
             return {}
 
         return data
@@ -59,16 +64,21 @@ class Config:
 
     def validate(self, data: dict[str, Any]) -> Settings:
 
+        for key in data:
+            if key not in Settings.model_fields:
+                self.warn(f"unknown key '{key}', ignored")
+
         for key in Settings.model_fields:
             if key not in data:
-                print(f"Config: '{key}' is missing, using default")
+                self.warn(f"'{key}' is missing, using default")
 
         try:
             return Settings(**data)
         except ValidationError as error:
             for problem in error.errors():
                 key = str(problem["loc"][0])
-                print(f"Config: '{key}' is wrong ({problem['msg']}), using default")
+                self.warn(f"'{key}' is wrong ({problem['msg']}), "
+                          "using default")
                 data.pop(key, None)
             return Settings(**data)
 
@@ -87,9 +97,13 @@ class Config:
                       "using defaults")
             return ""
 
+        except UnicodeDecodeError:
+            self.warn(f"'{self.file}' is not a text file, using defaults")
+            return ""
+
         return "".join(lines)
 
 
 config = Config("config.json")
 data = config.load()
-print("Data:", data)
+# print("Data:", data)
