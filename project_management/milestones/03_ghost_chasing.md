@@ -1,3 +1,5 @@
+### mlahssin
+
 # Milestone 03 — Ghost Chasing
 
 ## Objective
@@ -55,3 +57,63 @@ If the ghost is already moving toward a `target_pos`, the method does not select
 | `Character.update()` | Move progressively toward the target and complete the cell transition. |
 | `Game.initialize_level()` | Set the ghost's movement parameters for the level. |
 
+
+### ayait-ih
+
+## 6. Updating the Ghosts Every Frame (`GameScene.update`)
+ 
+The UI calls the ghost logic once per frame, after the player has moved:
+ 
+```python
+for ghost in game.ghosts:
+    ghost.choose_direction(game.maze, game.player.pos)
+    ghost.update(game.maze)
+```
+ 
+1. `choose_direction()` receives the player's **current grid cell** (`player.pos`), so each ghost chases the player's latest position.
+2. `update()` moves the ghost a few pixels toward its next cell.
+3. `game.handle_collisions()` is called **after** all characters have moved, so collisions are checked with the final positions of the frame.
+**Technical choice:** the UI only calls the methods in the right order. Where the ghost goes (BFS or random move) is decided entirely by `Ghost.choose_direction()`.
+ 
+## 7. Drawing the Ghosts
+ 
+### One Sprite per Ghost
+ 
+Four ghost images are loaded once in `GameScene.__init__()` and stored in a list. Ghost number `i` in `game.ghosts` uses image number `i`, so each ghost always keeps the same look and the player can follow each one on screen.
+ 
+| Ghost index | Image |
+|---|---|
+| `0` | `ghost1.png` |
+| `1` | `ghost2.png` |
+| `2` | `ghost3.png` |
+| `3` | `ghost4.png` |
+ 
+### Smooth Position
+ 
+Like the player, each ghost is drawn at its **pixel position** (`x_pix`, `y_pix`) and centered with `get_rect(center=...)`, so the ghost slides smoothly between cells instead of jumping.
+ 
+## 8. Showing the Ghost State
+ 
+The ghost image depends on its `state`:
+ 
+| State | Image |
+|---|---|
+| `DANGEROUS` | Normal sprite |
+| `EDIBLE` | Tinted copy of the same sprite |
+ 
+### How the Edible Image is Made
+ 
+No extra image file is needed. In `__init__()`, each ghost image is **copied** and tinted with a color multiplication:
+ 
+```python
+edible = img.copy()
+edible.fill((120, 255, 255), special_flags=pygame.BLEND_RGB_MULT)
+```
+ 
+`BLEND_RGB_MULT` multiplies each pixel by the color, so the red channel is reduced and the sprite turns blue-cyan, while its shape and transparency stay the same.
+ 
+**Technical choices:**
+ 
+- The tinted images are created **once** at start, not every frame, to keep drawing fast.
+- The player instantly recognizes a weak ghost because it is the **same** character with a different color.
+- The UI only **reads** `ghost.state`. The state itself (when a ghost becomes edible and for how long) is managed by the game logic.
