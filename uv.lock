@@ -7,7 +7,7 @@ name = "mazegenerator"
 version = "2.0.2"
 source = { path = "mazegenerator-2.0.2-py3-none-any.whl" }
 wheels = [
-    { filename = "mazegenerator-2.0.2-py3-none-any.whl", hash = "sha256:5b7c5a0fe4efd3af3b61cae391ccdf30b9f74e7e69bf744323dff152a0ff66ab" },
+    { filename = "mazegenerator-2.0.2-py3-none-any.whl", hash = "sha256:88b5b212ae1a90faa8aa6f8518abe6968a30be071cddbdd02f8c52c6936c209e" },
 ]
 
 [[package]]
