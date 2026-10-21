@@ -17,10 +17,7 @@ def main():
     settings = Config(filepath).load()
     print("Settings:", settings.pacgum)
 
-    app = App(1000, 800)
-    # setting infos
-    app.settings = settings
-
+    app = App(1000, 800, settings)
     app.run()
 
 

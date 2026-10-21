@@ -11,7 +11,7 @@ from Leaderboard import Leaderboard_Engine
 
 class App:
 
-    def __init__(self, width, height):
+    def __init__(self, width, height, settings):
 
         pygame.init()
         pygame.display.set_caption("PAC MAN")
@@ -20,6 +20,8 @@ class App:
         self.clock = pygame.time.Clock()
         self.running = True
         self.fps = 60
+
+        self.settings = settings
 
         self.last_score = 0
         self.last_level = 1

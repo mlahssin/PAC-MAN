@@ -32,6 +32,8 @@ class GameScene(Scene):
         super().__init__(app)
         self.game = None
         self.facing = "right"
+
+        self.seed = self.app.settings.seed
         # self.direction = None
 
         self.player_right = self.load_image("assets/player/player1.png", CELL - 8)
@@ -88,11 +90,12 @@ class GameScene(Scene):
 
     def on_enter(self):
         if self.game is None or self.game.game_over:
-            self.game = Game(ROWS, COLS, perfect=False, seed=SEED)
+            self.game = Game(ROWS, COLS, perfect=False, seed=self.seed)
             self.game.pacgum_points = self.app.settings.points_per_pacgum
             self.game.supergum_points = self.app.settings.points_per_super_pacgum
             self.game.ed_ghost_points = self.app.settings.points_per_ghost
-            
+            self.game.lives = self.app.settings.lives
+
             self.facing = "right"
         # self.direction = None
 
