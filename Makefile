@@ -1,5 +1,6 @@
 .PHONY: install run debug clean lint
 
+ARGS = config.json
 
 install:
 	uv sync

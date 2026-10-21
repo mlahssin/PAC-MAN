@@ -1,3 +1,5 @@
+### mlahssin
+
 # Milestone 10 — Backend Quality
 
 ## Objective
@@ -75,3 +77,75 @@ These are verification scenarios; passing results must be recorded after testing
 ## Status
 
 **In progress.** Core backend code review and initial docstrings are done. Full-project linting, type annotations, and recorded regression-test results remain to be completed.
+
+
+### ayait-ih
+
+
+# Frontend Quality (UI and Scenes)
+ 
+The same review was done on the UI side: `app.py` and the scenes in `scenes/` (`menu`, `instructions`, `leaderboard`, `game`, `pause`, `game_over`, `victory`).
+ 
+## 6. Linting Results
+ 
+A first run of the `make lint` commands on the UI files gave:
+ 
+| Check | First run | Main causes |
+|---|---:|---|
+| `flake8` | 45 errors | 41 lines over 79 characters, 1 unused import, trailing spaces, blank lines, indentation |
+| `mypy` (lint options) | 107 errors | Functions without type hints |
+ 
+Long lines were split inside parentheses, and long texts were split into two strings (Python joins them).
+ 
+| File | `flake8` | Docstrings |
+|---|---|---|
+| `app.py` | ✅ | ✅ |
+| `scenes/menu.py` | ✅ | ✅ |
+| `scenes/instructions.py` | ✅ | ✅ |
+| `scenes/leaderboard.py` | ✅ | ✅ |
+| `scenes/game_over.py` | ✅ | ✅ |
+| `scenes/game.py` | ⏳ | ⏳ |
+| `scenes/pause.py` | ⏳ | ⏳ |
+| `scenes/victory.py` | ⏳ | ⏳ |
+ 
+Docstrings follow the **Google style** (summary line, `Args:`, `Returns:`), as allowed by PEP 257, and are checked with `pydocstyle --convention=google`.
+ 
+## 7. Error Handling
+ 
+| Problem | Fix |
+|---|---|
+| A missing image stopped a scene with `running = False`, but `App` set `running = True` again **after** creating the scenes, so the game crashed later with a traceback | `running = True` is set **before** the scenes are created |
+| Only `FileNotFoundError` was caught when loading assets | `OSError` is caught (missing file, folder, no permission), plus `pygame.error` (corrupt file) |
+| A missing **icon** stopped the whole instructions screen | Each icon has its own `try`: a missing icon is skipped with a warning |
+| `last_score` / `last_level` started as `None`, so `f"{score:02d}"` could raise `TypeError` | They start at `0` and `1` |
+| The app was created at module level (global variable) | Started inside `main()` with `if __name__ == "__main__":` |
+ 
+## 8. Cleanup
+ 
+- Removed debug prints (`print("Event")` on every mouse move, `print(target)`).
+- Removed unused constants and fonts (`ICE_BLUE`, `MID_BROWN`, `MEDALS`, unused fonts in the end screens).
+- Replaced fixed loop sizes (`range(3)`, `range(4)`) with `range(len(self.options))`, which fixed a crash in the pause menu.
+- Buttons react to the **left click only** (`event.button == 1`), because the mouse wheel also sends `MOUSEBUTTONDOWN`.
+- `dt` is now in **seconds** (`clock.tick(fps) / 1000`) instead of milliseconds.
+- `change_scene()` always calls `on_enter()`, so each scene resets its state (name field, selection) when it opens.
+## 9. UI Regression Testing
+ 
+| Scenario | Expected result | Result |
+|---|---|---|
+| Click each menu button | The right scene opens, QUIT closes the game | |
+| Scroll the mouse wheel over a button | Nothing happens | |
+| PLAY after MAIN MENU in pause | A new game starts | |
+| PLAY after Game Over / Victory | A new game starts | |
+| `P`, `ESC`, pause button | The pause menu opens, the timer stops | |
+| RESUME | The game continues with the same time left | |
+| Type a name (letters, digits, spaces, Backspace) | Max 10 characters, uppercase | |
+| Open Game Over / Victory a second time | The name field is empty | |
+| Remove an image from `assets/` | Clear message, no traceback | |
+| Remove an icon from `assets/` | Instructions still open without that icon | |
+| Window of another size | Every scene scales and stays centered | |
+ 
+Results must be filled in after testing.
+ 
+## Frontend Status
+ 
+**In progress.** `flake8` and docstrings are done for `app.py`, `menu`, `instructions`, `leaderboard` and `game_over`. Remaining: `game`, `pause` and `victory`, type hints for every UI method, and the recorded test results.

@@ -1,3 +1,5 @@
+### mlahssin
+
 # Milestone 04 — Collectibles and Scoring
 
 ## Objective
@@ -39,3 +41,67 @@ When the player collects a supergum, `collect_gums()`:
 
 score added is 50 to the original score
 
+
+### ayait-ih
+
+## 5. Drawing the Collectibles
+ 
+The UI draws the gums directly from the two sets of the game, `game.gums` and `game.super_gums`, every frame.
+ 
+| Collectible | Image | Size | Fallback |
+|---|---|---|---|
+| Normal gum | `gum.png` | `CELL // 3` | small white circle |
+| Supergum | `supergum.png` | `CELL // 2` | bigger yellow circle |
+ 
+A helper converts a grid cell into the pixel center of that cell:
+ 
+```python
+def cell_center(self, col, row):
+    return (col * CELL + CELL // 2, row * CELL + CELL // 2)
+```
+ 
+Each image is then centered on that point with `get_rect(center=...)`.
+ 
+**Technical choice:** the UI does not keep its own list of gums. Because it reads `game.gums` and `game.super_gums` every frame, a gum removed by `collect_gums()` disappears from the screen automatically on the next frame. The display always matches the game state.
+ 
+## 6. Drawing Order (Layers)
+ 
+Everything in the maze is drawn on the same surface, so the order decides what appears on top:
+ 
+1. Dark transparent background of the maze
+2. 42 pattern cells
+3. Walls
+4. Gums
+5. Supergums
+6. Player
+7. Ghosts
+Collectibles are drawn **before** the characters, so the player and the ghosts always appear on top of the gums.
+ 
+## 7. Score Display (Sidebar)
+ 
+The sidebar shows the game information on wooden boards, from top to bottom:
+ 
+| Board | Value shown |
+|---|---|
+| Timer | Time left in the level (`MM:SS`) |
+| SCORE | `game.score` |
+| HIGH SCORE | Best saved score |
+| LEVEL | `game.level` as `03 / 10` |
+| LIVES | Full and empty hearts |
+ 
+All boards are drawn by one method, `draw_board(label, value, y)`, which draws the board image, the label and the value, then returns the `y` position of the next board. This keeps every board the same size and evenly spaced.
+ 
+**Technical choice:** the score is read from `game.score` every frame, so it updates as soon as a gum is collected, with no extra code in the UI.
+ 
+## 8. Final Score on the End Screens
+ 
+When the game ends, `GameScene` saves the result in the app before changing scene:
+ 
+```python
+self.app.last_score = game.score
+self.app.last_level = game.level
+```
+ 
+The **Game Over** and **Victory** screens read these values to show the final score and level, then ask the player to enter a name for the highscores.
+ 
+**Technical choice:** the values are copied into `app` because the game object is cleared (`game = None`) so that the next PLAY starts a new game. The end screens still have the final score.

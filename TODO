@@ -13,3 +13,15 @@ Things to fix:
 => Pause timer
 => check vectory scene is working
 => Fix some bugs in victory scene(name, ) - [done]
+
+
+m1: place all items from maze to gum
+m2: move player, 
+m3: moveghosts, without
+m4: eat gums, super, adding score
+m5: state of ghosts
+m6: collistion handiling between player and ghosts
+m7: levels 
+m8: pause + resume (screns)
+m9: cheat mode
+m10: fix bugs + parsing + deployememts

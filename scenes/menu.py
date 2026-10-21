@@ -90,7 +90,6 @@ class MenuScene(Scene):
         if target == "quit":
             self.app.running = False
         else:
-            print(target)
             self.app.change_scene(target)
 
     def handle_event(self, event):

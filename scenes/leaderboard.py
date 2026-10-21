@@ -2,6 +2,7 @@
 
 import pygame
 from scenes.base import Scene
+# from ..Leaderboard import Leaderboard_Engine
 
 FONT = "assets/fonts/Bangers-Regular.ttf"
 DARK_BROWN = (45, 25, 15)
@@ -33,19 +34,7 @@ class Leaderboard(Scene):
 
         self.scale = min(self.width / DESIGN_W, self.height / DESIGN_H)
         self.top = (self.height - int(DESIGN_H * self.scale)) // 2
-
-        self.users = [
-            ("9azdou7", 48250),
-            ("AYOUB", 41980),
-            ("MOAAD", 39500),
-            ("KAGE 42", 27110),
-            ("RAIN", 19870),
-            ("TSUKI", 15420),
-            ("KUNAI", 12030),
-            ("NIGHTOWL", 9800),
-            ("ZEN", 6450),
-            ("PLAYER", 2100),
-        ]
+        self.users = []
 
         try:
             self.background = pygame.image.load(
@@ -127,6 +116,12 @@ class Leaderboard(Scene):
         surface = font.render(text, True, color)
         screen.blit(surface, surface.get_rect(**position))
 
+    def on_enter(self):
+
+        self.app.leadearboard.load_scores()
+        self.scores = self.app.leadearboard.scores
+        self.users = [(score["name"], score["score"]) for score in self.scores]
+
     def draw(self, screen):
         """Draw the title, the scroll with the 10 best players, and BACK.
 
@@ -172,6 +167,7 @@ class Leaderboard(Scene):
             midright=(right, y),
         )
         line_y = y + self.s(16)
+
         pygame.draw.line(
             screen,
             (150, 110, 70),
@@ -186,6 +182,7 @@ class Leaderboard(Scene):
                        MID_BROWN, center=(center_x, y + self.s(100)))
 
         medal_x = left + self.s(18)
+
         for i, (name, score) in enumerate(self.users[:10]):
 
             if i < 3:
