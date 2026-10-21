@@ -141,6 +141,7 @@ class GameScene(Scene):
                 game.iron_man()
             elif event.key == pygame.K_F2:
                 game.skip_level()
+                self.direction = None
             elif event.key == pygame.K_F3:
                 game.ghost_freeze()
             elif event.key == pygame.K_F4:
@@ -149,6 +150,8 @@ class GameScene(Scene):
                 game.speed_boost()
 
     def update(self, dt):
+
+        print("DIRECTION:", self.direction)
 
         if self.direction is not None:
             self.game.player.request_direction(self.direction)
@@ -173,11 +176,18 @@ class GameScene(Scene):
 
                 else:
                     self.game.initialize_level()
+                self.direction = None
 
         if self.game.game_over or self.game.game_won:
 
             self.app.last_score = self.game.score
             self.app.last_level = self.game.level
+
+            self.direction = None
+
+            # self.game.player.direction = None
+            # self.game.player.requested_direction = None
+            # self.game.player.target_pos = None
 
             if self.game.game_won:
                 self.app.change_scene("victory")

@@ -55,7 +55,7 @@ class Game:
 
     def initialize_level(self):
         """Generate the maze and initialize entities and level state."""
-        self.player_position = self.start
+        # self.player_position = self.start
 
 
         self.maze = Maze(
@@ -70,6 +70,11 @@ class Game:
             (self.width // 2, self.height // 2),
             None
         )
+
+        self.player.requested_direction = None
+        self.player.direction = None
+        self.player.target_pos = None
+        self.player.previous_pos = None
 
         self.ghosts = [
             Ghost((0, 0), None),
@@ -93,6 +98,8 @@ class Game:
         self.level_expires_at = time.monotonic() + self.level_normal_time
         self.game_paused = False
         self.pause_started_at = None
+        # print("request", self.player.requested_direction)
+        # print("target", self.player.target_pos)
 
     def gums_placement(self):
         """Place gums in reachable cells excluding spawn positions."""
@@ -197,7 +204,6 @@ class Game:
                     if self.lives == 0:
                         self.game_over = True
                         return
-
                     self.player.pos = self.start
                     self.player.target_pos = None
                     self.player.direction = None
