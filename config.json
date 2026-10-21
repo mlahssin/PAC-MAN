@@ -1,6 +1,6 @@
 {
     "lives": 3,
-    "highscore_filename": "top#1//scores.json",
+    "highscore_filename": "highscore.json",
     "points_per_pacgum": 12,
     "points_per_super_pacgum": "djdjd",
     "points_per_ghost": 500,

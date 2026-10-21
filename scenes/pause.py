@@ -139,7 +139,7 @@ class Pause(Scene):
             event: The pygame event to handle.
         """
         if event.type == pygame.MOUSEBUTTONDOWN:
-            for i in range(3):
+            for i in range(2):
                 if self.button_rects[i].collidepoint(event.pos):
                     self.choose(i)
 

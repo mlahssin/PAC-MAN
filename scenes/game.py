@@ -95,6 +95,7 @@ class GameScene(Scene):
         except (pygame.error, FileNotFoundError):
             print("Error: could not load game assets")
             self.app.running = False
+            return
 
         self.canvas = pygame.Surface(
             (GAME_WIDTH, GAME_HEIGHT), pygame.SRCALPHA)
@@ -117,7 +118,12 @@ class GameScene(Scene):
     def on_enter(self) -> None:
         """Start a new game when entering fresh, or resume after game-over."""
         if self.game is None or self.game.game_over:
-            self.game = Game(ROWS, COLS, perfect=False, seed=self.seed)
+            try:
+                self.game = Game(ROWS, COLS, perfect=False, seed=self.seed)
+            except RuntimeError as e:
+                print(f"Error: could not initialize game: {e}")
+                self.app.running = False
+                return
             self.game.pacgum_points = self.app.settings.points_per_pacgum
             self.game.supergum_points = (
                 self.app.settings.points_per_super_pacgum)
@@ -203,7 +209,8 @@ class GameScene(Scene):
         Args:
             dt: Milliseconds elapsed since the last frame (unused here).
         """
-        assert self.game is not None
+        if self.game is None:
+            return
 
         self.game.player.choose_direction(self.game.maze)
         player = self.game.player
@@ -244,7 +251,8 @@ class GameScene(Scene):
         Args:
             screen: The window surface to draw on.
         """
-        assert self.game is not None
+        if self.game is None:
+            return
 
         screen.blit(self.background, (0, 0))
 

@@ -11,24 +11,41 @@ class Leaderboard_Engine:
         file_name: Path to the JSON file used to persist the scores.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, file_name: str) -> None:
         """Create the score file if needed and load existing scores."""
         self.scores: list[dict[str, Any]] = []
-        self.file_name = Path("scores.json")
+        self.file_name = Path(file_name)
+        print("File:", file_name)
         self.create_json_file()
         self.load_scores()
 
     def create_json_file(self) -> None:
         """Create an empty scores file if it does not already exist."""
         if not self.file_name.exists():
-            self.file_name.touch()
-            with open(self.file_name, "w") as f:
-                json.dump(self.scores, f, indent=4)
+            try:
+                self.file_name.touch()
+                with open(self.file_name, "w") as f:
+                    json.dump(self.scores, f, indent=4)
+            except OSError as e:
+                print(f"Warning: could not create scores file: {e}")
 
     def load_scores(self) -> None:
         """Load scores from the JSON file into memory."""
-        with open(self.file_name, "r") as f:
-            self.scores = json.load(f)
+        try:
+            with open(self.file_name, "r") as f:
+                data = json.load(f)
+            if isinstance(data, list):
+                self.scores = [
+                    e for e in data
+                    if isinstance(e, dict)
+                    and "name" in e and "score" in e
+                ]
+            else:
+                print("Warning: scores file has unexpected format, resetting.")
+                self.scores = []
+        except (OSError, json.JSONDecodeError, ValueError) as e:
+            print(f"Warning: could not load scores: {e}")
+            self.scores = []
 
     def add_scores(self, name: str, score: int) -> None:
         """Append a new score, sort, and persist the top 10.
@@ -55,6 +72,8 @@ class Leaderboard_Engine:
     def save_scores(self) -> None:
         """Trim to the top 10 and write the scores back to disk."""
         self.scores = self.scores[:10]
-
-        with open(self.file_name, "w") as f:
-            json.dump(self.scores, f, indent=4)
+        try:
+            with open(self.file_name, "w") as f:
+                json.dump(self.scores, f, indent=4)
+        except OSError as e:
+            print(f"Warning: could not save scores: {e}")

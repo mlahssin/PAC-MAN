@@ -48,7 +48,7 @@ class App:
         self.last_score = 0
         self.last_level = 1
 
-        self.leadearboard = Leaderboard_Engine()
+        self.leadearboard = Leaderboard_Engine(settings.highscore_filename)
 
         self.scenes = {
             "game": GameScene(self),

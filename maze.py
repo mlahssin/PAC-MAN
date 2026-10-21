@@ -52,11 +52,14 @@ class Maze:
         self.width = width
         self.height = height
         self.seed = seed
-        self.grid = MazeGenerator(
-            size=(width, height),
-            perfect=perfect,
-            seed=seed,
-        ).maze
+        try:
+            self.grid = MazeGenerator(
+                size=(width, height),
+                perfect=perfect,
+                seed=seed,
+            ).maze
+        except Exception as e:
+            raise RuntimeError(f"Maze generator failed: {e}") from e
 
     def is_inside(self, pos: tuple[int, int]) -> bool:
         """Check whether a position is inside the maze boundaries.
