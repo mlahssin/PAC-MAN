@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -m flake8 scenes/game_over.py scenes/menu.py scenes/instructions.py scenes/pause.py scenes/victory.py scenes/leaderboard.py)",
+      "Bash(make lint *)"
+    ]
+  }
+}

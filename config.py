@@ -5,13 +5,31 @@ from pydantic import BaseModel, Field, ValidationError
 
 
 class Level(BaseModel):
-    """Size of one level."""
+    """Size of one level.
+
+    Attributes:
+        width: Number of maze columns (5..30). Defaults to 15.
+        height: Number of maze rows (5..30). Defaults to 15.
+    """
 
     width: int = Field(default=15, ge=5, le=30, strict=True)
     height: int = Field(default=15, ge=5, le=30, strict=True)
 
 
 class Settings(BaseModel):
+    """All game settings validated from the config file.
+
+    Attributes:
+        highscore_filename: File path for persisting the high-score list.
+        lives: Number of starting lives (1..9). Defaults to 3.
+        pacgum: Total number of pacgums per level. Defaults to 42.
+        points_per_pacgum: Score per collected pacgum. Defaults to 10.
+        points_per_super_pacgum: Score per super-pacgum. Defaults to 50.
+        points_per_ghost: Score per eaten ghost. Defaults to 200.
+        seed: Random seed for the first level. Defaults to 42.
+        level_max_time: Time limit per level in seconds. Defaults to 90.
+        levels: List of Level objects (at least one). Defaults to 10 levels.
+    """
 
     highscore_filename: str = Field(default="highscores.json")
     lives: int = Field(default=3, ge=1, le=9, strict=True)
@@ -25,13 +43,31 @@ class Settings(BaseModel):
 
 
 class Config:
+    """Load, strip comments from, and validate a JSON config file.
 
-    def __init__(self, file):
+    Attributes:
+        file: Path to the JSON config file.
+        values: Raw parsed key-value pairs from the file.
+    """
+
+    def __init__(self, file: str) -> None:
+        """Store the file path for later loading.
+
+        Args:
+            file: Path to the JSON config file.
+        """
         self.file = file
         self.values: dict[str, Any] = {}
 
-    def load_to_dict(self, text):
+    def load_to_dict(self, text: str) -> dict[str, Any]:
+        """Parse a JSON string into a dict, falling back to empty on error.
 
+        Args:
+            text: JSON text with comments already removed.
+
+        Returns:
+            A dict of parsed values, or an empty dict on parse failure.
+        """
         if not text.strip():
             return {}
 
@@ -48,8 +84,12 @@ class Config:
 
         return data
 
-    def load(self):
+    def load(self) -> Settings:
+        """Read the file, strip comments, parse, and validate.
 
+        Returns:
+            A validated Settings instance (with defaults for bad values).
+        """
         text = self.remove_comments()
         data = self.load_to_dict(text)
         return self.validate(data)
@@ -63,7 +103,14 @@ class Config:
         print(f"[config] {message}", file=sys.stderr)
 
     def validate(self, data: dict[str, Any]) -> Settings:
+        """Validate a raw dict against Settings, warning on bad keys/values.
 
+        Args:
+            data: Dict of raw config values to validate.
+
+        Returns:
+            A Settings instance with defaults substituted for invalid values.
+        """
         for key in data:
             if key not in Settings.model_fields:
                 self.warn(f"unknown key '{key}', ignored")
@@ -80,10 +127,19 @@ class Config:
                 self.warn(f"'{key}' is wrong ({problem['msg']}), "
                           "using default")
                 data.pop(key, None)
-            return Settings(**data)
+            try:
+                return Settings(**data)
+            except ValidationError:
+                self.warn("too many invalid values, using all defaults")
+                return Settings()
 
-    def remove_comments(self):
+    def remove_comments(self) -> str:
+        """Read the file and strip lines that start with '#'.
 
+        Returns:
+            The file contents as a string with comment lines removed,
+            or an empty string if the file cannot be opened.
+        """
         lines = []
 
         try:
@@ -93,7 +149,7 @@ class Config:
                         lines.append(line)
 
         except OSError as error:
-            self.warn(f"cannot open '{self.path}': {error.strerror}, "
+            self.warn(f"cannot open '{self.file}': {error.strerror}, "
                       "using defaults")
             return ""
 
@@ -102,7 +158,3 @@ class Config:
             return ""
 
         return "".join(lines)
-
-
-config = Config("config.json")
-data = config.load()

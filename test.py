@@ -17,11 +17,11 @@ CYAN: tuple[int, int, int] = (0, 255, 255)       # Inky
 ORANGE: tuple[int, int, int] = (255, 184, 82)    # Clyde
 
 
-def draw_pacman():
+def draw_pacman() -> None:
     pass
 
 
-def build_walls():
+def build_walls() -> pygame.Surface:
 
     walls = pygame.Surface((WIDTH, HEIGHT))
     walls.fill(BLACK)
@@ -31,7 +31,7 @@ def build_walls():
     return walls
 
 
-def main():
+def main() -> None:
     pygame.init()
 
     screen = pygame.display.set_mode((WIDTH, HEIGHT))

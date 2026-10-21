@@ -1,0 +1,5 @@
+[flake8]
+exclude =
+    .venv,
+    visual.py,
+    mazegenerator-2.0.2-py3-none-any

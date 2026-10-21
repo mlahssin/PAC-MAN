@@ -3,7 +3,8 @@ from config import Config
 import sys
 
 
-def main():
+def main() -> None:
+    """Parse the command line, load the config, and start the app."""
 
     if len(sys.argv) != 2:
         print("Usage: python main.py <map_file>")
@@ -15,9 +16,8 @@ def main():
         sys.exit(1)
 
     settings = Config(filepath).load()
-    print("Settings:", settings.pacgum)
 
-    app = App(1000, 800, settings)
+    app = App(2100, 1500, settings)
     app.run()
 
 

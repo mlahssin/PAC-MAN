@@ -1,4 +1,4 @@
-
+from __future__ import annotations
 from maze import Maze
 from Character import Player, Ghost
 import time
@@ -8,10 +8,51 @@ CELL = 80
 
 
 class Game:
-    """Manage game state, levels, entities, and gameplay rules."""
+    """Manage game state, levels, entities, and gameplay rules.
 
-    def __init__(self, width=15, height=15, perfect=False, seed=42):
-        """Initialize game settings and prepare the first level."""
+    Attributes:
+        width: Number of maze columns.
+        height: Number of maze rows.
+        seed: Base seed (first level uses this value).
+        start: Center grid cell (x, y) where the player spawns.
+        start_pix: Pixel coordinates of the player spawn point.
+        corners: List of the four corner cells used for ghost spawns.
+        lives: Remaining player lives.
+        score: Current accumulated score.
+        stop: Legacy flag (unused in current code).
+        level: Current level number (1-based).
+        levels_frames: Frames-per-cell for each level (lower = faster).
+        speed_boost_active: True while the cheat speed boost is active.
+        random_per: Random-move coefficient per level for ghosts.
+        cheat_mode: True when cheat mode is enabled.
+        invincible: True when the player cannot lose lives.
+        ghosts_frozen_active: True while ghosts are frozen by a cheat.
+        level_normal_time: Default time limit in seconds for each level.
+        pass_level_active: True while a level-skip cheat is active.
+        levels_seeds: Fixed seeds for each of the 10 levels.
+        game_over: True when the game has ended in defeat.
+        game_won: True when all 10 levels have been cleared.
+        pacgum_points: Points awarded per regular gum collected.
+        supergum_points: Points awarded per supergum collected.
+        ed_ghost_points: Points awarded per edible ghost eaten.
+    """
+
+    def __init__(
+        self,
+        width: int = 15,
+        height: int = 15,
+        perfect: bool = False,
+        seed: int = 42,
+    ) -> None:
+        """Initialize game settings and prepare the first level.
+
+        Args:
+            width: Number of maze columns. Defaults to 15.
+            height: Number of maze rows. Defaults to 15.
+            perfect: True for a perfect maze, False for imperfect.
+                Defaults to False.
+            seed: Random seed for the first level. Defaults to 42.
+        """
         self.width = width
         self.height = height
         self.seed = seed
@@ -22,7 +63,7 @@ class Game:
             (height // 2) * CELL + CELL // 2
         )
 
-        self.corners = [
+        self.corners: list[tuple[int, int]] = [
             (0, 0),
             (width - 1, height - 1),
             (width - 1, 0),
@@ -47,16 +88,17 @@ class Game:
         self.pass_level_active = False
         self.levels_seeds = [42, 14, 26, 39, 52, 78, 71, 84, 93, 11]
 
+        self.pacgum_points = 10
+        self.supergum_points = 50
+        self.ed_ghost_points = 200
+
         self.initialize_level()
 
         self.game_over = False
         self.game_won = False
 
-
-    def initialize_level(self):
+    def initialize_level(self) -> None:
         """Generate the maze and initialize entities and level state."""
-        # self.player_position = self.start
-
 
         self.maze = Maze(
             self.width,
@@ -93,17 +135,19 @@ class Game:
         self.gums = self.gums_placement()
         self.super_gums = self.super_gum()
         self.edible_active_unitl = 0.0
-        self.visited = set()
+        self.visited: set[tuple[int, int]] = set()
         self.level_completed = False
         self.level_expires_at = time.monotonic() + self.level_normal_time
         self.game_paused = False
-        self.pause_started_at = None
-        # print("request", self.player.requested_direction)
-        # print("target", self.player.target_pos)
+        self.pause_started_at: float | None = None
 
-    def gums_placement(self):
-        """Place gums in reachable cells excluding spawn positions."""
-        gums = set()
+    def gums_placement(self) -> set[tuple[int, int]]:
+        """Place gums in reachable cells excluding spawn positions.
+
+        Returns:
+            A set of (x, y) tuples where a gum should appear.
+        """
+        gums: set[tuple[int, int]] = set()
 
         reachable = self.maze.get_reachable_cells(self.start)
 
@@ -120,13 +164,20 @@ class Game:
 
         return gums
 
+    def super_gum(self) -> set[tuple[int, int]]:
+        """Place supergums at the four maze corners.
 
-    def super_gum(self):
-        """Place supergums at the four maze corners."""
+        Returns:
+            A set of (x, y) tuples for the four corner positions.
+        """
         return set(self.corners)
 
-    def does_level_completed(self):
-        """Check whether the level is completed or its timer has expired."""
+    def does_level_completed(self) -> bool:
+        """Check whether the level is completed or its timer has expired.
+
+        Returns:
+            True if all gums are collected or time ran out, False otherwise.
+        """
         if not self.gums and not self.super_gums:
             self.level_completed = True
             return True
@@ -135,13 +186,17 @@ class Game:
             return True
         return False
 
-    def succesfully_complete_level(self):
-        """Check whether all gums and supergums have been collected."""
+    def succesfully_complete_level(self) -> bool:
+        """Check whether all gums and supergums have been collected.
+
+        Returns:
+            True if both gum sets are empty, False otherwise.
+        """
         if not self.gums and not self.super_gums:
             return True
         return False
 
-    def Next_level(self):
+    def Next_level(self) -> None:
         """Advance to the next level or finish the game."""
         if not self.game_over:
             self.level += 1
@@ -153,7 +208,7 @@ class Game:
 
             self.initialize_level()
 
-    def collect_gums(self):
+    def collect_gums(self) -> None:
         """Collect gums and activate edible mode when appropriate."""
 
         if self.player.target_pos is not None:
@@ -161,26 +216,26 @@ class Game:
 
         if self.player.pos not in self.visited:
             if self.player.pos in self.gums:
-                # self.score += 10
                 self.score += self.pacgum_points
                 self.visited.add(self.player.pos)
                 self.gums.remove(self.player.pos)
 
             elif self.player.pos in self.super_gums:
-                # self.score += 50
                 self.score += self.supergum_points
                 self.visited.add(self.player.pos)
                 self.super_gums.remove(self.player.pos)
-
 
                 for g in self.ghosts:
                     g.state = "EDIBLE"
 
                 self.edible_active_unitl = time.monotonic() + 100
 
+    def detect_collision(self) -> Ghost | None:
+        """Return the first ghost colliding with the player, if any.
 
-    def detect_collision(self):
-        """Return the first ghost colliding with the player, if any."""
+        Returns:
+            The Ghost instance that collides with the player, or None.
+        """
         for g in self.ghosts:
             dx = self.player.x_pix - g.x_pix
             dy = self.player.y_pix - g.y_pix
@@ -192,7 +247,7 @@ class Game:
 
         return None
 
-    def handle_collisions(self):
+    def handle_collisions(self) -> None:
         """Handle collisions according to the ghost's current state."""
         g = self.detect_collision()
 
@@ -201,7 +256,6 @@ class Game:
 
                 if not self.invincible:
                     self.lives -= 1
-
 
                     if self.lives == 0:
                         self.game_over = True
@@ -232,6 +286,7 @@ class Game:
                     self.edible_active_unitl = 0.0
 
             elif g.state == "EDIBLE":
+                assert g.start_pos is not None
                 g.pos = g.start_pos
                 g.x_pix = g.pos[0] * CELL + CELL / 2
                 g.y_pix = g.pos[1] * CELL + CELL / 2
@@ -241,14 +296,12 @@ class Game:
                 g.state = "RESPAWNING"
                 g.respawn_time_at = time.monotonic() + 10
 
-                # self.score += 200
                 self.score += self.ed_ghost_points
 
             elif g.state == "RESPAWNING":
                 pass
 
-
-    def ghost_update(self):
+    def ghost_update(self) -> None:
         """Update edible and respawning ghost states when timers expire."""
         now = time.monotonic()
 
@@ -256,7 +309,6 @@ class Game:
             for gost in self.ghosts:
                 if gost.state == "EDIBLE":
                     gost.state = "DANGEROUS"
-
 
             self.edible_active_unitl = 0.0
 
@@ -269,17 +321,17 @@ class Game:
                 g.respawn_time_at = 0.0
                 g.state = "DANGEROUS"
 
-    def pause_option(self):
+    def pause_option(self) -> None:
         """Pause the game and record the pause start time."""
         self.game_paused = True
         self.pause_started_at = time.monotonic()
 
-    def resume_game(self):
+    def resume_game(self) -> None:
         """Resume the game and compensate for elapsed pause time."""
         self.game_paused = False
-        # if self.pause_started_at is not None:
+        assert self.pause_started_at is not None
         paused_time = time.monotonic() - self.pause_started_at
-        
+
         self.level_expires_at += paused_time
 
         if self.edible_active_unitl:
@@ -292,11 +344,11 @@ class Game:
         self.game_paused = False
         self.pause_started_at = None
 
-    def switch_to_cheat_mode(self):
+    def switch_to_cheat_mode(self) -> None:
         """Enable cheat mode."""
         self.cheat_mode = True
 
-    def switch_to_normal_mode(self):
+    def switch_to_normal_mode(self) -> None:
         """Disable cheat mode and reset active cheat effects."""
         self.cheat_mode = False
         self.invincible = False
@@ -305,18 +357,18 @@ class Game:
         self.ghosts_frozen_active = False
         self.pass_level_active = False
 
-    def iron_man(self):
+    def iron_man(self) -> None:
         """Toggle player invincibility when cheat mode is enabled."""
         if self.cheat_mode:
             self.invincible = not self.invincible
 
-    def add_life(self):
+    def add_life(self) -> None:
         """Add one life when cheat mode is enabled."""
         if self.cheat_mode:
             if self.lives < 3:
                 self.lives += 1
 
-    def speed_boost(self):
+    def speed_boost(self) -> None:
         """Toggle or reset the player's movement speed boost."""
         if self.cheat_mode:
             self.speed_boost_active = not self.speed_boost_active
@@ -331,12 +383,12 @@ class Game:
                 self.player.normal_frames_per_cell
             )
 
-    def ghost_freeze(self):
+    def ghost_freeze(self) -> None:
         """Toggle ghost freezing when cheat mode is enabled."""
         if self.cheat_mode:
             self.ghosts_frozen_active = not self.ghosts_frozen_active
 
-    def skip_level(self):
+    def skip_level(self) -> None:
         """Skip the current level when cheat mode is enabled."""
         if self.cheat_mode:
             self.Next_level()

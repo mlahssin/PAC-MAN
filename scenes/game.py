@@ -1,4 +1,6 @@
+from __future__ import annotations
 import time
+from typing import Any
 import pygame
 from Game import Game
 from scenes.base import Scene
@@ -27,24 +29,45 @@ FONT = "assets/fonts/Bangers-Regular.ttf"
 
 
 class GameScene(Scene):
+    """Pygame scene that runs one full Pac-Man level.
 
-    def __init__(self, app):
+    Handles input, updates the game state, and draws the maze,
+    entities, and sidebar each frame.
+
+    Attributes:
+        game: The current Game instance, or None before the first level.
+        facing: Last horizontal direction the player faced ('left'/'right').
+        seed: Maze seed taken from the app settings.
+    """
+
+    def __init__(self, app: Any) -> None:
+        """Load all images and fonts; create the canvas and surface layers.
+
+        Args:
+            app: The main App object (gives the window and change_scene).
+        """
         super().__init__(app)
-        self.game = None
+        self.game: Game | None = None
         self.facing = "right"
 
         self.seed = self.app.settings.seed
-        # self.direction = None
 
-        self.player_right = self.load_image("assets/player/player1.png", CELL - 8)
-        self.player_left = self.load_image("assets/player/player2.png", CELL - 8)
-        self.ghost_imgs = [self.load_image(f"assets/ghosts/ghost{i}.png", CELL - 8) for i in range(1, 5)]
+        self.player_right = self.load_image(
+            "assets/player/player1.png", CELL - 8)
+        self.player_left = self.load_image(
+            "assets/player/player2.png", CELL - 8)
+        self.ghost_imgs = [
+            self.load_image(f"assets/ghosts/ghost{i}.png", CELL - 8)
+            for i in range(1, 5)]
 
-        self.ghosts_edible_imgs = []
+        self.ghosts_edible_imgs: list[pygame.Surface | None] = []
         for img in self.ghost_imgs:
-            blue = img.copy()
-            blue.fill((120, 255, 255), special_flags=pygame.BLEND_RGB_MULT)
-            self.ghosts_edible_imgs.append(blue)
+            if img is not None:
+                blue = img.copy()
+                blue.fill((120, 255, 255), special_flags=pygame.BLEND_RGB_MULT)
+                self.ghosts_edible_imgs.append(blue)
+            else:
+                self.ghosts_edible_imgs.append(None)
 
         self.gum_img = self.load_image("assets/gum.png", CELL // 3)
         self.supergum_img = self.load_image("assets/supergum.png", CELL // 2)
@@ -59,7 +82,8 @@ class GameScene(Scene):
             self.background = pygame.transform.smoothscale(
                 self.background, self.app.window.get_size())
 
-            self.pause_button = pygame.image.load("assets/buttons/pause_button.png").convert_alpha()
+            self.pause_button = pygame.image.load(
+                "assets/buttons/pause_button.png").convert_alpha()
             self.pause_button = pygame.transform.smoothscale(
                 self.pause_button, (80, 80)
             )
@@ -72,45 +96,65 @@ class GameScene(Scene):
             print("Error: could not load game assets")
             self.app.running = False
 
-        self.canvas = pygame.Surface((GAME_WIDTH, GAME_HEIGHT), pygame.SRCALPHA)
+        self.canvas = pygame.Surface(
+            (GAME_WIDTH, GAME_HEIGHT), pygame.SRCALPHA)
 
-        # scale the canvas to fit the window: 2100x1500 -> 1.25
         win_w, win_h = self.app.window.get_size()
         self.scale = min(win_w / GAME_WIDTH, win_h / GAME_HEIGHT)
         self.scaled_size = (int(GAME_WIDTH * self.scale),
                             int(GAME_HEIGHT * self.scale))
-        # centered in the window
         self.offset = ((win_w - self.scaled_size[0]) // 2,
                        (win_h - self.scaled_size[1]) // 2)
 
-        self.maze_sur = pygame.Surface((MAZE_WIDTH + 2, MAZE_HEIGHT + 2), pygame.SRCALPHA)
-        self.sidebar_sur = pygame.Surface((SIDEBAR_WIDTH, MAZE_HEIGHT), pygame.SRCALPHA)
+        self.maze_sur = pygame.Surface(
+            (MAZE_WIDTH + 2, MAZE_HEIGHT + 2), pygame.SRCALPHA)
+        self.sidebar_sur = pygame.Surface(
+            (SIDEBAR_WIDTH, MAZE_HEIGHT), pygame.SRCALPHA)
 
-        self.pause_rect = self.pause_button.get_rect(topright=(win_w - 30, 20))
+        self.pause_rect = self.pause_button.get_rect(
+            topright=(win_w - 30, 20))
 
-    def on_enter(self):
+    def on_enter(self) -> None:
+        """Start a new game when entering fresh, or resume after game-over."""
         if self.game is None or self.game.game_over:
             self.game = Game(ROWS, COLS, perfect=False, seed=self.seed)
             self.game.pacgum_points = self.app.settings.points_per_pacgum
-            self.game.supergum_points = self.app.settings.points_per_super_pacgum
+            self.game.supergum_points = (
+                self.app.settings.points_per_super_pacgum)
             self.game.ed_ghost_points = self.app.settings.points_per_ghost
             self.game.lives = self.app.settings.lives
 
             self.facing = "right"
-        # self.direction = None
 
-    def load_image(self, path, size):
-        """Load an image and scale its biggest side to size. None if missing."""
+    def load_image(
+        self, path: str, size: int
+    ) -> pygame.Surface | None:
+        """Load an image and scale its biggest side to size.
+
+        Args:
+            path: File path to the image.
+            size: Target pixel size for the longest side.
+
+        Returns:
+            A scaled pygame Surface, or None if the file is missing.
+        """
         try:
             img = pygame.image.load(path).convert_alpha()
         except (pygame.error, FileNotFoundError):
             print(f"Warning: could not load {path}")
             return None
         scale = size / max(img.get_width(), img.get_height())
-        new_size = (round(img.get_width() * scale), round(img.get_height() * scale))
+        new_size = (
+            round(img.get_width() * scale),
+            round(img.get_height() * scale))
         return pygame.transform.smoothscale(img, new_size)
 
-    def handle_event(self, event):
+    def handle_event(self, event: pygame.event.Event) -> None:
+        """Route keyboard and mouse events to the game or cheat system.
+
+        Args:
+            event: The pygame event to process.
+        """
 
         game = self.game
         if game is None:
@@ -125,17 +169,13 @@ class GameScene(Scene):
             return
 
         if event.key in (pygame.K_LEFT, pygame.K_a):
-            # self.direction = "left"
-            self.game.player.request_direction("left")
+            game.player.request_direction("left")
         elif event.key in (pygame.K_RIGHT, pygame.K_d):
-            # self.direction = "right"
-            self.game.player.request_direction("right")
+            game.player.request_direction("right")
         elif event.key in (pygame.K_UP, pygame.K_w):
-            # self.direction = "up"
-            self.game.player.request_direction("up")
+            game.player.request_direction("up")
         elif event.key in (pygame.K_DOWN, pygame.K_s):
-            # self.direction = "down"
-            self.game.player.request_direction("down")
+            game.player.request_direction("down")
         elif event.key == pygame.K_ESCAPE:
             self.app.change_scene("pause")
 
@@ -150,7 +190,6 @@ class GameScene(Scene):
                 game.iron_man()
             elif event.key == pygame.K_F2:
                 game.skip_level()
-                # self.direction = None
             elif event.key == pygame.K_F3:
                 game.ghost_freeze()
             elif event.key == pygame.K_F4:
@@ -158,12 +197,13 @@ class GameScene(Scene):
             elif event.key == pygame.K_F5:
                 game.speed_boost()
 
-    def update(self, dt):
+    def update(self, dt: float) -> None:
+        """Advance all entities, collect gums, and check win/lose conditions.
 
-        # print("DIRECTION:", self.direction)
-
-        # if self.direction is not None:
-        #     self.game.player.request_direction(self.direction)
+        Args:
+            dt: Milliseconds elapsed since the last frame (unused here).
+        """
+        assert self.game is not None
 
         self.game.player.choose_direction(self.game.maze)
         player = self.game.player
@@ -185,18 +225,11 @@ class GameScene(Scene):
 
                 else:
                     self.game.initialize_level()
-                # self.direction = None
 
         if self.game.game_over or self.game.game_won:
 
             self.app.last_score = self.game.score
             self.app.last_level = self.game.level
-
-            # self.direction = None
-
-            # self.game.player.direction = None
-            # self.game.player.requested_direction = None
-            # self.game.player.target_pos = None
 
             if self.game.game_won:
                 self.app.change_scene("victory")
@@ -204,13 +237,20 @@ class GameScene(Scene):
                 self.app.change_scene("game_over")
             return
 
-    def draw(self, screen):
+    def draw(self, screen: pygame.Surface) -> None:
+        """Composite the background, maze, entities, and sidebar
+        onto the screen.
+
+        Args:
+            screen: The window surface to draw on.
+        """
+        assert self.game is not None
+
         screen.blit(self.background, (0, 0))
 
         canvas = self.canvas
         canvas.fill((0, 0, 0, 0))
 
-        # maze layer
         self.maze_sur.fill((0, 0, 0, 120))
         self.draw_42_cells()
         self.draw_walls()
@@ -221,7 +261,6 @@ class GameScene(Scene):
 
         canvas.blit(self.maze_sur, (PADDING, PADDING))
 
-        # sidebar layer
         self.sidebar_sur.fill((0, 0, 0, 70))
         self.draw_sidebar()
         canvas.blit(self.sidebar_sur, (PADDING + MAZE_WIDTH + GAP, PADDING))
@@ -232,15 +271,29 @@ class GameScene(Scene):
 
         screen.blit(self.pause_button, self.pause_rect)
 
-    def cell_center(self, col, row):
+    def cell_center(self, col: int, row: int) -> tuple[int, int]:
+        """Return the pixel center of a grid cell.
+
+        Args:
+            col: Column index in the maze grid.
+            row: Row index in the maze grid.
+
+        Returns:
+            A (x, y) tuple of pixel coordinates at the cell center.
+        """
         return (col * CELL + CELL // 2, row * CELL + CELL // 2)
 
-    def draw_42_cells(self):
+    def draw_42_cells(self) -> None:
+        """Fill all fully walled (42) cells with the orange highlight color."""
+        assert self.game is not None
         for (col, row) in self.game.maze.get_42_cells():
             pygame.draw.rect(self.maze_sur, ORANGE_42,
                              (col * CELL, row * CELL, CELL, CELL))
 
-    def draw_walls(self):
+    def draw_walls(self) -> None:
+        """Draw white wall lines on the maze surface based on
+        the grid bitmask."""
+        assert self.game is not None
         for row, line in enumerate(self.game.grid):
             for col, cell in enumerate(line):
                 left = col * CELL
@@ -248,21 +301,23 @@ class GameScene(Scene):
                 right = left + CELL
                 bottom = top + CELL
 
-                if cell & 1:    # north
+                if cell & 1:
                     pygame.draw.line(
                         self.maze_sur, WHITE, (left, top), (right, top), 2)
-                if cell & 2:    # east
+                if cell & 2:
                     pygame.draw.line(
                         self.maze_sur, WHITE, (right, top), (right, bottom), 2)
-                if cell & 4:    # south
+                if cell & 4:
                     pygame.draw.line(
                         self.maze_sur, WHITE, (left, bottom), (right, bottom),
                         2)
-                if cell & 8:    # west
+                if cell & 8:
                     pygame.draw.line(
                         self.maze_sur, WHITE, (left, top), (left, bottom), 2)
 
-    def draw_gums(self):
+    def draw_gums(self) -> None:
+        """Draw a gum image (or fallback circle) at each remaining gum cell."""
+        assert self.game is not None
         for (col, row) in self.game.gums:
             center = self.cell_center(col, row)
             if self.gum_img:
@@ -271,7 +326,10 @@ class GameScene(Scene):
             else:
                 pygame.draw.circle(self.maze_sur, WHITE, center, 4)
 
-    def draw_supergums(self):
+    def draw_supergums(self) -> None:
+        """Draw a supergum image (or fallback circle) at each
+        remaining supergum."""
+        assert self.game is not None
         for (col, row) in self.game.super_gums:
             center = self.cell_center(col, row)
             if self.supergum_img:
@@ -280,7 +338,9 @@ class GameScene(Scene):
             else:
                 pygame.draw.circle(self.maze_sur, (255, 255, 0), center, 10)
 
-    def draw_player(self):
+    def draw_player(self) -> None:
+        """Draw the player sprite facing the last horizontal direction."""
+        assert self.game is not None
         player = self.game.player
         center = (round(player.x_pix), round(player.y_pix))
 
@@ -293,7 +353,9 @@ class GameScene(Scene):
         else:
             pygame.draw.circle(self.maze_sur, (255, 184, 82), center, 20)
 
-    def draw_ghosts(self):
+    def draw_ghosts(self) -> None:
+        """Draw each ghost with its normal or edible tinted sprite."""
+        assert self.game is not None
 
         for i, ghost in enumerate(self.game.ghosts):
             center = (round(ghost.x_pix), round(ghost.y_pix))
@@ -303,9 +365,12 @@ class GameScene(Scene):
             else:
                 img = self.ghost_imgs[i]
 
-            self.maze_sur.blit(img, img.get_rect(center=center))
+            if img is not None:
+                self.maze_sur.blit(img, img.get_rect(center=center))
 
-    def draw_sidebar(self):
+    def draw_sidebar(self) -> None:
+        """Draw the sidebar border, timer, score boards, and lives."""
+        assert self.game is not None
         pygame.draw.rect(
             self.sidebar_sur, WHITE, self.sidebar_sur.get_rect(), 2,
             border_top_right_radius=20, border_bottom_right_radius=20
@@ -316,6 +381,7 @@ class GameScene(Scene):
         time_left = self.game.level_expires_at - fixed_time
 
         if self.game.game_paused:
+            assert self.game.pause_started_at is not None
             time_left += fixed_time - self.game.pause_started_at
 
         self.draw_timer(max(0, time_left))
@@ -327,14 +393,19 @@ class GameScene(Scene):
         y = self.draw_board("LEVEL", f"{level:02d} / 10", y)
         y = self.draw_board("LIVES", "", y)
 
-        # hearts go inside the LIVES board
         board_h = self.board_img.get_height() if self.board_img else 135
         self.draw_hearts(y - board_h // 2 - 5)
 
-    def draw_timer(self, time_left):
+    def draw_timer(self, time_left: float) -> None:
+        """Draw the countdown clock on the timer sign.
+
+        Args:
+            time_left: Seconds remaining for the current level.
+        """
         center_x = SIDEBAR_WIDTH // 2
         minutes, seconds = divmod(int(time_left), 60)
-        text = self.timer_font.render(f"{minutes:02d}:{seconds:02d}", True, BROWN)
+        text = self.timer_font.render(
+            f"{minutes:02d}:{seconds:02d}", True, BROWN)
 
         if self.timer_img:
             rect = self.timer_img.get_rect(midtop=(center_x, 4))
@@ -344,8 +415,17 @@ class GameScene(Scene):
         else:
             self.sidebar_sur.blit(text, text.get_rect(midtop=(center_x, 30)))
 
-    def draw_board(self, label, value, y):
-        """Draw one board (label + value). Returns the y for the next board."""
+    def draw_board(self, label: str, value: str, y: int) -> int:
+        """Draw one labeled board image and return the y for the next board.
+
+        Args:
+            label: Upper text shown on the board.
+            value: Lower text shown on the board.
+            y: Top pixel position in the sidebar surface.
+
+        Returns:
+            The y coordinate for the next board below this one.
+        """
         center_x = SIDEBAR_WIDTH // 2
 
         if self.board_img:
@@ -365,10 +445,18 @@ class GameScene(Scene):
 
         return rect.bottom - 15
 
-    def draw_hearts(self, y, max_lives=3):
+    def draw_hearts(self, y: int, max_lives: int = 3) -> None:
+        """Draw full or empty heart icons for each life slot.
+
+        Args:
+            y: Top pixel position in the sidebar surface.
+            max_lives: Total number of heart slots to draw. Defaults to 3.
+        """
+        assert self.game is not None
         heart_w = self.heart_full.get_width() if self.heart_full else 40
         gap = 12
-        x = (SIDEBAR_WIDTH - (max_lives * heart_w + (max_lives - 1) * gap)) // 2
+        x = (SIDEBAR_WIDTH - (
+            max_lives * heart_w + (max_lives - 1) * gap)) // 2
 
         for i in range(max_lives):
             img = self.heart_full if i < self.game.lives else self.heart_empty
@@ -376,5 +464,6 @@ class GameScene(Scene):
                 self.sidebar_sur.blit(img, (x, y))
             else:
                 color = (220, 40, 60) if i < self.game.lives else (80, 80, 90)
-                pygame.draw.circle(self.sidebar_sur, color, (x + 20, y + 20), 18)
+                pygame.draw.circle(
+                    self.sidebar_sur, color, (x + 20, y + 20), 18)
             x += heart_w + gap

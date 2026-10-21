@@ -1,2 +1,0 @@
-from mazegenerator import MazeGenerator
-

@@ -1,5 +1,9 @@
 """Leaderboard scene: shows the top 10 highscores."""
 
+from __future__ import annotations
+
+from typing import Any
+
 import pygame
 from scenes.base import Scene
 # from ..Leaderboard import Leaderboard_Engine
@@ -22,7 +26,7 @@ class Leaderboard(Scene):
     returns to the main menu.
     """
 
-    def __init__(self, app):
+    def __init__(self, app: Any) -> None:
         """Load the images and fonts, and place the BACK button.
 
         Args:
@@ -34,7 +38,7 @@ class Leaderboard(Scene):
 
         self.scale = min(self.width / DESIGN_W, self.height / DESIGN_H)
         self.top = (self.height - int(DESIGN_H * self.scale)) // 2
-        self.users = []
+        self.users: list[Any] = []
 
         try:
             self.background = pygame.image.load(
@@ -67,7 +71,7 @@ class Leaderboard(Scene):
         self.back_rect = self.back_button.get_rect(
             center=(self.width // 2, self.y(635)))
 
-    def s(self, value):
+    def s(self, value: int) -> int:
         """Scale a size from the 1200x800 design to the real window.
 
         Args:
@@ -78,7 +82,7 @@ class Leaderboard(Scene):
         """
         return int(value * self.scale)
 
-    def y(self, value):
+    def y(self, value: int) -> int:
         """Scale a vertical position from the design to the real window.
 
         Args:
@@ -87,9 +91,9 @@ class Leaderboard(Scene):
         Returns:
             The y position in the real window (centered vertically).
         """
-        return self.top + self.s(value)
+        return int(self.top) + self.s(value)
 
-    def handle_event(self, event):
+    def handle_event(self, event: pygame.event.Event) -> None:
         """Go back to the menu with ESC, ENTER or a click on BACK.
 
         Args:
@@ -103,7 +107,9 @@ class Leaderboard(Scene):
             if self.back_rect.collidepoint(event.pos):
                 self.app.change_scene("menu")
 
-    def write(self, screen, text, font, color, **position):
+    def write(self, screen: pygame.Surface, text: str,
+              font: pygame.font.Font, color: tuple[int, int, int],
+              **position: Any) -> None:
         """Draw a text on the screen at a given position.
 
         Args:
@@ -116,13 +122,13 @@ class Leaderboard(Scene):
         surface = font.render(text, True, color)
         screen.blit(surface, surface.get_rect(**position))
 
-    def on_enter(self):
-
+    def on_enter(self) -> None:
+        """Load the leaderboard scores from disk before displaying."""
         self.app.leadearboard.load_scores()
         self.scores = self.app.leadearboard.scores
         self.users = [(score["name"], score["score"]) for score in self.scores]
 
-    def draw(self, screen):
+    def draw(self, screen: pygame.Surface) -> None:
         """Draw the title, the scroll with the 10 best players, and BACK.
 
         Args:

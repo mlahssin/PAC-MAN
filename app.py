@@ -1,3 +1,4 @@
+from __future__ import annotations
 import pygame
 from scenes.game import GameScene
 from scenes.menu import MenuScene
@@ -7,12 +8,33 @@ from scenes.pause import Pause
 from scenes.instructions import Instructions
 from scenes.leaderboard import Leaderboard
 from Leaderboard import Leaderboard_Engine
+from config import Settings
 
 
 class App:
+    """Main application: owns the window, the clock, and all scenes.
 
-    def __init__(self, width, height, settings):
+    Attributes:
+        window: The pygame display surface.
+        clock: The pygame clock used to cap the frame rate.
+        running: False stops the main loop.
+        fps: Target frames per second.
+        settings: The game settings loaded from the config file.
+        last_score: Score recorded at the end of the last game.
+        last_level: Level reached at the end of the last game.
+        leadearboard: The persistent high-score engine.
+        scenes: Dict mapping scene names to their Scene instances.
+        current_scene: The scene currently being updated and drawn.
+    """
 
+    def __init__(self, width: int, height: int, settings: Settings) -> None:
+        """Set up pygame, the window, and all scenes.
+
+        Args:
+            width: Window width in pixels.
+            height: Window height in pixels.
+            settings: A Settings instance from the config file.
+        """
         pygame.init()
         pygame.display.set_caption("PAC MAN")
 
@@ -41,11 +63,17 @@ class App:
         self.current_scene = self.scenes["menu"]
         self.current_scene.on_enter()
 
-    def change_scene(self, scene):
+    def change_scene(self, scene: str) -> None:
+        """Switch to a different scene and call its on_enter hook.
+
+        Args:
+            scene: The name key of the target scene.
+        """
         self.current_scene = self.scenes[scene]
         self.current_scene.on_enter()
 
-    def run(self):
+    def run(self) -> None:
+        """Run the main game loop until the window is closed."""
 
         while self.running:
 

@@ -1,5 +1,9 @@
-
+from __future__ import annotations
 import random
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from maze import Maze
 
 DANGEROUS = "DANGEROUS"
 EDIBLE = "EDIBLE"
@@ -27,10 +31,36 @@ DIRECTIONS = {
 
 
 class Character:
-    """Represent a character with grid-based and pixel-based movement."""
+    """Represent a character with grid-based and pixel-based movement.
 
-    def __init__(self, pos, direction):
-        """Initialize the character's position, direction, and movement."""
+    Attributes:
+        pos: Current grid cell as a (x, y) tuple.
+        direction: Current movement direction string, or None.
+        x_pix: Horizontal pixel position (center of the current
+            or target cell).
+        y_pix: Vertical pixel position (center of the current
+            or target cell).
+        normal_frames_per_cell: Default number of frames to cross one cell.
+        frames_per_cell: Active frames-per-cell (may differ
+            during speed boost).
+        target_pos: Grid cell the character is moving toward, or None.
+        moves: Total number of completed cell crossings.
+        previous_pos: Grid cell occupied before the last completed move.
+    """
+
+    def __init__(
+        self, pos: tuple[int, int], direction: str | None
+    ) -> None:
+        """Initialize the character's position, direction, and movement.
+
+        Args:
+            pos: A (x, y) tuple of integers for the starting grid position.
+            direction: Initial direction string, or None.
+
+        Raises:
+            TypeError: If pos is not a tuple of two integers.
+            ValueError: If direction is not a valid direction string or None.
+        """
         if (
             not isinstance(pos, tuple)
             or len(pos) != 2
@@ -51,13 +81,23 @@ class Character:
         self.normal_frames_per_cell = 20
         self.frames_per_cell = self.normal_frames_per_cell
 
-        self.target_pos = None
+        self.target_pos: tuple[int, int] | None = None
         self.moves = 0
-        self.previous_pos = None
+        self.previous_pos: tuple[int, int] | None = None
 
-    def start_move(self, maze):
-        """Start moving toward the next accessible cell."""
+    def start_move(self, maze: Maze) -> bool:
+        """Start moving toward the next accessible cell.
+
+        Args:
+            maze: The Maze instance used to check wall collisions.
+
+        Returns:
+            True if a move was started, False if already moving or blocked.
+        """
         if self.target_pos is not None:
+            return False
+
+        if self.direction is None:
             return False
 
         if not maze.can_move(self.pos, self.direction):
@@ -71,8 +111,15 @@ class Character:
         self.target_pos = (x + dx, y + dy)
         return True
 
-    def update(self, maze):
-        """Update pixel movement and finalize completed cell transitions."""
+    def update(self, maze: Maze) -> bool:
+        """Update pixel movement and finalize completed cell transitions.
+
+        Args:
+            maze: The Maze instance used to start a new move when needed.
+
+        Returns:
+            True if movement occurred, False if there was nothing to update.
+        """
 
         if self.target_pos is None:
             if self.direction is None:
@@ -121,15 +168,35 @@ class Character:
 
 
 class Player(Character):
-    """Represent the player and manage requested movement directions."""
+    """Represent the player and manage requested movement directions.
 
-    def __init__(self, pos, direction):
-        """Initialize the player with no pending direction request."""
+    Attributes:
+        requested_direction: The direction queued by the last
+            key press, or None.
+    """
+
+    def __init__(
+        self, pos: tuple[int, int], direction: str | None
+    ) -> None:
+        """Initialize the player with no pending direction request.
+
+        Args:
+            pos: A (x, y) tuple of integers for the starting grid position.
+            direction: Initial direction string, or None.
+        """
         super().__init__(pos, direction)
-        self.requested_direction = None
+        self.requested_direction: str | None = None
 
-    def request_direction(self, direction):
-        """Validate and store the player's requested direction."""
+    def request_direction(self, direction: str) -> None:
+        """Validate and store the player's requested direction.
+
+        Args:
+            direction: One of 'up', 'down', 'left', 'right'.
+
+        Raises:
+            TypeError: If direction is not a string.
+            ValueError: If direction is not a valid direction.
+        """
         if not isinstance(direction, str):
             raise TypeError("direction must be a string")
 
@@ -140,8 +207,12 @@ class Player(Character):
 
         self.requested_direction = direction
 
-    def choose_direction(self, maze):
-        """Apply the requested direction when movement allows it."""
+    def choose_direction(self, maze: Maze) -> None:
+        """Apply the requested direction when movement allows it.
+
+        Args:
+            maze: The Maze instance used to check if the move is valid.
+        """
         if self.requested_direction is None:
             return
 
@@ -156,19 +227,45 @@ class Player(Character):
 
 
 class Ghost(Character):
-    """Represent a ghost with chasing, fleeing, and respawning behavior."""
+    """Represent a ghost with chasing, fleeing, and respawning behavior.
 
-    def __init__(self, pos, direction):
-        """Initialize the ghost's spawn position and state."""
+    Attributes:
+        spawn_pos: The corner cell the ghost returns to after being eaten.
+        state: Current behavioral state: 'DANGEROUS', 'EDIBLE',
+            or 'RESPAWNING'.
+        start_pos: Alias for the initial position, used for respawn targeting.
+        respawn_time_at: Monotonic timestamp when RESPAWNING ends.
+        coefecient: Controls how often the ghost chases vs. moves randomly.
+    """
+
+    def __init__(
+        self, pos: tuple[int, int], direction: str | None
+    ) -> None:
+        """Initialize the ghost's spawn position and state.
+
+        Args:
+            pos: A (x, y) tuple of integers for the starting grid position.
+            direction: Initial direction string, or None.
+        """
         super().__init__(pos, direction)
         self.spawn_pos = self.pos
         self.state = DANGEROUS
-        self.start_pos = None
+        self.start_pos: tuple[int, int] | None = None
         self.respawn_time_at = 0.0
         self.coefecient = 4
 
-    def run_away(self, maze, player_pos):
-        """Choose a neighboring cell farthest from the player."""
+    def run_away(
+        self, maze: Maze, player_pos: tuple[int, int]
+    ) -> tuple[int, int] | None:
+        """Choose a neighboring cell farthest from the player.
+
+        Args:
+            maze: The Maze instance used for pathfinding.
+            player_pos: The (x, y) tuple of the player's current cell.
+
+        Returns:
+            The (x, y) tuple of the chosen neighbor, or None if unavailable.
+        """
         neighbors = maze.get_neighbors(self.pos)
 
         if len(neighbors) >= 2:
@@ -190,7 +287,7 @@ class Ghost(Character):
         else:
             valid_neighbors = neighbors
 
-        chosen_neighbor = None
+        chosen_neighbor: tuple[int, int] | None = None
         greatest_distance = -1
 
         for neighbor in valid_neighbors:
@@ -205,8 +302,18 @@ class Ghost(Character):
                 greatest_distance = distance
         return chosen_neighbor
 
-    def choose_direction(self, maze, player_pos):
-        """Choose the next movement direction based on the ghost's state."""
+    def choose_direction(
+        self, maze: Maze, player_pos: tuple[int, int]
+    ) -> bool:
+        """Choose the next movement direction based on the ghost's state.
+
+        Args:
+            maze: The Maze instance used for pathfinding and neighbor lookups.
+            player_pos: The (x, y) tuple of the player's current cell.
+
+        Returns:
+            True if a direction was chosen, False otherwise.
+        """
         if self.target_pos is not None:
             return False
 
@@ -227,10 +334,10 @@ class Ghost(Character):
                 next_pos = path[1]
 
         elif self.state == "EDIBLE":
-            next_pos = self.run_away(maze, player_pos)
-
-            if next_pos is None:
+            edible_next = self.run_away(maze, player_pos)
+            if edible_next is None:
                 return False
+            next_pos = edible_next
 
         elif self.state == "RESPAWNING":
             return False

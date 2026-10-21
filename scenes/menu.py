@@ -1,5 +1,9 @@
 """Main menu scene: PLAY, INSTRUCTIONS, LEADERBOARD and QUIT."""
 
+from __future__ import annotations
+
+from typing import Any
+
 import pygame
 from scenes.base import Scene
 
@@ -14,7 +18,7 @@ class MenuScene(Scene):
     A left click on a button opens its scene, or quits the game.
     """
 
-    def __init__(self, app):
+    def __init__(self, app: Any) -> None:
         """Load the background, the button image and the font.
 
         Args:
@@ -56,7 +60,7 @@ class MenuScene(Scene):
             self.button_rects.append(rect)
             y += self.s(80)
 
-    def s(self, value):
+    def s(self, value: int) -> int:
         """Scale a size from the 1200x800 design to the real window.
 
         Args:
@@ -67,7 +71,7 @@ class MenuScene(Scene):
         """
         return int(value * self.scale)
 
-    def y(self, value):
+    def y(self, value: int) -> int:
         """Scale a vertical position from the design to the real window.
 
         Args:
@@ -76,9 +80,9 @@ class MenuScene(Scene):
         Returns:
             The y position in the real window (centered vertically).
         """
-        return self.top + self.s(value)
+        return int(self.top) + self.s(value)
 
-    def choose(self, index):
+    def choose(self, index: int) -> None:
         """Open the scene of the clicked button, or quit the game.
 
         PLAY always starts a new game.
@@ -92,7 +96,7 @@ class MenuScene(Scene):
         else:
             self.app.change_scene(target)
 
-    def handle_event(self, event):
+    def handle_event(self, event: pygame.event.Event) -> None:
         """Check if a button was clicked with the left mouse button.
 
         Args:
@@ -103,7 +107,7 @@ class MenuScene(Scene):
                 if self.button_rects[i].collidepoint(event.pos):
                     self.choose(i)
 
-    def draw(self, screen):
+    def draw(self, screen: pygame.Surface) -> None:
         """Draw the background and every button with its text.
 
         Args:

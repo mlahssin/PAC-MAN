@@ -1,5 +1,9 @@
 """Instructions scene: explains the controls and the rules."""
 
+from __future__ import annotations
+
+from typing import Any
+
 import pygame
 from scenes.base import Scene
 
@@ -13,7 +17,7 @@ class Instructions(Scene):
     Each rule has an icon, a title and a short explanation.
     """
 
-    def __init__(self, app):
+    def __init__(self, app: Any) -> None:
         """Build the rules, load the images, fonts and icons.
 
         If a main image or font is missing, the game stops cleanly.
@@ -120,7 +124,7 @@ class Instructions(Scene):
         self.back_rect = self.back_button.get_rect(
             center=(self.width // 2, self.y(635)))
 
-    def s(self, value):
+    def s(self, value: int) -> int:
         """Scale a size from the 1200x800 design to the real window.
 
         Args:
@@ -131,7 +135,7 @@ class Instructions(Scene):
         """
         return int(value * self.scale)
 
-    def y(self, value):
+    def y(self, value: int) -> int:
         """Scale a vertical position from the design to the real window.
 
         Args:
@@ -140,9 +144,11 @@ class Instructions(Scene):
         Returns:
             The y position in the real window (centered vertically).
         """
-        return self.top + self.s(value)
+        return int(self.top) + self.s(value)
 
-    def write(self, screen, text, font, color, **position):
+    def write(self, screen: pygame.Surface, text: str,
+              font: pygame.font.Font, color: tuple[int, int, int],
+              **position: Any) -> None:
         """Draw a text on the screen at a given position.
 
         Args:
@@ -155,7 +161,7 @@ class Instructions(Scene):
         surface = font.render(text, True, color)
         screen.blit(surface, surface.get_rect(**position))
 
-    def handle_event(self, event):
+    def handle_event(self, event: pygame.event.Event) -> None:
         """Go back to the menu with ESC, ENTER or a click on BACK.
 
         Args:
@@ -169,7 +175,7 @@ class Instructions(Scene):
             if self.back_rect.collidepoint(event.pos):
                 self.app.change_scene("menu")
 
-    def draw(self, screen):
+    def draw(self, screen: pygame.Surface) -> None:
         """Draw the title, the scroll with all the rules, and BACK.
 
         Args:
