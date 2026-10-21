@@ -30,10 +30,9 @@ class GameScene(Scene):
 
     def __init__(self, app):
         super().__init__(app)
-
         self.game = None
         self.facing = "right"
-        self.direction = None
+        # self.direction = None
 
         self.player_right = self.load_image("assets/player/player1.png", CELL - 8)
         self.player_left = self.load_image("assets/player/player2.png", CELL - 8)
@@ -90,8 +89,12 @@ class GameScene(Scene):
     def on_enter(self):
         if self.game is None or self.game.game_over:
             self.game = Game(ROWS, COLS, perfect=False, seed=SEED)
+            self.game.pacgum_points = self.app.settings.points_per_pacgum
+            self.game.supergum_points = self.app.settings.points_per_super_pacgum
+            self.game.ed_ghost_points = self.app.settings.points_per_ghost
+            
             self.facing = "right"
-        self.direction = None
+        # self.direction = None
 
     def load_image(self, path, size):
         """Load an image and scale its biggest side to size. None if missing."""
@@ -119,14 +122,17 @@ class GameScene(Scene):
             return
 
         if event.key in (pygame.K_LEFT, pygame.K_a):
-            self.direction = "left"
+            # self.direction = "left"
+            self.game.player.request_direction("left")
         elif event.key in (pygame.K_RIGHT, pygame.K_d):
-            self.direction = "right"
+            # self.direction = "right"
+            self.game.player.request_direction("right")
         elif event.key in (pygame.K_UP, pygame.K_w):
-            self.direction = "up"
+            # self.direction = "up"
+            self.game.player.request_direction("up")
         elif event.key in (pygame.K_DOWN, pygame.K_s):
-            self.direction = "down"
-
+            # self.direction = "down"
+            self.game.player.request_direction("down")
         elif event.key == pygame.K_ESCAPE:
             self.app.change_scene("pause")
 
@@ -141,7 +147,7 @@ class GameScene(Scene):
                 game.iron_man()
             elif event.key == pygame.K_F2:
                 game.skip_level()
-                self.direction = None
+                # self.direction = None
             elif event.key == pygame.K_F3:
                 game.ghost_freeze()
             elif event.key == pygame.K_F4:
@@ -151,10 +157,10 @@ class GameScene(Scene):
 
     def update(self, dt):
 
-        print("DIRECTION:", self.direction)
+        # print("DIRECTION:", self.direction)
 
-        if self.direction is not None:
-            self.game.player.request_direction(self.direction)
+        # if self.direction is not None:
+        #     self.game.player.request_direction(self.direction)
 
         self.game.player.choose_direction(self.game.maze)
         player = self.game.player
@@ -176,14 +182,14 @@ class GameScene(Scene):
 
                 else:
                     self.game.initialize_level()
-                self.direction = None
+                # self.direction = None
 
         if self.game.game_over or self.game.game_won:
 
             self.app.last_score = self.game.score
             self.app.last_level = self.game.level
 
-            self.direction = None
+            # self.direction = None
 
             # self.game.player.direction = None
             # self.game.player.requested_direction = None

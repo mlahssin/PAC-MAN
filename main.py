@@ -18,6 +18,9 @@ def main():
     print("Settings:", settings.pacgum)
 
     app = App(1000, 800)
+    # setting infos
+    app.settings = settings
+
     app.run()
 
 

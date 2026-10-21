@@ -161,12 +161,14 @@ class Game:
 
         if self.player.pos not in self.visited:
             if self.player.pos in self.gums:
-                self.score += 10
+                # self.score += 10
+                self.score += self.pacgum_points
                 self.visited.add(self.player.pos)
                 self.gums.remove(self.player.pos)
 
             elif self.player.pos in self.super_gums:
-                self.score += 50
+                # self.score += 50
+                self.score += self.supergum_points
                 self.visited.add(self.player.pos)
                 self.super_gums.remove(self.player.pos)
 
@@ -239,8 +241,8 @@ class Game:
                 g.state = "RESPAWNING"
                 g.respawn_time_at = time.monotonic() + 10
 
-                self.score += 200
-
+                # self.score += 200
+                self.score += self.ed_ghost_points
 
             elif g.state == "RESPAWNING":
                 pass
@@ -311,7 +313,8 @@ class Game:
     def add_life(self):
         """Add one life when cheat mode is enabled."""
         if self.cheat_mode:
-            self.lives += 1
+            if self.lives < 3:
+                self.lives += 1
 
     def speed_boost(self):
         """Toggle or reset the player's movement speed boost."""
