@@ -35,11 +35,22 @@ class Leaderboard_Engine:
             with open(self.file_name, "r") as f:
                 data = json.load(f)
             if isinstance(data, list):
+                # self.scores = [
+                #     e for e in data
+                #     if isinstance(e, dict)
+                #     and "name" in e and "score" in e
+                # ]
                 self.scores = [
                     e for e in data
                     if isinstance(e, dict)
-                    and "name" in e and "score" in e
+                    and isinstance(e.get("name"), str)
+                    and len(e["name"]) <= 10
+                    and all(c.isalnum() or c == " " for c in e["name"])
+                    and type(e.get("score")) is int
+                    and e["score"] >= 0
                 ]
+                self.sorted_scores()
+                self.scores = self.scores[:10]
             else:
                 print("Warning: scores file has unexpected format, resetting.")
                 self.scores = []

@@ -2,6 +2,7 @@ from __future__ import annotations
 from maze import Maze
 from Character import Player, Ghost
 import time
+import random
 
 
 CELL = 80
@@ -86,7 +87,10 @@ class Game:
         self.ghosts_frozen_active = False
         self.level_normal_time = 180
         self.pass_level_active = False
-        self.levels_seeds = [42, 14, 26, 39, 52, 78, 71, 84, 93, 11]
+        # self.levels_seeds = [42, 14, 26, 39, 52, 78, 71, 84, 93, 11]
+        self.levels_seeds = [42] + [
+            random.randint(0, 1_000_000) for _ in range(9)
+        ]
 
         self.pacgum_points = 10
         self.supergum_points = 50

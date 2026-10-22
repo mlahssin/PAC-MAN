@@ -1,7 +1,7 @@
 from mazegenerator import MazeGenerator
 
 from collections import deque
-
+import sys
 
 DIRECTIONS = {
     "up": (0, -1, 1, 4),
@@ -35,6 +35,7 @@ class Maze:
         Raises:
             TypeError: If width, height, or seed are not integers.
             ValueError: If dimensions or seed are out of range.
+            SystemExit: If the external maze generator fails.
         """
 
         if not isinstance(width, int) or not isinstance(height, int):
@@ -59,7 +60,8 @@ class Maze:
                 seed=seed,
             ).maze
         except Exception as e:
-            raise RuntimeError(f"Maze generator failed: {e}") from e
+            print(f"Error: maze generator failed: {e}", file=sys.stderr)
+            sys.exit(1)
 
     def is_inside(self, pos: tuple[int, int]) -> bool:
         """Check whether a position is inside the maze boundaries.

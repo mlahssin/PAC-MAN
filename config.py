@@ -21,7 +21,7 @@ class Settings(BaseModel):
 
     Attributes:
         highscore_filename: File path for persisting the high-score list.
-        lives: Number of starting lives (1..9). Defaults to 3.
+        lives: Number of starting lives (1..3). Defaults to 3.
         pacgum: Total number of pacgums per level. Defaults to 42.
         points_per_pacgum: Score per collected pacgum. Defaults to 10.
         points_per_super_pacgum: Score per super-pacgum. Defaults to 50.
@@ -32,7 +32,7 @@ class Settings(BaseModel):
     """
 
     highscore_filename: str = Field(default="highscores.json")
-    lives: int = Field(default=3, ge=1, le=9, strict=True)
+    lives: int = Field(default=3, ge=1, le=3, strict=True)
     pacgum: int = Field(default=42, ge=0, le=500, strict=True)
     points_per_pacgum: int = Field(default=10, ge=0, strict=True)
     points_per_super_pacgum: int = Field(default=50, ge=0, strict=True)
