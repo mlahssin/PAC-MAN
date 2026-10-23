@@ -155,6 +155,8 @@ class GameOver(Scene):
 
         self.app.leadearboard.add_scores(self.name, self.app.last_score)
 
+        self.name = ""
+
         self.app.change_scene("menu")
 
     def draw(self, screen: pygame.Surface) -> None:
