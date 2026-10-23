@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from typing import Any
 
 import pygame
@@ -7,7 +5,7 @@ from scenes.base import Scene
 import time
 
 FONT = "assets/fonts/Bangers-Regular.ttf"
-# the layout was designed for this window size
+
 DESIGN_W = 1200
 DESIGN_H = 800
 
@@ -43,9 +41,8 @@ class Pause(Scene):
 
         self.width, self.height = self.app.window.get_size()
 
-        # how much bigger than the design: 2100x1500 -> 1.75
         self.scale = min(self.width / DESIGN_W, self.height / DESIGN_H)
-        # empty space left at the top so the layout is centered vertically
+
         self.top = (self.height - int(DESIGN_H * self.scale)) // 2
 
         try:
@@ -67,7 +64,6 @@ class Pause(Scene):
             self.app.running = False
             return
 
-        # one Rect per button, used to draw AND to detect clicks
         self.button_rects = []
         y = self.y(300)
         for i in range(4):

@@ -1,7 +1,3 @@
-"""Main menu scene: PLAY, INSTRUCTIONS, LEADERBOARD and QUIT."""
-
-from __future__ import annotations
-
 from typing import Any
 
 import pygame

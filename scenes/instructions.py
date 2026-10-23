@@ -1,7 +1,3 @@
-"""Instructions scene: explains the controls and the rules."""
-
-from __future__ import annotations
-
 from typing import Any
 
 import pygame

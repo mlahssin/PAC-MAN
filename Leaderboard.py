@@ -15,7 +15,6 @@ class Leaderboard_Engine:
         """Create the score file if needed and load existing scores."""
         self.scores: list[dict[str, Any]] = []
         self.file_name = Path(file_name)
-        print("File:", file_name)
         self.create_json_file()
         self.load_scores()
 
@@ -35,11 +34,6 @@ class Leaderboard_Engine:
             with open(self.file_name, "r") as f:
                 data = json.load(f)
             if isinstance(data, list):
-                # self.scores = [
-                #     e for e in data
-                #     if isinstance(e, dict)
-                #     and "name" in e and "score" in e
-                # ]
                 self.scores = [
                     e for e in data
                     if isinstance(e, dict)

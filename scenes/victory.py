@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from typing import Any
 
 import pygame
@@ -14,7 +12,6 @@ WHITE = (255, 255, 255)
 ICE_BLUE = (120, 220, 255)
 MEDALS = [(230, 180, 40), (190, 195, 205), (200, 120, 60)]
 
-# the layout was designed for this window size
 DESIGN_W = 1200
 DESIGN_H = 800
 
@@ -46,9 +43,8 @@ class Victory(Scene):
 
         self.width, self.height = self.app.window.get_size()
 
-        # how much bigger than the design: 2100x1500 -> 1.75
         self.scale = min(self.width / DESIGN_W, self.height / DESIGN_H)
-        # empty space left at the top so the layout is centered vertically
+
         self.top = (self.height - int(DESIGN_H * self.scale)) // 2
 
         try:
@@ -191,7 +187,6 @@ class Victory(Scene):
 
         screen.blit(self.background, (0, 0))
 
-        # title + subtitle (black copy shifted = shadow)
         self.write(screen, "VECTORY!", self.title_font, (0, 0, 0),
                    center=(center_x + shadow, self.y(64)))
         self.write(screen, "VECTORY!", self.title_font, VICTORY,
@@ -205,7 +200,6 @@ class Victory(Scene):
             self.subtitle_font, WHITE,
             center=(center_x, self.y(112)))
 
-        # scroll
         panel_x = center_x - self.panel_w // 2
         panel_y = self.y(145)
         screen.blit(self.scroll_panel, (panel_x, panel_y))
@@ -242,7 +236,6 @@ class Victory(Scene):
         )
         screen.blit(text, text_rect)
 
-        # back button
         screen.blit(self.save_button, self.back_rect)
         self.write(screen, "SAVE", self.button_font, WHITE,
                    center=(self.back_rect.centerx + self.s(10),

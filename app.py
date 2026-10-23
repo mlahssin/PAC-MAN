@@ -1,4 +1,3 @@
-from __future__ import annotations
 import pygame
 from scenes.game import GameScene
 from scenes.menu import MenuScene
@@ -47,6 +46,7 @@ class App:
 
         self.last_score = 0
         self.last_level = 1
+        self.highscore = 0
 
         self.leadearboard = Leaderboard_Engine(settings.highscore_filename)
 

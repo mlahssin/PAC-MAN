@@ -1,12 +1,7 @@
-"""Leaderboard scene: shows the top 10 highscores."""
-
-from __future__ import annotations
-
 from typing import Any
 
 import pygame
 from scenes.base import Scene
-# from ..Leaderboard import Leaderboard_Engine
 
 FONT = "assets/fonts/Bangers-Regular.ttf"
 DARK_BROWN = (45, 25, 15)
@@ -148,17 +143,14 @@ class Leaderboard(Scene):
         self.write(screen, "TOP 10 NINJAS", self.subtitle_font, WHITE,
                    center=(center_x, self.y(112)))
 
-        # scroll
         panel_x = center_x - self.panel_w // 2
         panel_y = self.y(145)
         screen.blit(self.scroll_panel, (panel_x, panel_y))
 
-        # columns
-        left = panel_x + self.s(130)          # rank
-        name_x = left + self.s(50)            # name
-        right = panel_x + self.panel_w - self.s(130)   # score (right edge)
+        left = panel_x + self.s(130)
+        name_x = left + self.s(50)
+        right = panel_x + self.panel_w - self.s(130)
 
-        # header
         y = panel_y + self.s(80)
         self.write(
             screen, "RANK", self.header_font, LIGHT_BROWN,

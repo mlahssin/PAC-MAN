@@ -1,4 +1,3 @@
-from __future__ import annotations
 import time
 from typing import Any
 import pygame
@@ -131,6 +130,14 @@ class GameScene(Scene):
             self.game.lives = self.app.settings.lives
 
             self.facing = "right"
+
+            self.get_highscore()
+
+    def get_highscore(self) -> None:
+        """Update app.highscore from the top entry in the leaderboard."""
+        scores = self.app.leadearboard.scores
+        if scores:
+            self.app.highscore = scores[0]["score"]
 
     def load_image(
         self, path: str, size: int
@@ -397,7 +404,7 @@ class GameScene(Scene):
 
         y = 200
         y = self.draw_board("SCORE", str(self.game.score), y)
-        y = self.draw_board("HIGH SCORE", "0048200", y)
+        y = self.draw_board("HIGH SCORE", str(self.app.highscore), y)
         y = self.draw_board("LEVEL", f"{level:02d} / 10", y)
         y = self.draw_board("LIVES", "", y)
 
