@@ -97,6 +97,10 @@ class Game:
         self.game_over = False
         self.game_won = False
 
+        self.pacgum_points: int = 0
+        self.supergum_points: int = 0
+        self.ed_ghost_points: int = 0
+
     def initialize_level(self) -> None:
         """Generate the maze and initialize entities and level state."""
 
