@@ -233,7 +233,7 @@ class Game:
                 for g in self.ghosts:
                     g.state = "EDIBLE"
 
-                self.edible_active_unitl = time.monotonic() + 100
+                self.edible_active_unitl = time.monotonic() + 10
 
     def detect_collision(self) -> Ghost | None:
         """Return the first ghost colliding with the player, if any.
