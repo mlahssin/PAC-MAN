@@ -1,7 +1,8 @@
+import os
 import sys
 import json
 from typing import Any
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field, ValidationError, field_validator
 
 
 class Settings(BaseModel):
@@ -17,6 +18,24 @@ class Settings(BaseModel):
     """
 
     highscore_filename: str = Field(default="highscores.json")
+
+    @field_validator("highscore_filename")
+    @classmethod
+    def must_be_json(cls, v: str) -> str:
+        """Reject filenames that do not end with '.json'.
+
+        Args:
+            v: The raw value of highscore_filename.
+
+        Returns:
+            The validated filename, unchanged.
+
+        Raises:
+            ValueError: If the filename does not end with '.json'.
+        """
+        if not v.endswith(".json"):
+            raise ValueError("must be a .json file")
+        return v
     lives: int = Field(default=3, ge=1, le=3, strict=True)
     points_per_pacgum: int = Field(default=10, ge=0, strict=True)
     points_per_super_pacgum: int = Field(default=50, ge=0, strict=True)
@@ -42,6 +61,27 @@ class Config:
 
         self.values: dict[str, Any] = {}
 
+    def _check_duplicates(self, pairs: list) -> dict:
+        """Raise JSONDecodeError if any key appears more than once.
+
+        Args:
+            pairs: List of (key, value) tuples from the JSON parser.
+
+        Returns:
+            A dict built from the pairs.
+
+        Raises:
+            json.JSONDecodeError: If a duplicate key is found.
+        """
+        seen = set()
+
+        for key, _ in pairs:
+            if key in seen:
+                raise json.JSONDecodeError(f"duplicate key '{key}'", "", 0)
+            seen.add(key)
+
+        return dict(pairs)
+
     def load_to_dict(self, text: str) -> dict[str, Any]:
         """Parse a JSON string into a dict, falling back to empty on error.
 
@@ -55,7 +95,7 @@ class Config:
             return {}
 
         try:
-            data = json.loads(text)
+            data = json.loads(text, object_pairs_hook=self._check_duplicates)
         except json.JSONDecodeError as error:
             self.warn(f"invalid JSON at line {error.lineno} "
                       f"({error.msg}), using defaults")
@@ -94,6 +134,15 @@ class Config:
         Returns:
             A Settings instance with defaults substituted for invalid values.
         """
+        if "highscore_filename" in data:
+            hsf = os.path.abspath(data["highscore_filename"])
+            if hsf == os.path.abspath(self.file):
+                self.warn(
+                    "'highscore_filename' cannot be the config file, "
+                    "using default"
+                )
+                data.pop("highscore_filename")
+
         for key in data:
             if key not in Settings.model_fields:
                 self.warn(f"unknown key '{key}', ignored")

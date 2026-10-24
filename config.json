@@ -1,6 +1,6 @@
 {
     "lives": 3,
-    "highscore_filename": "highscore.json",
+    "highscore_filename": "",
     "points_per_pacgum": 12,
     "points_per_ghost": 500
 }
