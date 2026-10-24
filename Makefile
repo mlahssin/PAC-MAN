@@ -6,10 +6,10 @@ install:
 	uv sync
 
 run:
-	uv run python main.py $(ARGS)
+	uv run python pac-man.py $(ARGS)
 
 debug:
-	uv run python -m pdb main.py $(ARGS)
+	uv run python -m pdb pac-man.py $(ARGS)
 
 clean:
 	find . -type d -name "__pycache__" -prune -exec rm -rf {} +

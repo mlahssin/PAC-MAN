@@ -7,7 +7,7 @@ def main() -> None:
     """Parse the command line, load the config, and start the app."""
 
     if len(sys.argv) != 2:
-        print("Usage: python main.py <map_file>")
+        print("Usage: python pac-man.py <config.json>")
         sys.exit(1)
 
     filepath = sys.argv[1]
