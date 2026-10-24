@@ -39,10 +39,11 @@ class Game:
 
     def __init__(
         self,
+        level_time: int,
         width: int = 15,
         height: int = 15,
         perfect: bool = False,
-        seed: int = 42,
+        seed: int = 42
     ) -> None:
         """Initialize game settings and prepare the first level.
 
@@ -84,16 +85,12 @@ class Game:
         self.cheat_mode = False
         self.invincible = False
         self.ghosts_frozen_active = False
-        self.level_normal_time = 180
+        self.level_normal_time = level_time
         self.pass_level_active = False
 
         self.levels_seeds = [42] + [
             random.randint(0, 1_000_000) for _ in range(9)
         ]
-
-        self.pacgum_points = 10
-        self.supergum_points = 50
-        self.ed_ghost_points = 200
 
         self.initialize_level()
 

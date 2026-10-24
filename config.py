@@ -4,42 +4,24 @@ from typing import Any
 from pydantic import BaseModel, Field, ValidationError
 
 
-class Level(BaseModel):
-    """Size of one level.
-
-    Attributes:
-        width: Number of maze columns (5..30). Defaults to 15.
-        height: Number of maze rows (5..30). Defaults to 15.
-    """
-
-    width: int = Field(default=15, ge=5, le=30, strict=True)
-    height: int = Field(default=15, ge=5, le=30, strict=True)
-
-
 class Settings(BaseModel):
     """All game settings validated from the config file.
 
     Attributes:
         highscore_filename: File path for persisting the high-score list.
         lives: Number of starting lives (1..3). Defaults to 3.
-        pacgum: Total number of pacgums per level. Defaults to 42.
         points_per_pacgum: Score per collected pacgum. Defaults to 10.
         points_per_super_pacgum: Score per super-pacgum. Defaults to 50.
         points_per_ghost: Score per eaten ghost. Defaults to 200.
-        seed: Random seed for the first level. Defaults to 42.
         level_max_time: Time limit per level in seconds. Defaults to 90.
-        levels: List of Level objects (at least one). Defaults to 10 levels.
     """
 
     highscore_filename: str = Field(default="highscores.json")
     lives: int = Field(default=3, ge=1, le=3, strict=True)
-    pacgum: int = Field(default=42, ge=0, le=500, strict=True)
     points_per_pacgum: int = Field(default=10, ge=0, strict=True)
     points_per_super_pacgum: int = Field(default=50, ge=0, strict=True)
     points_per_ghost: int = Field(default=200, ge=0, strict=True)
-    seed: int = Field(default=42, ge=0, strict=True)
     level_max_time: int = Field(default=90, ge=10, le=600, strict=True)
-    levels: list[Level] = Field(default=[Level()] * 10, min_length=1)
 
 
 class Config:
@@ -57,6 +39,7 @@ class Config:
             file: Path to the JSON config file.
         """
         self.file = file
+
         self.values: dict[str, Any] = {}
 
     def load_to_dict(self, text: str) -> dict[str, Any]:

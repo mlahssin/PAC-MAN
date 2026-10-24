@@ -78,7 +78,7 @@ class Character:
         self.x_pix = (pos[0] * CELL) + CELL / 2
         self.y_pix = (pos[1] * CELL) + CELL / 2
 
-        self.normal_frames_per_cell = 20
+        self.normal_frames_per_cell = 18
         self.frames_per_cell = self.normal_frames_per_cell
 
         self.target_pos: tuple[int, int] | None = None

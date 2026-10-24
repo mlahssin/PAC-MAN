@@ -49,8 +49,6 @@ class GameScene(Scene):
         self.game: Game | None = None
         self.facing = "right"
 
-        self.seed = self.app.settings.seed
-
         self.player_right = self.load_image(
             "assets/player/player1.png", CELL - 8)
         self.player_left = self.load_image(
@@ -118,7 +116,9 @@ class GameScene(Scene):
         """Start a new game when entering fresh, or resume after game-over."""
         if self.game is None or self.game.game_over:
             try:
-                self.game = Game(ROWS, COLS, perfect=False, seed=self.seed)
+                self.game = Game(
+                    self.app.settings.level_max_time, ROWS, COLS, perfect=False
+                )
             except RuntimeError as e:
                 print(f"Error: could not initialize game: {e}")
                 self.app.running = False
@@ -128,6 +128,7 @@ class GameScene(Scene):
                 self.app.settings.points_per_super_pacgum)
             self.game.ed_ghost_points = self.app.settings.points_per_ghost
             self.game.lives = self.app.settings.lives
+            self.game.level_normal_time = self.app.settings.level_max_time
 
             self.facing = "right"
 
